@@ -44,6 +44,7 @@ export class NotificationListComponent implements OnInit {
       case 'Processing': return 'badge-info';
       case 'Sent': return 'badge-success';
       case 'Failed': return 'badge-error';
+      case 'PermanentlyFailed': return 'badge-error';
       case 'Cancelled': return 'badge-warning';
       default: return 'badge-secondary';
     }

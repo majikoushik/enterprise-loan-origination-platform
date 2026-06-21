@@ -21,12 +21,11 @@ public class EligibilityResult
     
     public string DecisionSummary { get; private set; } = string.Empty;
 
-    private readonly List<RuleResult> _ruleResults;
-    public IReadOnlyCollection<RuleResult> RuleResults => _ruleResults.AsReadOnly();
+    public ICollection<RuleResult> RuleResults { get; private set; }
 
     private EligibilityResult()
     {
-        _ruleResults = new List<RuleResult>();
+        RuleResults = new List<RuleResult>();
     }
 
     public EligibilityResult(
@@ -51,10 +50,10 @@ public class EligibilityResult
             ? Math.Round((existingEmiObligations / declaredMonthlyIncome) * 100, 2) 
             : 0;
 
-        _ruleResults = ruleResults?.ToList() ?? new List<RuleResult>();
+        RuleResults = ruleResults?.ToList() ?? new List<RuleResult>();
 
         // Decision Logic
-        if (_ruleResults.All(r => r.Passed))
+        if (RuleResults.All(r => r.Passed))
         {
             Decision = EligibilityDecision.Passed;
             DecisionSummary = "All eligibility rules passed.";
@@ -62,7 +61,7 @@ public class EligibilityResult
         else
         {
             Decision = EligibilityDecision.Failed;
-            var failedRulesCount = _ruleResults.Count(r => !r.Passed);
+            var failedRulesCount = RuleResults.Count(r => !r.Passed);
             DecisionSummary = $"{failedRulesCount} eligibility rule(s) failed.";
         }
     }

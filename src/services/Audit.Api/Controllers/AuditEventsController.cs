@@ -21,6 +21,8 @@ public class AuditEventsController : ControllerBase
     }
 
     [HttpPost("events")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> IngestEvent([FromBody] AuditEventRecord record, CancellationToken cancellationToken)
     {
         var auditEvent = new AuditEvent(
@@ -46,7 +48,7 @@ public class AuditEventsController : ControllerBase
 
         _logger.LogInformation("Ingested audit event {EventId} of type {EventType} from {SourceService}", record.EventId, record.EventType, record.SourceService);
 
-        return Ok();
+        return Created($"/api/v1/audit/events/{record.EventId}", null);
     }
 
     [HttpGet("events")]

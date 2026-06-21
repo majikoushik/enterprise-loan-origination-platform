@@ -19,6 +19,7 @@ public class NotificationRequest
     public DateTimeOffset CreatedAtUtc { get; private set; }
     public DateTimeOffset? ProcessedAtUtc { get; private set; }
     public string? FailureReason { get; private set; }
+    public int RetryCount { get; private set; }
 
     private readonly List<NotificationDeliveryAttempt> _deliveryAttempts = new();
     public IReadOnlyCollection<NotificationDeliveryAttempt> DeliveryAttempts => _deliveryAttempts.AsReadOnly();
@@ -69,6 +70,23 @@ public class NotificationRequest
         FailureReason = reason;
         ProcessedAtUtc = DateTimeOffset.UtcNow;
         AddAttempt(NotificationStatus.Failed, providerResponse, reason);
+    }
+
+    public void MarkForRetry(string reason, string? providerResponse = null)
+    {
+        RetryCount++;
+        Status = NotificationStatus.Pending;
+        FailureReason = reason;
+        ProcessedAtUtc = null;
+        AddAttempt(NotificationStatus.Failed, providerResponse, reason);
+    }
+
+    public void MarkPermanentlyFailed(string reason, string? providerResponse = null)
+    {
+        Status = NotificationStatus.PermanentlyFailed;
+        FailureReason = reason;
+        ProcessedAtUtc = DateTimeOffset.UtcNow;
+        AddAttempt(NotificationStatus.PermanentlyFailed, providerResponse, reason);
     }
 
     private void AddAttempt(NotificationStatus status, string? providerResponse, string? failureReason)

@@ -13,4 +13,5 @@ export interface NotificationRequestResponse {
   createdAtUtc: string;
   processedAtUtc?: string;
   failureReason?: string;
+  retryCount: number;
 }

@@ -30,6 +30,15 @@ public class CustomerService : ICustomerService
 
     public async Task<CustomerResponse> RegisterCustomerAsync(CustomerRegistrationRequest request, CancellationToken cancellationToken = default)
     {
+        // Check if email already exists
+        bool emailExists = await _dbContext.Customers
+            .AnyAsync(c => c.Email == request.Email, cancellationToken);
+            
+        if (emailExists)
+        {
+            throw new CustomerDomainException("A customer with this email already exists.");
+        }
+
         // Domain validation happens in the entity constructor
         var customer = new CustomerProfile(
             request.FullName,
@@ -40,15 +49,6 @@ public class CustomerService : ICustomerService
             request.MonthlyIncome,
             request.ExistingMonthlyObligations
         );
-
-        // Check if email already exists
-        bool emailExists = await _dbContext.Customers
-            .AnyAsync(c => c.Email == request.Email, cancellationToken);
-            
-        if (emailExists)
-        {
-            throw new CustomerDomainException("A customer with this email already exists.");
-        }
 
         _dbContext.Customers.Add(customer);
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -93,6 +93,7 @@ public class CustomerService : ICustomerService
         var customers = await _dbContext.Customers
             .AsNoTracking()
             .OrderByDescending(c => c.CreatedAt)
+            .Take(50)
             .ToListAsync(cancellationToken);
 
         return customers.Select(MapToResponse);

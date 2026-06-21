@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Eligibility.Api.Application.DTOs;
-using Eligibility.Api.Domain.Exceptions;
 using Eligibility.Api.Domain.Models;
 using Eligibility.Api.Domain.Rules;
 using Eligibility.Api.Infrastructure.Data;
@@ -11,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Observability;
 using Auditing;
+using SharedKernel.Exceptions;
 
 namespace Eligibility.Api.Application.Services;
 
@@ -21,7 +21,7 @@ public class EligibilityService : IEligibilityService
     private readonly ILogger<EligibilityService> _logger;
     private readonly CorrelationIdProvider _correlationIdProvider;
     private readonly IAuditLogger _auditLogger;
-    private readonly RuleEngine _ruleEngine;
+    private readonly IRuleEngine _ruleEngine;
 
     public EligibilityService(
         EligibilityDbContext dbContext,
@@ -29,7 +29,7 @@ public class EligibilityService : IEligibilityService
         ILogger<EligibilityService> logger,
         CorrelationIdProvider correlationIdProvider,
         IAuditLogger auditLogger,
-        RuleEngine ruleEngine)
+        IRuleEngine ruleEngine)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _loanApplicationClient = loanApplicationClient ?? throw new ArgumentNullException(nameof(loanApplicationClient));
@@ -45,7 +45,7 @@ public class EligibilityService : IEligibilityService
         var applicationData = await _loanApplicationClient.GetApplicationDataAsync(request.ApplicationId, cancellationToken);
         if (applicationData == null)
         {
-            throw new EligibilityDomainException($"Loan application with ID {request.ApplicationId} could not be found.");
+            throw new NotFoundException($"Loan application with ID {request.ApplicationId} could not be found.");
         }
 
         // 2. Evaluate rules
@@ -83,7 +83,7 @@ public class EligibilityService : IEligibilityService
     public async Task<EligibilityResultResponse?> GetByApplicationIdAsync(Guid applicationId, CancellationToken cancellationToken = default)
     {
         var result = await _dbContext.EligibilityResults
-            .Include("_ruleResults")
+            .Include(r => r.RuleResults)
             .AsNoTracking()
             .OrderByDescending(r => r.EvaluatedAt)
             .FirstOrDefaultAsync(r => r.ApplicationId == applicationId, cancellationToken);
@@ -94,7 +94,7 @@ public class EligibilityService : IEligibilityService
     public async Task<EligibilityResultResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var result = await _dbContext.EligibilityResults
-            .Include("_ruleResults")
+            .Include(r => r.RuleResults)
             .AsNoTracking()
             .FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
 

@@ -3,7 +3,13 @@ using Eligibility.Api.Domain.Models;
 
 namespace Eligibility.Api.Domain.Rules;
 
-public class RuleEngine
+public interface IRuleEngine
+{
+    string Version { get; }
+    EligibilityResult Evaluate(LoanApplicationData data);
+}
+
+public class RuleEngine : IRuleEngine
 {
     private readonly IEnumerable<IEligibilityRule> _rules;
 

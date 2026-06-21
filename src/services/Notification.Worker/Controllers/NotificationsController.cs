@@ -37,7 +37,8 @@ public class NotificationsController : ControllerBase
                 Status = n.Status.ToString(),
                 CreatedAtUtc = n.CreatedAtUtc,
                 ProcessedAtUtc = n.ProcessedAtUtc,
-                FailureReason = n.FailureReason
+                FailureReason = n.FailureReason,
+                RetryCount = n.RetryCount
             })
             .ToListAsync();
 

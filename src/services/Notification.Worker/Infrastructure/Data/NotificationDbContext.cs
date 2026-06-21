@@ -20,12 +20,14 @@ public class NotificationDbContext : DbContext
         modelBuilder.Entity<NotificationRequest>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.CorrelationId).HasMaxLength(100);
             entity.Property(e => e.EventType).HasMaxLength(100).IsRequired();
             entity.Property(e => e.EntityType).HasMaxLength(100);
             entity.Property(e => e.Recipient).HasMaxLength(255).IsRequired();
             entity.Property(e => e.Subject).HasMaxLength(255).IsRequired();
             entity.Property(e => e.MessageBody).IsRequired();
+            entity.Property(e => e.RetryCount).IsRequired();
 
             entity.HasMany(e => e.DeliveryAttempts)
                   .WithOne()
@@ -38,6 +40,7 @@ public class NotificationDbContext : DbContext
         modelBuilder.Entity<NotificationDeliveryAttempt>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.ProviderResponse).HasMaxLength(1000);
             entity.Property(e => e.FailureReason).HasMaxLength(1000);
         });

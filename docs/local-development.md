@@ -24,6 +24,18 @@ Run a single service:
 dotnet run --project src/services/LoanApplication.Api/LoanApplication.Api.csproj
 ```
 
+## Docker Compose
+
+```powershell
+Copy-Item .env.example .env
+# Edit .env and set SQL_SERVER_PASSWORD to a strong local-only password.
+docker compose up -d sqlserver
+docker compose --profile services up --build
+docker compose --profile frontend up --build
+```
+
+The `.env` file is intentionally gitignored. Do not commit local SQL passwords or cloud credentials.
+
 ## Frontend Development
 
 ```powershell

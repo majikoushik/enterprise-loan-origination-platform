@@ -31,14 +31,10 @@ public class EligibilityResultConfiguration : IEntityTypeConfiguration<Eligibili
         builder.Property(e => e.ExistingEmiObligations).HasColumnType("decimal(18,2)");
         builder.Property(e => e.DebtToIncomeRatio).HasColumnType("decimal(18,2)");
 
-        // Configure private backing field for RuleResults
         builder.HasMany(e => e.RuleResults)
             .WithOne()
             .HasForeignKey("EligibilityResultId")
             .OnDelete(DeleteBehavior.Cascade);
-            
-        builder.Metadata.FindNavigation(nameof(EligibilityResult.RuleResults))!
-            .SetPropertyAccessMode(PropertyAccessMode.Field);
     }
 }
 

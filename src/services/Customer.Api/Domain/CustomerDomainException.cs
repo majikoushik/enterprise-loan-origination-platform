@@ -1,17 +1,10 @@
-using System;
+using SharedKernel.Exceptions;
 
 namespace Customer.Api.Domain;
 
-public class CustomerDomainException : Exception
+public class CustomerDomainException : DomainException
 {
-    public CustomerDomainException()
-    { }
-
     public CustomerDomainException(string message)
         : base(message)
-    { }
-
-    public CustomerDomainException(string message, Exception innerException)
-        : base(message, innerException)
     { }
 }

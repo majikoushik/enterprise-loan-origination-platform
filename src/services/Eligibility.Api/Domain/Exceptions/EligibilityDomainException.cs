@@ -1,17 +1,10 @@
-using System;
+using SharedKernel.Exceptions;
 
 namespace Eligibility.Api.Domain.Exceptions;
 
-public class EligibilityDomainException : Exception
+public class EligibilityDomainException : DomainException
 {
-    public EligibilityDomainException()
-    { }
-
     public EligibilityDomainException(string message)
         : base(message)
-    { }
-
-    public EligibilityDomainException(string message, Exception innerException)
-        : base(message, innerException)
     { }
 }

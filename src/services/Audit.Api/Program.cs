@@ -23,11 +23,14 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+var connectionString = builder.Configuration.GetConnectionString("AuditDb")
+    ?? throw new InvalidOperationException("Connection string 'AuditDb' not found.");
+
 builder.Services.AddDbContext<AuditDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AuditDb")));
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddStandardHealthChecks()
-    .AddSqlServer(builder.Configuration.GetConnectionString("AuditDb") ?? string.Empty, name: "AuditDb", tags: ["ready"]);
+    .AddSqlServer(connectionString, name: "AuditDb", tags: ["ready"]);
 
 builder.Services.AddHealthChecks();
 
@@ -35,7 +38,10 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? Array.Empty<string>();
+
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -47,7 +53,7 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<AuditDbContext>();
-    dbContext.Database.EnsureCreated();
+    await dbContext.Database.MigrateAsync();
 }
 
 app.UseExceptionHandler();

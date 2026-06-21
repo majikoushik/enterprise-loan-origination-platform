@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace LoanApplication.Api.Application.Services;
 
+[Obsolete("Use only in unit tests. Runtime DI should use HttpCustomerLookupService so loan submissions validate customer existence.")]
 public class StubCustomerLookupService : ICustomerLookupService
 {
     public Task<bool> CustomerExistsAsync(Guid customerId, CancellationToken cancellationToken = default)

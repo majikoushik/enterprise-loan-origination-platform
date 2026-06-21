@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { AuditApiResponse } from '../models/audit.model';
 import { environment } from '../../../environments/environment';
 
@@ -14,28 +13,10 @@ export class AuditService {
   constructor(private http: HttpClient) { }
 
   getEvents(): Observable<AuditApiResponse> {
-    return this.http.get<AuditApiResponse>(`${this.apiUrl}/events`).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.get<AuditApiResponse>(`${this.apiUrl}/events`);
   }
 
   getEventsByEntity(entityType: string, entityId: string): Observable<AuditApiResponse> {
-    return this.http.get<AuditApiResponse>(`${this.apiUrl}/entity/${entityType}/${entityId}`).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  private handleError(error: HttpErrorResponse) {
-    let errorMessage = 'An unknown error occurred!';
-    if (error.error instanceof ErrorEvent) {
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      if (error.error && error.error.detail) {
-        errorMessage = error.error.detail;
-      } else {
-        errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
-      }
-    }
-    return throwError(() => new Error(errorMessage));
+    return this.http.get<AuditApiResponse>(`${this.apiUrl}/entity/${entityType}/${entityId}`);
   }
 }

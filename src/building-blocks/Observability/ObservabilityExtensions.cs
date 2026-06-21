@@ -14,7 +14,7 @@ public static class ObservabilityExtensions
     public static IServiceCollection AddCorrelationIdSupport(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
-        services.TryAddScoped<CorrelationIdProvider>();
+        services.TryAddSingleton<CorrelationIdProvider>();
 
         return services;
     }

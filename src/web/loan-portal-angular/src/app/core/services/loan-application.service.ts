@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { LoanApplicationRequest, LoanApplicationResponse, ApplicationStatusHistoryResponse, UpdateApplicationStatusRequest } from '../models/loan-application.model';
+import { ApiResponse } from '../models/api-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,52 +14,26 @@ export class LoanApplicationService {
   constructor(private http: HttpClient) { }
 
   submitApplication(request: LoanApplicationRequest): Observable<LoanApplicationResponse> {
-    return this.http.post<LoanApplicationResponse>(this.apiUrl, request).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.post<ApiResponse<LoanApplicationResponse>>(this.apiUrl, request).pipe(map(response => response.data));
   }
 
   getApplications(): Observable<LoanApplicationResponse[]> {
-    return this.http.get<LoanApplicationResponse[]>(this.apiUrl).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.get<ApiResponse<LoanApplicationResponse[]>>(this.apiUrl).pipe(map(response => response.data));
   }
 
   getApplication(id: string): Observable<LoanApplicationResponse> {
-    return this.http.get<LoanApplicationResponse>(`${this.apiUrl}/${id}`).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.get<ApiResponse<LoanApplicationResponse>>(`${this.apiUrl}/${id}`).pipe(map(response => response.data));
   }
 
   getApplicationsByCustomer(customerId: string): Observable<LoanApplicationResponse[]> {
-    return this.http.get<LoanApplicationResponse[]>(`${this.apiUrl}/customer/${customerId}`).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.get<ApiResponse<LoanApplicationResponse[]>>(`${this.apiUrl}/customer/${customerId}`).pipe(map(response => response.data));
   }
 
   getApplicationStatusHistory(id: string): Observable<ApplicationStatusHistoryResponse[]> {
-    return this.http.get<ApplicationStatusHistoryResponse[]>(`${this.apiUrl}/${id}/status-history`).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.get<ApiResponse<ApplicationStatusHistoryResponse[]>>(`${this.apiUrl}/${id}/status-history`).pipe(map(response => response.data));
   }
 
   updateApplicationStatus(id: string, request: UpdateApplicationStatusRequest): Observable<LoanApplicationResponse> {
-    return this.http.patch<LoanApplicationResponse>(`${this.apiUrl}/${id}/status`, request).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  private handleError(error: HttpErrorResponse) {
-    let errorMessage = 'An unknown error occurred!';
-    if (error.error instanceof ErrorEvent) {
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      if (error.error && error.error.detail) {
-        errorMessage = error.error.detail;
-      } else {
-        errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
-      }
-    }
-    return throwError(() => new Error(errorMessage));
+    return this.http.patch<ApiResponse<LoanApplicationResponse>>(`${this.apiUrl}/${id}/status`, request).pipe(map(response => response.data));
   }
 }

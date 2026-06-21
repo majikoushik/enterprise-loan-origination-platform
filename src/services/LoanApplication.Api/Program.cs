@@ -6,6 +6,7 @@ using Auditing;
 using LoanApplication.Api.Infrastructure.Data;
 using LoanApplication.Api.Application.Services;
 using LoanApplication.Api.Application.Validators;
+using LoanApplication.Api.Infrastructure.Integration;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
 
@@ -27,8 +28,14 @@ builder.Services.AddDbContext<LoanApplicationDbContext>(options =>
 
 // Add Application Services
 builder.Services.AddScoped<ILoanApplicationService, LoanApplicationService>();
-builder.Services.AddScoped<ICustomerLookupService, StubCustomerLookupService>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoanApplicationRequestValidator>();
+
+var customerApiUrl = builder.Configuration["ServiceUrls:CustomerApi"]
+    ?? throw new InvalidOperationException("CustomerApi URL not configured.");
+builder.Services.AddHttpClient<ICustomerLookupService, HttpCustomerLookupService>(client =>
+{
+    client.BaseAddress = new Uri(customerApiUrl);
+});
 
 // Configure HTTP Event Publisher for MVP simulation of Azure Service Bus
 builder.Services.AddHttpClient<IMessagePublisher, HttpEventPublisher>(client =>
@@ -59,7 +66,10 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:4200")
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? Array.Empty<string>();
+
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -73,7 +83,7 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<LoanApplicationDbContext>();
-    dbContext.Database.EnsureCreated();
+    await dbContext.Database.MigrateAsync();
 }
 
 app.UseExceptionHandler();

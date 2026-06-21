@@ -28,7 +28,7 @@ public class EligibilityServiceTests
             .Options;
     }
 
-    private static EligibilityService CreateService(EligibilityDbContext dbContext, ILoanApplicationClient loanApplicationClient, RuleEngine ruleEngine)
+    private static EligibilityService CreateService(EligibilityDbContext dbContext, ILoanApplicationClient loanApplicationClient, IRuleEngine ruleEngine)
     {
         var auditLoggerMock = new Mock<IAuditLogger>();
         auditLoggerMock
@@ -138,6 +138,6 @@ public class EligibilityServiceTests
         Func<Task> act = async () => await service.EvaluateAsync(request);
 
         // Assert
-        await act.Should().ThrowAsync<EligibilityDomainException>();
+        await act.Should().ThrowAsync<SharedKernel.Exceptions.NotFoundException>();
     }
 }

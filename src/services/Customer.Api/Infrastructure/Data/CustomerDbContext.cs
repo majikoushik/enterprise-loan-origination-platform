@@ -26,6 +26,8 @@ public class CustomerDbContext : DbContext
 
         // We use reflection or an anonymous type/bypass to seed since we have private setters
         // For EF core seeding, we can use the anonymous object approach.
+        var seededAt = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         modelBuilder.Entity<CustomerProfile>().HasData(
             new 
             {
@@ -37,7 +39,7 @@ public class CustomerDbContext : DbContext
                 EmploymentType = EmploymentType.Salaried,
                 MonthlyIncome = 5000m,
                 ExistingMonthlyObligations = 1000m,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = seededAt
             },
             new 
             {
@@ -49,7 +51,7 @@ public class CustomerDbContext : DbContext
                 EmploymentType = EmploymentType.SelfEmployed,
                 MonthlyIncome = 8000m,
                 ExistingMonthlyObligations = 2000m,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = seededAt
             }
         );
     }

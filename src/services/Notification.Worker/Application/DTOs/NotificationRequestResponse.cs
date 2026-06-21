@@ -18,4 +18,5 @@ public class NotificationRequestResponse
     public DateTimeOffset CreatedAtUtc { get; set; }
     public DateTimeOffset? ProcessedAtUtc { get; set; }
     public string? FailureReason { get; set; }
+    public int RetryCount { get; set; }
 }

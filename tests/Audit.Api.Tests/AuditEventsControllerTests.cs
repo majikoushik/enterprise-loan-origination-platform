@@ -57,7 +57,7 @@ public class AuditEventsControllerTests
         var result = await controller.IngestEvent(eventRecord, CancellationToken.None);
 
         // Assert
-        result.Should().BeOfType<OkResult>();
+        result.Should().BeOfType<CreatedResult>();
 
         var savedEvents = await dbContext.AuditEvents.ToListAsync();
         savedEvents.Should().HaveCount(1);

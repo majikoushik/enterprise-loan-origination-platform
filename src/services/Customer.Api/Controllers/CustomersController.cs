@@ -6,6 +6,10 @@ using Customer.Api.Application.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Observability;
+using SharedKernel;
+using SharedKernel.Exceptions;
+using SharedValidationException = SharedKernel.Exceptions.ValidationException;
 
 namespace Customer.Api.Controllers;
 
@@ -15,75 +19,54 @@ public class CustomersController : ControllerBase
 {
     private readonly ICustomerService _customerService;
     private readonly IValidator<CustomerRegistrationRequest> _validator;
+    private readonly CorrelationIdProvider _correlationIdProvider;
 
     public CustomersController(
         ICustomerService customerService,
-        IValidator<CustomerRegistrationRequest> validator)
+        IValidator<CustomerRegistrationRequest> validator,
+        CorrelationIdProvider correlationIdProvider)
     {
         _customerService = customerService;
         _validator = validator;
+        _correlationIdProvider = correlationIdProvider;
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<CustomerResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RegisterCustomer([FromBody] CustomerRegistrationRequest request)
     {
         var validationResult = await _validator.ValidateAsync(request);
         if (!validationResult.IsValid)
         {
-            var problemDetails = new ValidationProblemDetails(validationResult.ToDictionary())
-            {
-                Type = "https://example.com/problems/validation-error",
-                Title = "Validation failed",
-                Status = StatusCodes.Status400BadRequest,
-                Detail = "One or more validation errors occurred."
-            };
-            return BadRequest(problemDetails);
+            throw new SharedValidationException(validationResult.ToDictionary());
         }
 
-        try
-        {
-            var response = await _customerService.RegisterCustomerAsync(request);
-            return CreatedAtAction(nameof(GetCustomer), new { id = response.Id }, response);
-        }
-        catch (Domain.CustomerDomainException ex)
-        {
-            return BadRequest(new ProblemDetails
-            {
-                Type = "https://example.com/problems/domain-rule-violation",
-                Title = "Domain Rule Violation",
-                Status = StatusCodes.Status400BadRequest,
-                Detail = ex.Message
-            });
-        }
+        var response = await _customerService.RegisterCustomerAsync(request);
+        return CreatedAtAction(nameof(GetCustomer), new { id = response.Id }, ApiResponse<CustomerResponse>.Create(response, GetCorrelationId()));
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof(CustomerResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<CustomerResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCustomer(Guid id)
     {
         var response = await _customerService.GetCustomerByIdAsync(id);
         if (response == null)
         {
-            return NotFound(new ProblemDetails
-            {
-                Type = "https://example.com/problems/not-found",
-                Title = "Customer Not Found",
-                Status = StatusCodes.Status404NotFound,
-                Detail = $"Customer with ID {id} was not found."
-            });
+            throw new NotFoundException($"Customer with ID {id} was not found.");
         }
 
-        return Ok(response);
+        return Ok(ApiResponse<CustomerResponse>.Create(response, GetCorrelationId()));
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<CustomerResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<IEnumerable<CustomerResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllCustomers()
     {
         var response = await _customerService.GetAllCustomersAsync();
-        return Ok(response);
+        return Ok(ApiResponse<IEnumerable<CustomerResponse>>.Create(response, GetCorrelationId()));
     }
+
+    private string GetCorrelationId() => _correlationIdProvider.Get();
 }

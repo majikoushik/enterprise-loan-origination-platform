@@ -6,5 +6,6 @@ public enum NotificationStatus
     Processing = 2,
     Sent = 3,
     Failed = 4,
-    Cancelled = 5
+    PermanentlyFailed = 5,
+    Cancelled = 6
 }

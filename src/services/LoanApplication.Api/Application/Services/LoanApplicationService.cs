@@ -12,6 +12,7 @@ using Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Observability;
+using SharedKernel.Exceptions;
 
 namespace LoanApplication.Api.Application.Services;
 
@@ -99,6 +100,7 @@ public class LoanApplicationService : ILoanApplicationService
             .AsNoTracking()
             .Where(a => a.CustomerId == customerId)
             .OrderByDescending(a => a.CreatedAt)
+            .Take(50)
             .ToListAsync(cancellationToken);
 
         return applications.Select(MapToResponse);
@@ -109,6 +111,7 @@ public class LoanApplicationService : ILoanApplicationService
         var applications = await _dbContext.LoanApplications
             .AsNoTracking()
             .OrderByDescending(a => a.CreatedAt)
+            .Take(50)
             .ToListAsync(cancellationToken);
 
         return applications.Select(MapToResponse);
@@ -123,7 +126,7 @@ public class LoanApplicationService : ILoanApplicationService
 
         if (application == null)
         {
-            throw new LoanApplicationDomainException($"Loan application with ID {id} could not be found.");
+            throw new NotFoundException($"Loan application with ID {id} could not be found.");
         }
 
         if (!Enum.TryParse<ApplicationStatus>(request.NewStatus, true, out var newStatusEnum))
@@ -165,7 +168,7 @@ public class LoanApplicationService : ILoanApplicationService
         var integrationEvent = new LoanApplicationStatusChangedEvent(
             Guid.NewGuid(),
             DateTimeOffset.UtcNow,
-            Guid.NewGuid().ToString(), // simple correlation id
+            _correlationIdProvider.Get(),
             application.Id,
             newHistoryRecord.PreviousStatus?.ToString() ?? "Draft",
             newStatusEnum.ToString(),
@@ -180,7 +183,9 @@ public class LoanApplicationService : ILoanApplicationService
         {
             // For MVP, don't fail the transaction if notification simulation fails. 
             // In a production system, use Outbox Pattern.
-            Console.WriteLine($"Warning: Failed to publish event. {ex.Message}");
+            _logger.LogWarning(ex,
+                "Failed to publish LoanApplicationStatusChangedEvent for Application {ApplicationId}. Event publishing was dropped for MVP; use the transactional outbox pattern in production.",
+                application.Id);
         }
 
         return MapToResponse(application);
@@ -195,7 +200,7 @@ public class LoanApplicationService : ILoanApplicationService
 
         if (application == null)
         {
-            throw new LoanApplicationDomainException($"Loan application with ID {id} could not be found.");
+            throw new NotFoundException($"Loan application with ID {id} could not be found.");
         }
 
         return application.StatusHistory.OrderByDescending(h => h.ChangedAt).Select(h => new ApplicationStatusHistoryResponse(

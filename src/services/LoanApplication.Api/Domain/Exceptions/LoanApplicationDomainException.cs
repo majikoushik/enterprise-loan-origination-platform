@@ -1,17 +1,10 @@
-using System;
+using SharedKernel.Exceptions;
 
 namespace LoanApplication.Api.Domain.Exceptions;
 
-public class LoanApplicationDomainException : Exception
+public class LoanApplicationDomainException : DomainException
 {
-    public LoanApplicationDomainException()
-    { }
-
     public LoanApplicationDomainException(string message)
         : base(message)
-    { }
-
-    public LoanApplicationDomainException(string message, Exception innerException)
-        : base(message, innerException)
     { }
 }
