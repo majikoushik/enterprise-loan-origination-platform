@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { LoanApplicationRequest, LoanApplicationResponse } from '../models/loan-application.model';
+import { environment } from '../../../environments/environment';
+import { LoanApplicationRequest, LoanApplicationResponse, ApplicationStatusHistoryResponse, UpdateApplicationStatusRequest } from '../models/loan-application.model';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +33,18 @@ export class LoanApplicationService {
 
   getApplicationsByCustomer(customerId: string): Observable<LoanApplicationResponse[]> {
     return this.http.get<LoanApplicationResponse[]>(`${this.apiUrl}/customer/${customerId}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getApplicationStatusHistory(id: string): Observable<ApplicationStatusHistoryResponse[]> {
+    return this.http.get<ApplicationStatusHistoryResponse[]>(`${this.apiUrl}/${id}/status-history`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  updateApplicationStatus(id: string, request: UpdateApplicationStatusRequest): Observable<LoanApplicationResponse> {
+    return this.http.patch<LoanApplicationResponse>(`${this.apiUrl}/${id}/status`, request).pipe(
       catchError(this.handleError)
     );
   }

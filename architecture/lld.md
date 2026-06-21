@@ -19,6 +19,7 @@ In Epic 1 and 2, `Customer.Api` and `LoanApplication.Api` introduced the standar
 
 In Epic 2, `LoanApplication.Api` further solidified this pattern, adding more complex domain rules.
 In Epic 3, `Eligibility.Api` introduced a Clean Architecture Rules Engine and synchronous HTTP integration (`ILoanApplicationClient`) for cross-service communication.
+In Epic 4, `LoanApplication.Api` implemented a strict State Machine within `LoanApplicationEntity` to enforce valid status transitions and append to a persistent `ApplicationStatusHistory` collection.
 
 ## Database Pattern
 

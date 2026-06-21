@@ -12,4 +12,6 @@ public interface ILoanApplicationService
     Task<LoanApplicationResponse?> GetApplicationByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IEnumerable<LoanApplicationResponse>> GetApplicationsByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken = default);
     Task<IEnumerable<LoanApplicationResponse>> GetAllApplicationsAsync(CancellationToken cancellationToken = default);
+    Task<LoanApplicationResponse> UpdateStatusAsync(Guid id, UpdateApplicationStatusRequest request, CancellationToken cancellationToken = default);
+    Task<IEnumerable<ApplicationStatusHistoryResponse>> GetStatusHistoryAsync(Guid id, CancellationToken cancellationToken = default);
 }

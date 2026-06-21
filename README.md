@@ -52,14 +52,15 @@ infra/
 
 ## Current Epic Status
 
-Epic 3: Eligibility Evaluation is complete.
+Epic 4: Application Status Tracking is complete.
 
 Implemented now:
 
 - Customer Registration (Epic 1)
 - Loan Application Submission (Epic 2)
 - Rule-based Eligibility Evaluation engine with synchronous cross-service API calls (Epic 3)
-- Angular portal for all three epics.
+- Application Status Tracking with strict state machine and timeline history (Epic 4)
+- Angular portal for all four epics.
 - Backend solution and service skeletons
 - Angular portal shell and route placeholders
 - Correlation ID readiness

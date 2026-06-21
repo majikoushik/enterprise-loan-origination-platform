@@ -47,7 +47,10 @@
           </td>
           <td>{{ app.createdAt | date:'mediumDate' }}</td>
           <td>
-            <a class="btn-link" [routerLink]="['/eligibility/check', app.id]" *ngIf="app.status === 2">
+            <a class="btn-link" [routerLink]="['/loan-applications', app.id]">
+              View Details
+            </a>
+            <a class="btn-link" [routerLink]="['/eligibility/check', app.id]" *ngIf="app.status === 2" style="margin-left: 0.5rem;">
               Evaluate
             </a>
             <a class="btn-link" [routerLink]="['/eligibility/results', app.id]" *ngIf="app.status > 3">

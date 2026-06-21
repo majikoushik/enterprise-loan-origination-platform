@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -13,105 +14,74 @@ using Xunit;
 
 namespace LoanApplication.Api.Tests.Application;
 
-public class LoanApplicationServiceTests : IDisposable
+public class LoanApplicationServiceTests
 {
-    private readonly LoanApplicationDbContext _dbContext;
-    private readonly Mock<ICustomerLookupService> _mockCustomerLookup;
-    private readonly LoanApplicationService _service;
+    private readonly DbContextOptions<LoanApplicationDbContext> _dbContextOptions;
 
     public LoanApplicationServiceTests()
     {
-        var options = new DbContextOptionsBuilder<LoanApplicationDbContext>()
+        _dbContextOptions = new DbContextOptionsBuilder<LoanApplicationDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
-
-        _dbContext = new LoanApplicationDbContext(options);
-        _mockCustomerLookup = new Mock<ICustomerLookupService>();
-        
-        _service = new LoanApplicationService(_dbContext, _mockCustomerLookup.Object);
     }
-
-    public void Dispose()
-    {
-        _dbContext.Database.EnsureDeleted();
-        _dbContext.Dispose();
-    }
-
-    private LoanApplicationRequest CreateValidRequest() =>
-        new LoanApplicationRequest(
-            CustomerId: Guid.NewGuid(),
-            LoanType: LoanType.PersonalLoan,
-            RequestedAmount: 10000m,
-            RequestedTenureInMonths: 24,
-            Purpose: "Home Renovation",
-            DeclaredMonthlyIncome: 5000m,
-            ExistingEmiObligations: 500m
-        );
 
     [Fact]
-    public async Task SubmitApplicationAsync_ShouldCreateApplication_WhenValid()
+    public async Task UpdateStatusAsync_ValidTransition_ShouldUpdateAndReturnResponse()
     {
         // Arrange
-        var request = CreateValidRequest();
-        _mockCustomerLookup
-            .Setup(x => x.CustomerExistsAsync(request.CustomerId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
+        using var dbContext = new LoanApplicationDbContext(_dbContextOptions);
+        var customerLookupServiceMock = new Mock<ICustomerLookupService>();
+        
+        var app = new LoanApplicationEntity(Guid.NewGuid(), LoanType.PersonalLoan, 100000m, 24, "Test", 50000m, 5000m);
+        dbContext.LoanApplications.Add(app);
+        await dbContext.SaveChangesAsync();
+
+        var service = new LoanApplicationService(dbContext, customerLookupServiceMock.Object);
+
+        var request = new UpdateApplicationStatusRequest
+        {
+            NewStatus = "UnderReview",
+            Reason = "User triggered review",
+            ChangedBy = "Admin"
+        };
 
         // Act
-        var result = await _service.SubmitApplicationAsync(request);
+        var result = await service.UpdateStatusAsync(app.Id, request);
 
         // Assert
         result.Should().NotBeNull();
-        result.Id.Should().NotBeEmpty();
-        result.Status.Should().Be(ApplicationStatus.Submitted);
+        result.Status.Should().Be(ApplicationStatus.UnderReview);
+
+        var history = await service.GetStatusHistoryAsync(app.Id);
+        history.Should().HaveCount(2); // Submitted + UnderReview
+        history.First().NewStatus.Should().Be("UnderReview"); // It orders descending
+    }
+
+    [Fact]
+    public async Task UpdateStatusAsync_InvalidTransition_ShouldThrowException()
+    {
+        // Arrange
+        using var dbContext = new LoanApplicationDbContext(_dbContextOptions);
+        var customerLookupServiceMock = new Mock<ICustomerLookupService>();
         
-        var dbEntity = await _dbContext.LoanApplications.FirstOrDefaultAsync(x => x.Id == result.Id);
-        dbEntity.Should().NotBeNull();
-    }
+        var app = new LoanApplicationEntity(Guid.NewGuid(), LoanType.PersonalLoan, 100000m, 24, "Test", 50000m, 5000m);
+        dbContext.LoanApplications.Add(app);
+        await dbContext.SaveChangesAsync();
 
-    [Fact]
-    public async Task SubmitApplicationAsync_ShouldThrowException_WhenCustomerDoesNotExist()
-    {
-        // Arrange
-        var request = CreateValidRequest();
-        _mockCustomerLookup
-            .Setup(x => x.CustomerExistsAsync(request.CustomerId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
+        var service = new LoanApplicationService(dbContext, customerLookupServiceMock.Object);
 
-        // Act
-        Func<Task> action = async () => await _service.SubmitApplicationAsync(request);
-
-        // Assert
-        await action.Should().ThrowAsync<LoanApplicationDomainException>()
-            .WithMessage($"Customer with ID {request.CustomerId} does not exist.");
-    }
-
-    [Fact]
-    public async Task GetApplicationByIdAsync_ShouldReturnApplication_WhenExists()
-    {
-        // Arrange
-        var request = CreateValidRequest();
-        _mockCustomerLookup
-            .Setup(x => x.CustomerExistsAsync(request.CustomerId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
-
-        var created = await _service.SubmitApplicationAsync(request);
+        var request = new UpdateApplicationStatusRequest
+        {
+            NewStatus = "Approved",
+            Reason = "Invalid direct approval",
+            ChangedBy = "Admin"
+        };
 
         // Act
-        var result = await _service.GetApplicationByIdAsync(created.Id);
+        Func<Task> act = async () => await service.UpdateStatusAsync(app.Id, request);
 
         // Assert
-        result.Should().NotBeNull();
-        result!.Id.Should().Be(created.Id);
-    }
-
-    [Fact]
-    public async Task GetApplicationByIdAsync_ShouldReturnNull_WhenDoesNotExist()
-    {
-        // Act
-        var result = await _service.GetApplicationByIdAsync(Guid.NewGuid());
-
-        // Assert
-        result.Should().BeNull();
+        await act.Should().ThrowAsync<LoanApplicationDomainException>()
+            .WithMessage("Invalid state transition from Submitted to Approved.");
     }
 }

@@ -12,6 +12,18 @@ public class LoanApplicationConfiguration : IEntityTypeConfiguration<LoanApplica
 
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.CreatedAt).IsRequired();
+        builder.Property(e => e.UpdatedAt).IsRequired();
+
+        // Configure private backing field for StatusHistory
+        builder.HasMany(e => e.StatusHistory)
+            .WithOne()
+            .HasForeignKey(h => h.ApplicationId)
+            .OnDelete(DeleteBehavior.Cascade);
+            
+        builder.Metadata.FindNavigation(nameof(LoanApplicationEntity.StatusHistory))!
+            .SetPropertyAccessMode(PropertyAccessMode.Field);
+
         builder.Property(e => e.CustomerId)
             .IsRequired();
 

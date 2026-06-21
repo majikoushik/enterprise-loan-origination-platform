@@ -26,6 +26,9 @@
 | `/api/v1/loan-applications/{id}` | `GET` | None | `LoanApplicationResponse` | `200 OK`, `404 Not Found` |
 | `/api/v1/loan-applications/customer/{customerId}` | `GET` | None | `IEnumerable<LoanApplicationResponse>` | `200 OK` |
 | `/api/v1/loan-applications` | `GET` | None | `IEnumerable<LoanApplicationResponse>` | `200 OK` |
+| `/api/v1/loan-applications/{id}/status` | `GET` | None | `{ status: string }` | `200 OK`, `404 Not Found` |
+| `/api/v1/loan-applications/{id}/status-history` | `GET` | None | `IEnumerable<ApplicationStatusHistoryResponse>` | `200 OK`, `404 Not Found` |
+| `/api/v1/loan-applications/{id}/status` | `PATCH` | `UpdateApplicationStatusRequest` | `LoanApplicationResponse` | `200 OK`, `400 Bad Request`, `404 Not Found` |
 
 ## Eligibility API
 

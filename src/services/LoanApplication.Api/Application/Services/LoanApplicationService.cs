@@ -81,6 +81,53 @@ public class LoanApplicationService : ILoanApplicationService
         return applications.Select(MapToResponse);
     }
 
+
+    public async Task<LoanApplicationResponse> UpdateStatusAsync(Guid id, UpdateApplicationStatusRequest request, CancellationToken cancellationToken = default)
+    {
+        var application = await _dbContext.LoanApplications
+            .Include("_statusHistory")
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+
+        if (application == null)
+        {
+            throw new LoanApplicationDomainException($"Loan application with ID {id} could not be found.");
+        }
+
+        if (!Enum.TryParse<ApplicationStatus>(request.NewStatus, true, out var newStatusEnum))
+        {
+            throw new LoanApplicationDomainException($"Invalid application status: {request.NewStatus}");
+        }
+
+        application.ChangeStatus(newStatusEnum, request.Reason, request.ChangedBy);
+        
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return MapToResponse(application);
+    }
+
+    public async Task<IEnumerable<ApplicationStatusHistoryResponse>> GetStatusHistoryAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var application = await _dbContext.LoanApplications
+            .Include("_statusHistory")
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+
+        if (application == null)
+        {
+            throw new LoanApplicationDomainException($"Loan application with ID {id} could not be found.");
+        }
+
+        return application.StatusHistory.OrderByDescending(h => h.ChangedAt).Select(h => new ApplicationStatusHistoryResponse(
+            h.Id,
+            h.ApplicationId,
+            h.PreviousStatus?.ToString(),
+            h.NewStatus.ToString(),
+            h.Reason,
+            h.ChangedBy,
+            h.ChangedAt
+        ));
+    }
+
     private static LoanApplicationResponse MapToResponse(LoanApplicationEntity entity)
     {
         return new LoanApplicationResponse(

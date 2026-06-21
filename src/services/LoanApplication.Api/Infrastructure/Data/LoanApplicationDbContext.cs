@@ -13,6 +13,7 @@ public class LoanApplicationDbContext : DbContext
     }
 
     public DbSet<LoanApplicationEntity> LoanApplications => Set<LoanApplicationEntity>();
+    public DbSet<ApplicationStatusHistory> ApplicationStatusHistories => Set<ApplicationStatusHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

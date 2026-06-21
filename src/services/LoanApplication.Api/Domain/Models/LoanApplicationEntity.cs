@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LoanApplication.Api.Domain.Exceptions;
 
 namespace LoanApplication.Api.Domain.Models;
@@ -17,9 +18,13 @@ public class LoanApplicationEntity
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
 
+    private readonly List<ApplicationStatusHistory> _statusHistory;
+    public IReadOnlyCollection<ApplicationStatusHistory> StatusHistory => _statusHistory.AsReadOnly();
+
     private LoanApplicationEntity()
     {
         // Required by EF Core
+        _statusHistory = new List<ApplicationStatusHistory>();
     }
 
     public LoanApplicationEntity(
@@ -42,6 +47,11 @@ public class LoanApplicationEntity
         Status = ApplicationStatus.Submitted; // Initial status upon valid submission
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+        
+        _statusHistory = new List<ApplicationStatusHistory>
+        {
+            new ApplicationStatusHistory(Id, null, ApplicationStatus.Submitted, "Application initial submission", "System")
+        };
 
         ValidateDomainRules();
     }
@@ -74,11 +84,35 @@ public class LoanApplicationEntity
         }
     }
 
-    public void ChangeStatus(ApplicationStatus newStatus)
+    public void ChangeStatus(ApplicationStatus newStatus, string reason, string changedBy)
     {
-        // Status transition logic can be complex in real scenarios
-        // For MVP, just allow transition and update timestamp
+        if (Status == newStatus) return;
+
+        if (!IsValidTransition(Status, newStatus))
+        {
+            throw new LoanApplicationDomainException($"Invalid state transition from {Status} to {newStatus}.");
+        }
+
+        var history = new ApplicationStatusHistory(Id, Status, newStatus, reason, changedBy);
+        _statusHistory.Add(history);
+
         Status = newStatus;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    private static bool IsValidTransition(ApplicationStatus current, ApplicationStatus next)
+    {
+        return current switch
+        {
+            ApplicationStatus.Draft => next == ApplicationStatus.Submitted,
+            ApplicationStatus.Submitted => next == ApplicationStatus.UnderReview || next == ApplicationStatus.Cancelled,
+            ApplicationStatus.UnderReview => next == ApplicationStatus.EligibilityPassed || next == ApplicationStatus.EligibilityFailed,
+            ApplicationStatus.EligibilityPassed => next == ApplicationStatus.Approved || next == ApplicationStatus.Rejected,
+            ApplicationStatus.EligibilityFailed => next == ApplicationStatus.Rejected || next == ApplicationStatus.Cancelled,
+            ApplicationStatus.Approved => false,
+            ApplicationStatus.Rejected => false,
+            ApplicationStatus.Cancelled => false,
+            _ => false
+        };
     }
 }

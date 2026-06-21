@@ -39,3 +39,19 @@ export interface LoanApplicationResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ApplicationStatusHistoryResponse {
+  id: string;
+  applicationId: string;
+  previousStatus?: string;
+  newStatus: string;
+  reason: string;
+  changedBy: string;
+  changedAt: string;
+}
+
+export interface UpdateApplicationStatusRequest {
+  newStatus: string;
+  reason: string;
+  changedBy: string;
+}

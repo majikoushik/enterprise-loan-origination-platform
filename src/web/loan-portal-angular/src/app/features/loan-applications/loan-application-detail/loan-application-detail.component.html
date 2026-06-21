@@ -1,0 +1,127 @@
+<div class="detail-container">
+  <div class="header-actions">
+    <div>
+      <h2>Application Details</h2>
+      <p>View application summary and status history.</p>
+    </div>
+    <a routerLink="/loan-applications" class="btn btn-secondary">
+      <span>&larr; Back to List</span>
+    </a>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error mb-4">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-dark"></div>
+    <p>Loading details...</p>
+  </div>
+
+  <div *ngIf="!isLoading && application" class="detail-grid">
+    
+    <div class="main-content">
+      <!-- Summary Card -->
+      <div class="card summary-card mb-4">
+        <div class="card-header">
+          <h3>Application Summary</h3>
+          <span class="badge" [ngClass]="getStatusClass(application.status)">
+            {{ ApplicationStatus[application.status] }}
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Application ID</label>
+              <div class="value code">{{ application.id }}</div>
+            </div>
+            <div class="info-item">
+              <label>Customer ID</label>
+              <div class="value code">{{ application.customerId }}</div>
+            </div>
+            <div class="info-item">
+              <label>Loan Type</label>
+              <div class="value">{{ getLoanTypeName(application.loanType) }}</div>
+            </div>
+            <div class="info-item">
+              <label>Requested Amount</label>
+              <div class="value">{{ application.requestedAmount | currency:'USD' }}</div>
+            </div>
+            <div class="info-item">
+              <label>Tenure</label>
+              <div class="value">{{ application.requestedTenureInMonths }} months</div>
+            </div>
+            <div class="info-item">
+              <label>Submitted On</label>
+              <div class="value">{{ application.createdAt | date:'medium' }}</div>
+            </div>
+            <div class="info-item full-width">
+              <label>Purpose</label>
+              <div class="value">{{ application.purpose }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Demo Card -->
+      <div class="card action-card mb-4" *ngIf="validNextStatuses.length > 0">
+        <div class="card-header">
+          <h3>Update Status (Demo)</h3>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="updateStatus()" #statusForm="ngForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nextStatus">Next Valid Status</label>
+                <select id="nextStatus" name="nextStatus" [(ngModel)]="selectedNextStatus" required class="form-control">
+                  <option *ngFor="let s of validNextStatuses" [value]="s.label">{{ s.label }}</option>
+                </select>
+              </div>
+              <div class="form-group flex-2">
+                <label for="reason">Reason for Change</label>
+                <input type="text" id="reason" name="reason" [(ngModel)]="transitionReason" required class="form-control" placeholder="Enter reason for this transition">
+              </div>
+            </div>
+            <div class="form-actions mt-3">
+              <button type="submit" class="btn btn-primary" [disabled]="!statusForm.valid || isUpdating">
+                <span *ngIf="!isUpdating">Update Status</span>
+                <span *ngIf="isUpdating">Updating...</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Sidebar -->
+    <div class="sidebar">
+      <div class="card timeline-card">
+        <div class="card-header">
+          <h3>Status History</h3>
+        </div>
+        <div class="card-body">
+          <div *ngIf="history.length === 0" class="text-muted text-sm text-center py-4">
+            No history available.
+          </div>
+          
+          <div class="timeline" *ngIf="history.length > 0">
+            <div class="timeline-item" *ngFor="let h of history">
+              <div class="timeline-marker"></div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <span class="badge badge-sm" [ngClass]="getHistoryStatusClass(h.newStatus)">{{ h.newStatus }}</span>
+                  <span class="timeline-date">{{ h.changedAt | date:'short' }}</span>
+                </div>
+                <div class="timeline-body">
+                  <p class="timeline-reason">{{ h.reason }}</p>
+                  <p class="timeline-by">By: {{ h.changedBy }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

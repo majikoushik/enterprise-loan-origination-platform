@@ -92,7 +92,88 @@ public class LoanApplicationsController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<LoanApplicationResponse>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllApplications()
     {
-        var response = await _loanApplicationService.GetAllApplicationsAsync();
-        return Ok(response);
+        var result = await _loanApplicationService.GetAllApplicationsAsync();
+        return Ok(result);
+    }
+
+    [HttpGet("{id}/status")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetApplicationStatus(Guid id)
+    {
+        var application = await _loanApplicationService.GetApplicationByIdAsync(id);
+        if (application == null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Type = "https://example.com/problems/not-found",
+                Title = "Loan Application Not Found",
+                Status = StatusCodes.Status404NotFound,
+                Detail = $"No loan application found with ID {id}."
+            });
+        }
+
+        return Ok(new { status = application.Status.ToString() });
+    }
+
+    [HttpGet("{id}/status-history")]
+    [ProducesResponseType(typeof(IEnumerable<ApplicationStatusHistoryResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetApplicationStatusHistory(Guid id)
+    {
+        try
+        {
+            var history = await _loanApplicationService.GetStatusHistoryAsync(id);
+            return Ok(history);
+        }
+        catch (LoanApplicationDomainException ex)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Type = "https://example.com/problems/not-found",
+                Title = "Loan Application Not Found",
+                Status = StatusCodes.Status404NotFound,
+                Detail = ex.Message
+            });
+        }
+    }
+
+    [HttpPatch("{id}/status")]
+    [ProducesResponseType(typeof(LoanApplicationResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateApplicationStatus(Guid id, [FromBody] UpdateApplicationStatusRequest request)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        try
+        {
+            var result = await _loanApplicationService.UpdateStatusAsync(id, request);
+            return Ok(result);
+        }
+        catch (LoanApplicationDomainException ex)
+        {
+            if (ex.Message.Contains("could not be found"))
+            {
+                return NotFound(new ProblemDetails
+                {
+                    Type = "https://example.com/problems/not-found",
+                    Title = "Loan Application Not Found",
+                    Status = StatusCodes.Status404NotFound,
+                    Detail = ex.Message
+                });
+            }
+
+            return BadRequest(new ProblemDetails
+            {
+                Type = "https://example.com/problems/domain-rule-violation",
+                Title = "Status Update Failed",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = ex.Message
+            });
+        }
     }
 }
