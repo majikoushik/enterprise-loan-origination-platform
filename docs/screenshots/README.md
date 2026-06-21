@@ -1,6 +1,14 @@
 # Screenshot Capture Notes
 
-This folder is reserved for portfolio screenshots.
+This folder contains README-visible placeholder images and is reserved for final portfolio screenshots.
+
+Current placeholders:
+
+- `dashboard-placeholder.svg`
+- `customer-registration-placeholder.svg`
+- `loan-application-placeholder.svg`
+- `eligibility-result-placeholder.svg`
+- `audit-trail-placeholder.svg`
 
 Recommended captures:
 
@@ -16,4 +24,4 @@ Suggested local flow:
 docker compose --profile services --profile frontend up -d --build
 ```
 
-Open `http://localhost:4200`, capture the screens above, and keep the data synthetic.
+Open `http://localhost:4200`, capture the screens above, and keep the data synthetic. After real captures are available, either replace the README image links with the PNG files or overwrite the placeholder SVGs with final portfolio images.

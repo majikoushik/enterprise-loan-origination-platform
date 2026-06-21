@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Audit trail screenshot placeholder</title>
+  <desc id="desc">Placeholder for the business audit trail screenshot.</desc>
+  <rect width="960" height="540" fill="#f7f9fc"/>
+  <rect x="58" y="40" width="844" height="460" rx="12" fill="#ffffff" stroke="#d8dee9"/>
+  <text x="98" y="94" font-family="Segoe UI, Arial, sans-serif" font-size="32" font-weight="700" fill="#17324d">Audit Trail</text>
+  <text x="98" y="128" font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#52616f">Trace business events by entity and correlation ID</text>
+  <rect x="98" y="172" width="764" height="44" rx="6" fill="#e8f1fb"/>
+  <rect x="98" y="234" width="764" height="44" rx="6" fill="#f2f5f9"/>
+  <rect x="98" y="296" width="764" height="44" rx="6" fill="#f2f5f9"/>
+  <rect x="98" y="358" width="764" height="44" rx="6" fill="#f2f5f9"/>
+  <text x="128" y="201" font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#17324d">LoanApplicationSubmitted</text>
+  <text x="128" y="263" font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#52616f">EligibilityCheckCompleted</text>
+  <text x="128" y="325" font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#52616f">NotificationRequested</text>
+  <text x="128" y="387" font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#52616f">StatusChanged</text>
+</svg>
