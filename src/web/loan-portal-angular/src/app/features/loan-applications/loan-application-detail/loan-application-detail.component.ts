@@ -4,7 +4,7 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LoanApplicationService } from '../../../core/services/loan-application.service';
 import { AuditService } from '../../../core/services/audit.service';
-import { LoanApplication } from '../../../core/models/loan-application.model';
+import { ApplicationStatusHistoryResponse, LoanApplicationResponse } from '../../../core/models/loan-application.model';
 import { AuditEvent } from '../../../core/models/audit.model';
 
 @Component({
@@ -15,7 +15,8 @@ import { AuditEvent } from '../../../core/models/audit.model';
   styleUrls: ['./loan-application-detail.component.css']
 })
 export class LoanApplicationDetailComponent implements OnInit {
-  application: LoanApplication | null = null;
+  application: LoanApplicationResponse | null = null;
+  history: ApplicationStatusHistoryResponse[] = [];
   auditEvents: AuditEvent[] = [];
   
   isLoading = true;
@@ -67,6 +68,15 @@ export class LoanApplicationDetailComponent implements OnInit {
       error: (err) => {
         this.errorMessage = err.message;
         this.isLoading = false;
+      }
+    });
+
+    this.loanService.getApplicationStatusHistory(id).subscribe({
+      next: (history) => {
+        this.history = history;
+      },
+      error: () => {
+        this.history = [];
       }
     });
 

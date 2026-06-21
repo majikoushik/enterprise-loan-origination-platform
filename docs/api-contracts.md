@@ -1,5 +1,13 @@
 # API Contracts
 
+## Standards
+
+- Version prefix: `/api/v1`.
+- Success response: `{ data, correlationId, timestamp }`.
+- Error response: Problem Details-compatible shape with correlation ID.
+- Correlation header: `X-Correlation-ID`.
+- Swagger/OpenAPI: enabled in development.
+
 ## Foundation Endpoints
 
 | Service | Endpoint | Purpose |
@@ -8,46 +16,59 @@
 | Loan Application API | `GET /api/v1/loan-application-service/metadata` | Service identity and responsibility |
 | Eligibility API | `GET /api/v1/eligibility-service/metadata` | Service identity and responsibility |
 | Audit API | `GET /api/v1/audit-service/metadata` | Service identity and responsibility |
-| APIs | `GET /health` | Health check |
+| APIs | `GET /health`, `/health/live`, `/health/ready` | Health checks |
 
 ## Customer API
 
-| Endpoint | Method | Request Body | Response Body | Status Codes |
+| Method | Endpoint | Request | Response | Status Codes |
 | --- | --- | --- | --- | --- |
-| `/api/v1/customers` | `POST` | `CustomerRegistrationRequest` | `CustomerResponse` | `201 Created`, `400 Bad Request` |
-| `/api/v1/customers/{id}` | `GET` | None | `CustomerResponse` | `200 OK`, `404 Not Found` |
-| `/api/v1/customers` | `GET` | None | `IEnumerable<CustomerResponse>` | `200 OK` |
+| `POST` | `/api/v1/customers` | `CustomerRegistrationRequest` | `CustomerResponse` | `201`, `400` |
+| `GET` | `/api/v1/customers/{id}` | None | `CustomerResponse` | `200`, `404` |
+| `GET` | `/api/v1/customers` | None | `CustomerResponse[]` | `200` |
 
 ## Loan Application API
 
-| Endpoint | Method | Request Body | Response Body | Status Codes |
+| Method | Endpoint | Request | Response | Status Codes |
 | --- | --- | --- | --- | --- |
-| `/api/v1/loan-applications` | `POST` | `LoanApplicationRequest` | `LoanApplicationResponse` | `201 Created`, `400 Bad Request` |
-| `/api/v1/loan-applications/{id}` | `GET` | None | `LoanApplicationResponse` | `200 OK`, `404 Not Found` |
-| `/api/v1/loan-applications/customer/{customerId}` | `GET` | None | `IEnumerable<LoanApplicationResponse>` | `200 OK` |
-| `/api/v1/loan-applications` | `GET` | None | `IEnumerable<LoanApplicationResponse>` | `200 OK` |
-| `/api/v1/loan-applications/{id}/status` | `GET` | None | `{ status: string }` | `200 OK`, `404 Not Found` |
-| `/api/v1/loan-applications/{id}/status-history` | `GET` | None | `IEnumerable<ApplicationStatusHistoryResponse>` | `200 OK`, `404 Not Found` |
-| `/api/v1/loan-applications/{id}/status` | `PATCH` | `UpdateApplicationStatusRequest` | `LoanApplicationResponse` | `200 OK`, `400 Bad Request`, `404 Not Found` |
+| `POST` | `/api/v1/loan-applications` | `LoanApplicationRequest` | `LoanApplicationResponse` | `201`, `400` |
+| `GET` | `/api/v1/loan-applications/{id}` | None | `LoanApplicationResponse` | `200`, `404` |
+| `GET` | `/api/v1/loan-applications/customer/{customerId}` | None | `LoanApplicationResponse[]` | `200` |
+| `GET` | `/api/v1/loan-applications` | None | `LoanApplicationResponse[]` | `200` |
+| `GET` | `/api/v1/loan-applications/{id}/status` | None | Status payload | `200`, `404` |
+| `GET` | `/api/v1/loan-applications/{id}/status-history` | None | `ApplicationStatusHistoryResponse[]` | `200`, `404` |
+| `PATCH` | `/api/v1/loan-applications/{id}/status` | `UpdateApplicationStatusRequest` | `LoanApplicationResponse` | `200`, `400`, `404` |
 
 ## Eligibility API
 
-| Endpoint | Method | Request Body | Response Body | Status Codes |
+| Method | Endpoint | Request | Response | Status Codes |
 | --- | --- | --- | --- | --- |
-| `/api/v1/eligibility/check` | `POST` | `EvaluateEligibilityRequest` | `EligibilityResultResponse` | `201 Created`, `400 Bad Request` |
-| `/api/v1/eligibility/applications/{applicationId}` | `GET` | None | `EligibilityResultResponse` | `200 OK`, `404 Not Found` |
-| `/api/v1/eligibility/results/{id}` | `GET` | None | `EligibilityResultResponse` | `200 OK`, `404 Not Found` |
+| `POST` | `/api/v1/eligibility/check` | `EvaluateEligibilityRequest` | `EligibilityResultResponse` | `201`, `400` |
+| `GET` | `/api/v1/eligibility/applications/{applicationId}` | None | `EligibilityResultResponse` | `200`, `404` |
+| `GET` | `/api/v1/eligibility/results/{id}` | None | `EligibilityResultResponse` | `200`, `404` |
 
-## Response Envelope
+## Notification Worker/API
 
-```json
-{
-  "data": {},
-  "correlationId": "string",
-  "timestamp": "2026-01-01T10:00:00Z"
-}
-```
+| Method | Endpoint | Request | Response | Status Codes |
+| --- | --- | --- | --- | --- |
+| `POST` | `/api/v1/internal/notifications` | Notification event payload | Notification request | `202`, `400` |
+| `GET` | `/api/v1/notifications` | None | Notification request list | `200` |
+
+## Audit API
+
+| Method | Endpoint | Request | Response | Status Codes |
+| --- | --- | --- | --- | --- |
+| `POST` | `/api/v1/events` | `AuditEventRecord` | Audit event response | `201`, `400` |
+| `GET` | `/api/v1/audit/entity/{entityType}/{entityId}` | None | Audit event list | `200` |
 
 ## Error Contract
 
-Errors should use Problem Details with correlation ID support. Validation errors should include field-level details.
+```json
+{
+  "type": "https://example.com/problems/validation-error",
+  "title": "Validation failed",
+  "status": 400,
+  "detail": "One or more validation errors occurred.",
+  "correlationId": "string",
+  "errors": {}
+}
+```

@@ -12,6 +12,9 @@
 body {
   margin: 0;
   min-width: 320px;
+  background:
+    linear-gradient(180deg, rgb(245 247 251 / 92%), rgb(245 247 251 / 100%)),
+    linear-gradient(90deg, #f5f7fb, #edf3f8);
 }
 
 a {
@@ -45,7 +48,7 @@ textarea {
   border: 1px solid #dce3ee;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 8px 24px rgb(23 32 51 / 8%);
+  box-shadow: 0 10px 28px rgb(23 32 51 / 7%);
 }
 
 .status-badge {

@@ -28,7 +28,7 @@ export class EligibilityResultComponent implements OnInit {
     if (this.applicationId) {
       this.fetchResult();
     } else {
-      this.error = 'No application ID provided.';
+      this.error = 'Select a loan application to review its eligibility result.';
       this.isLoading = false;
     }
   }

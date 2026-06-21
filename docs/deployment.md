@@ -2,34 +2,67 @@
 
 ## Current State
 
-Epic 0 adds deployment documentation and CI foundation. Production deployment templates will be introduced in the Azure deployment epic.
+The repository is deployment-blueprint ready. It includes Dockerfiles, Docker Compose, GitHub Actions CI, Azure deployment templates, and deployment documentation. It does not deploy real Azure resources automatically.
 
 ## Local Containers
 
-For instructions on how to use Docker Compose and spin up the environment quickly on your laptop, please refer to the [DevOps Guide](devops-guide.md).
+```powershell
+docker compose --profile services --profile frontend build
+docker compose --profile services --profile frontend up -d
+```
 
-## Azure Production Deployment
-Our cloud-native topology relies on **Azure Container Apps** and **Azure SQL Database**.
-To understand how the Bicep IaC works and how to set up GitHub Actions CI/CD pipelines for Azure, please read the [Azure Deployment Guide](azure-deployment-guide.md).
+Local services:
 
-- Azure Container Registry for container images
-- Azure Container Apps for APIs and workers
-- Azure SQL Database for persistence
-- Azure Service Bus for messaging
-- Azure Key Vault for secrets
-- Azure Application Insights and Log Analytics for observability
-- Azure Static Web Apps or Azure Storage Static Website for Angular
+- Angular portal: `http://localhost:4200`
+- Customer API: `http://localhost:7101`
+- Loan Application API: `http://localhost:7102`
+- Eligibility API: `http://localhost:7103`
+- Notification Worker/API: `http://localhost:5004`
+- Audit API: `http://localhost:5005`
 
-## Secrets
+## Azure Production Direction
 
-Secrets must be provided through environment variables, Key Vault references, or managed identity. Do not store secrets in source control.
+The target Azure architecture uses:
+
+- Azure Static Web Apps for the Angular frontend.
+- Azure Container Apps for backend APIs and workers.
+- Azure Container Registry for images.
+- Azure SQL Database for service-owned persistence.
+- Azure Service Bus for asynchronous events.
+- Azure Key Vault and Managed Identity for secrets.
+- Application Insights and Log Analytics for observability.
 
 ## Deployment Validation
 
-Deployment pipelines should validate:
+Recommended validation sequence:
 
-- Container image build
-- API health endpoints
-- Database migration status
-- Angular artifact build
-- Smoke tests
+```powershell
+dotnet restore EnterpriseLoanOriginationPlatform.sln
+dotnet build EnterpriseLoanOriginationPlatform.sln --configuration Release
+dotnet test EnterpriseLoanOriginationPlatform.sln --configuration Release
+```
+
+```powershell
+cd src/web/loan-portal-angular
+npm ci
+npm run build
+npm test -- --watch=false --browsers=ChromeHeadless
+```
+
+```powershell
+docker compose --profile services --profile frontend build
+az bicep build --file infra/bicep/main.bicep
+```
+
+## Secrets
+
+Secrets must be supplied through environment variables, GitHub Actions secrets, Key Vault, or managed identity. Do not commit production credentials.
+
+## Production Readiness Checklist
+
+- Configure authentication and authorization.
+- Replace MVP HTTP event simulation with Service Bus.
+- Apply EF Core migrations through a controlled deployment flow.
+- Configure App Insights dashboards and alerts.
+- Validate backups, restore, and retention policies.
+- Review Azure cost and cleanup plan.

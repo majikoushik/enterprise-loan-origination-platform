@@ -1,29 +1,43 @@
 # Deployment Architecture
 
 ## Local Deployment
-For local testing and validation, the platform relies on **Docker Compose** to spin up the entire ecosystem simultaneously.
-- **Frontend**: Nginx-based Angular build
-- **Backend APIs**: `mcr.microsoft.com/dotnet/aspnet:8.0` containers
-- **Database**: `mcr.microsoft.com/mssql/server:2022-latest`
-- **Network**: All containers run on an internal default docker bridge network, allowing standard DNS resolution (e.g. `Server=sqlserver,1433`).
 
-## Future Target: Azure Architecture
+Local development uses Docker Compose to run the full platform or individual dependencies:
 
-A complete Bicep Infrastructure as Code (IaC) blueprint exists in `infra/bicep`. Please read the [Azure Deployment Guide](../docs/azure-deployment-guide.md) for detailed deployment steps.
+- SQL Server 2022 Developer container.
+- .NET 8 API/worker containers.
+- Nginx-hosted Angular build for containerized frontend validation.
+- Docker bridge networking for service-to-service DNS.
 
-### 1. Azure Container Registry (ACR)
-All Dockerfiles created in this solution will be built and pushed to a secure ACR instance during a GitHub Actions CI/CD deployment pipeline.
+Developers can also run APIs directly with `dotnet run` and the Angular portal with `npm start`.
 
-### 2. Azure Container Apps (ACA)
-The backend APIs (`Customer.Api`, `LoanApplication.Api`, `Eligibility.Api`, `Audit.Api`) and the `Notification.Worker` will be hosted on Azure Container Apps.
-- **Why ACA?**: It provides serverless container execution, automatic KEDA-based scaling, built-in envoy proxy ingress, and seamless integration with Azure Managed Identities.
-- **Health Probes**: ACA will utilize the `/health/live` and `/health/ready` endpoints exposed by the APIs to route traffic efficiently and restart failing pods.
+## Azure Target Architecture
 
-### 3. Azure Static Web Apps (or Storage Website)
-While the Angular app *can* run inside ACA via Nginx (as done locally), the most cost-effective and globally performant Azure solution is **Azure Static Web Apps**. The build output (`dist/`) will be synced directly to the edge.
+The Azure blueprint in `infra/bicep` provisions a cloud-native architecture:
 
-### 4. Azure SQL Database
-The local Docker SQL Server will be swapped for a managed Azure SQL Database logical server. Connection strings will be injected securely at runtime via Azure Key Vault.
+- Azure Static Web Apps for the Angular portal.
+- Azure Container Apps for APIs and worker-style services.
+- Azure Container Registry for images.
+- Azure SQL Database for relational persistence.
+- Azure Service Bus for future production messaging.
+- Azure Key Vault for secrets.
+- Managed Identity for secret access and platform permissions.
+- Application Insights and Log Analytics for observability.
 
-### 5. Azure Service Bus
-In the MVP, inter-service messaging is simulated via HTTP webhooks. When moving to production Azure, Azure Service Bus Topics/Queues will be provisioned, and the `Messaging` building block will be refactored to emit real AMQP events.
+## Deployment Flow
+
+1. Validate Bicep with `az bicep build`.
+2. Run `az deployment group what-if` against a demo resource group.
+3. Build backend and frontend artifacts in CI.
+4. Build and push container images to Azure Container Registry.
+5. Deploy or update Azure Container Apps revisions.
+6. Deploy Angular static assets.
+7. Run smoke tests against health and metadata endpoints.
+
+## Cost and Cleanup
+
+The blueprint is intended for demo environments. Review SKUs before use, apply resource tags, and delete demo resource groups after portfolio review or testing.
+
+## Production Gaps
+
+Before a real production launch, add authentication, migration automation, secrets rotation, API gateway policies, WAF/edge controls, backup/restore tests, and incident response procedures.

@@ -3,6 +3,7 @@ import { EligibilityCheckComponent } from './eligibility-check/eligibility-check
 import { EligibilityResultComponent } from './eligibility-result/eligibility-result.component';
 
 export const ELIGIBILITY_ROUTES: Routes = [
+  { path: '', component: EligibilityResultComponent },
   { path: 'check/:applicationId', component: EligibilityCheckComponent },
   { path: 'results/:applicationId', component: EligibilityResultComponent }
 ];

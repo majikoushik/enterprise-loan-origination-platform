@@ -19,7 +19,7 @@ az deployment group what-if \
   --resource-group rg-entloan-dev \
   --template-file main.bicep \
   --parameters parameters/dev.parameters.json \
-  --parameters sqlAdministratorLoginPassword="YourStrong!Password123"
+  --parameters sqlAdministratorLoginPassword="<secure-password>"
 ```
 
 To execute the deployment:
@@ -28,7 +28,7 @@ az deployment group create \
   --resource-group rg-entloan-dev \
   --template-file main.bicep \
   --parameters parameters/dev.parameters.json \
-  --parameters sqlAdministratorLoginPassword="YourStrong!Password123"
+  --parameters sqlAdministratorLoginPassword="<secure-password>"
 ```
 
 > **Warning:** Never commit real passwords to `parameters.json` files. Use secure parameters during execution or fetch them from an existing Key Vault.

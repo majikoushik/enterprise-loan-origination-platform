@@ -1,12 +1,52 @@
 # Local Development Guide
 
+## Recommended Workflow
+
+Use Docker Compose when validating the full platform and use direct `dotnet run` / `npm start` when debugging a single service or Angular feature.
+
 ## IDE Setup
-- **Visual Studio 2022** or **JetBrains Rider** is recommended for backend `.NET 8` development.
-- **VS Code** is recommended for Angular frontend development.
 
-## Running the Platform
-You can run the platform in two ways:
-1. **Isolated Debugging**: Run individual services directly from your IDE. You only need the database. Start the DB with `docker compose up sqlserver -d`.
-2. **Full Container Orchestration**: Run the entire microservice ecosystem as a suite of Docker containers. Run `docker compose --profile services --profile frontend up -d`.
+- Visual Studio 2022 or JetBrains Rider for .NET services.
+- VS Code for Angular frontend work.
+- Docker Desktop for SQL Server and container validation.
 
-For more details on the exact commands and testing flows, refer to the [DevOps Guide](devops-guide.md).
+## Backend Development
+
+```powershell
+dotnet restore EnterpriseLoanOriginationPlatform.sln
+dotnet build EnterpriseLoanOriginationPlatform.sln
+dotnet test EnterpriseLoanOriginationPlatform.sln
+```
+
+Run a single service:
+
+```powershell
+dotnet run --project src/services/LoanApplication.Api/LoanApplication.Api.csproj
+```
+
+## Frontend Development
+
+```powershell
+cd src/web/loan-portal-angular
+npm install
+npm start
+```
+
+The portal uses typed services and environment configuration for API URLs. Avoid direct `HttpClient` calls from components.
+
+## Health and Diagnostics
+
+APIs expose:
+
+- `/health/live`
+- `/health/ready`
+- `/health`
+- `/swagger` in development
+
+Use the Angular System Health view for a quick service status check.
+
+## Troubleshooting
+
+- If SQL connectivity fails, check `docker ps` and the SQL Server container health.
+- If Angular API calls fail, confirm the target API port and CORS settings.
+- If a request fails, copy the correlation ID from the response or browser network tab and search backend logs.

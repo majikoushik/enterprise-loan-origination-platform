@@ -1,24 +1,48 @@
-# Non-Functional Requirements (NFRs)
+# Non-Functional Requirements
 
-## 1. Scalability
-- **Compute**: Services are containerized and stateless, ready for horizontal scaling via Azure Container Apps (KEDA-driven scaling).
-- **Database**: Azure SQL provides elastic pools and scalability.
-- **Messaging**: Event-driven decoupling using Service Bus prevents bottlenecks during traffic spikes.
+## Scalability
 
-## 2. Observability & Monitoring
-- **Structured Logging**: All services emit logs via Serilog, enriched with Correlation ID, Service Name, and Environment.
-- **Distributed Tracing**: `X-Correlation-ID` traces transactions end-to-end across frontend, backend, and background workers.
-- **Health Checks**: Standard ASP.NET Core Liveness and Readiness probes are configured for orchestration managers.
-- **Production Sinks**: Ready for Azure Application Insights and Azure Log Analytics.
+- Backend services are stateless and containerized for horizontal scaling on Azure Container Apps.
+- Service-owned SQL databases align with Azure SQL scaling options.
+- Notification and audit workflows are designed to move from MVP HTTP simulation to Azure Service Bus to absorb bursts.
 
-## 3. Reliability & Resilience
-- **Exception Handling**: Global exception handling prevents crashes and ensures predictable API responses using RFC 7807 Problem Details.
-- **Retry Mechanisms**: Prepared for Polly resilience strategies (circuit breaker, retries) when integrating real external services.
+## Availability and Reliability
 
-## 4. Security
-- **Data Safety**: No stack traces or PII are exposed in HTTP responses or Audit metadata.
-- **Configuration**: Sensitive configuration (like DB connection strings) are loaded via environment variables, ready for Azure Key Vault.
+- APIs expose health endpoints for process and readiness monitoring.
+- Global exception handling creates predictable failures rather than leaking runtime details.
+- Future production integrations should add retries, circuit breakers, idempotency, dead-letter queues, and replay procedures.
 
-## 5. Maintainability
-- **Architecture**: Domain-Driven Design and Clean Architecture principles ensure logical separation.
-- **Code Quality**: Shared logic (like auditing and observability) is extracted into reusable NuGet-style building blocks.
+## Performance
+
+- MVP APIs use simple request/response flows and EF Core persistence.
+- Read models are intentionally modest. Future scaling can add pagination, indexing, caching, and async event processing.
+
+## Security
+
+- No real customer data, secrets, or production financial records are included.
+- Configuration is environment-driven and ready for Key Vault references.
+- Future authentication direction is Azure Entra ID or Entra External ID with role-based authorization.
+- Logs and audit metadata must avoid secrets and sensitive personal/financial data.
+
+## Observability
+
+- Correlation IDs are propagated across frontend and backend requests.
+- Health checks support local diagnostics and Azure Container Apps probes.
+- Application Insights and Log Analytics are the target telemetry stores.
+- The operational runbook defines basic triage and KQL query direction.
+
+## Maintainability
+
+- Domain language is used consistently: Customer, Loan Application, Eligibility Check, Notification, Audit Event.
+- Service boundaries are explicit and documented.
+- Shared building blocks remain small and focused to avoid premature platform complexity.
+
+## Cost Awareness
+
+- Local execution uses Docker Compose and SQL Server Developer Edition.
+- Azure blueprint uses cost-conscious service selections for demo environments.
+- Demo resource groups should be deleted after review to avoid ongoing charges.
+
+## Compliance Readiness
+
+The project is not compliance-certified. It demonstrates controls that would support future compliance work: auditability, traceability, secure configuration, least-privilege direction, sanitized errors, and documentation of architectural decisions.

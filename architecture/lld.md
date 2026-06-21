@@ -2,52 +2,63 @@
 
 ## Backend Structure
 
-Each API starts as an ASP.NET Core Web API project with:
+Each backend service follows the same practical Clean Architecture shape:
 
-- Minimal service metadata endpoint
-- `/health` endpoint
-- Swagger/OpenAPI registration
-- Problem Details readiness
-- Correlation ID middleware
-- Shared response envelope support
+- `Domain`: entities, enums, domain exceptions, status transition rules, eligibility rule objects.
+- `Application`: DTOs, validators, service interfaces, use-case orchestration.
+- `Infrastructure`: EF Core `DbContext`, entity configuration, HTTP integration adapters.
+- `Controllers`: thin HTTP adapters that delegate to application services.
 
-In Epic 1 and 2, `Customer.Api` and `LoanApplication.Api` introduced the standard Clean/Onion architecture structure:
-- **Domain**: Entities, Enums, Domain Exceptions.
-- **Application**: DTOs, Services, FluentValidation rules.
-- **Infrastructure**: DbContext and EF Core Configurations.
-- **API**: Thin controllers that handle only HTTP concerns and delegate to Application Services.
+Shared concerns live under `src/building-blocks`:
 
-In Epic 2, `LoanApplication.Api` further solidified this pattern, adding more complex domain rules.
-In Epic 3, `Eligibility.Api` introduced a Clean Architecture Rules Engine and synchronous HTTP integration (`ILoanApplicationClient`) for cross-service communication.
-In Epic 4, `LoanApplication.Api` implemented a strict State Machine within `LoanApplicationEntity` to enforce valid status transitions and append to a persistent `ApplicationStatusHistory` collection.
+- `SharedKernel`: response envelopes and common entity primitives.
+- `Messaging`: integration event contracts and publishing abstraction.
+- `Auditing`: HTTP audit publisher and audit event record contract.
+- `Observability`: correlation ID middleware, global exception handling, health registration helpers.
+- `Security`: future role and policy naming defaults.
+
+## API Flow
+
+1. Client sends a request, optionally including `X-Correlation-ID`.
+2. Correlation middleware creates or propagates the correlation ID.
+3. Controller delegates to an application service.
+4. Request validators enforce required fields, numeric boundaries, and business constraints.
+5. Domain models enforce lifecycle rules such as valid loan application status transitions.
+6. EF Core persists service-owned state.
+7. Application service emits notification or audit records where relevant.
+8. Controller returns a response envelope or Problem Details error.
 
 ## Database Pattern
+
+The MVP uses SQL Server locally and aligns with Azure SQL for cloud hosting. Each service owns its logical database:
+
+- `EnterpriseLoan_Customer`
+- `EnterpriseLoan_LoanApplication`
+- `EnterpriseLoan_Eligibility`
+- `EnterpriseLoan_Notification`
+- `EnterpriseLoan_Audit`
+
+For local developer convenience, services can create schema at startup. Production deployment should use controlled EF Core migrations executed through a secure deployment process.
 
 ## Frontend Structure
 
 The Angular portal uses standalone components and feature-based folders:
 
-- `core` for interceptors, services, and models
-- `shared` for reusable components and validators
-- `features` for dashboard, customers, loan applications, eligibility, status, and audit trail
-- `layout` for the application shell
+- `core`: typed API models, API services, interceptors.
+- `features`: dashboard, customers, loan applications, eligibility, status, notifications, audit trail, system health.
+- `layout`: application shell and navigation.
+- `environments`: API base URL configuration.
 
-## API Flow
-
-1. Request enters API with optional `X-Correlation-ID`.
-2. Correlation middleware creates or propagates the correlation ID.
-3. Endpoint or future controller delegates to application service.
-4. Validation failures return Problem Details.
-5. Successful responses use a `{ data, correlationId, timestamp }` envelope.
+Components use reactive forms where user input is involved. Components call typed services rather than `HttpClient` directly.
 
 ## Validation Flow
 
-Epic 0 does not implement business requests. Future epics should use request DTO validation through FluentValidation or an equivalent consistent validation strategy.
+Validation is performed at API boundaries and reinforced in domain/application logic where business rules matter. Examples include customer contact validation, requested amount and tenure ranges, debt-to-income eligibility checks, and invalid status transition rejection.
 
 ## Error Handling
 
-APIs register Problem Details and exception handling middleware. Future epics should add central exception mapping for validation, not found, conflict, and business-rule failures.
+Global exception handling returns Problem Details-compatible responses and avoids exposing stack traces. Correlation IDs are returned to the client and logged server-side so support users can trace a failed request.
 
 ## Event Handling
 
-The `Messaging` building block defines integration event shape and publisher abstraction. MVP messaging may be in-memory or simulated while preserving Azure Service Bus compatibility.
+Events represent business facts that already happened. The MVP uses HTTP-based simulation for notification and audit flows while preserving a contract shape compatible with Azure Service Bus. Production hardening should replace HTTP fan-out with topics/subscriptions, retries, poison message handling, and idempotent consumers.

@@ -1,35 +1,48 @@
 # Observability Architecture
 
 ## Overview
-The platform uses a standardized approach to observability, emphasizing context-rich structured logging, tracing, and active monitoring to ensure production-readiness on Azure.
 
-## Core Pillars
+The platform standardizes observability around correlation IDs, structured logs, health checks, predictable error responses, and Azure Monitor readiness. The goal is to make business workflows diagnosable across frontend, APIs, background work, and audit records.
 
-### 1. Structured Logging (Serilog)
-All logs are captured as structured events.
-- **Enrichment**: Every log entry is enriched with `ServiceName`, `Environment`, and `CorrelationId`.
-- **Sinks**: 
-  - Local: Console
-  - Production: Azure Application Insights
+## Correlation IDs
 
-### 2. Distributed Tracing (Correlation IDs)
-We use `X-Correlation-ID` across HTTP requests and message buses.
-- **Origin**: Generated at the frontend by `correlation-id.interceptor.ts` (or at the API edge if missing).
-- **Propagation**: Transferred automatically via `CorrelationIdMiddleware` and injected into the Serilog `LogContext`. Included in `ProblemDetails` error responses and `AuditEventRecord` payloads.
+- Header: `X-Correlation-ID`.
+- Origin: Angular interceptor or API middleware when the header is missing.
+- Propagation: downstream HTTP calls, response envelopes, Problem Details, audit events, and logs.
+- Purpose: support teams can trace a customer registration, application submission, eligibility check, notification request, and audit record as one transaction.
 
-### 3. Health Checks
-Standardized health check patterns are enforced:
-- **Liveness** (`/health/live`): Confirms process is running. Used by Azure Container Apps Liveness Probe.
-- **Readiness** (`/health/ready`): Confirms database connections. Used by Azure Container Apps Readiness Probe.
+## Structured Logging
 
-### 4. Global Exception Handling
-Errors are caught globally using .NET 8's `IExceptionHandler`.
-- Maps generic errors to HTTP 500.
-- Maps business/validation errors to HTTP 400.
-- Formats responses using `ProblemDetails` RFC 7807 specification.
-- Excludes stack traces from HTTP responses to prevent security leaks, but preserves them in Application Insights.
+Services should log structured fields such as:
+
+- `ServiceName`
+- `Environment`
+- `CorrelationId`
+- `EventName`
+- `EntityType`
+- `EntityId`
+- `SourceService`
+
+Logs must not include secrets, passwords, connection strings, stack traces in client responses, or sensitive personal/financial data.
+
+## Health Checks
+
+Backend services expose health endpoints for local diagnostics and Azure Container Apps probes:
+
+- `/health/live`: process liveness.
+- `/health/ready`: service readiness and key dependency reachability.
+- `/health`: aggregate health details for local diagnostics.
+
+## Error Handling
+
+Global exception handling maps failures to Problem Details-compatible responses. Business validation and domain rule failures should produce client-safe messages; unexpected errors should log diagnostic detail server-side and return a generic response with correlation ID.
 
 ## Azure Monitor Readiness
-The system is ready to be hosted in Azure Container Apps with native integration into:
-- **Azure Application Insights**: Telemetry, live metrics, and dependency tracking.
-- **Azure Log Analytics**: Long-term log retention and KQL querying.
+
+The target telemetry stack is Application Insights plus Log Analytics. The operational runbook includes example KQL patterns for tracing a transaction by correlation ID.
+
+## Future Enhancements
+
+- OpenTelemetry traces across HTTP and Service Bus.
+- Dashboards for application submission volume, eligibility pass/fail rate, notification failures, and API latency.
+- Alerts for readiness failures, high error rate, queue depth, and SQL connectivity failures.

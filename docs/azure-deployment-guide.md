@@ -1,51 +1,88 @@
 # Azure Deployment Guide
 
-## Target Architecture Overview
-The **Enterprise Loan Origination Platform** is designed for a cloud-native Azure environment.
-- **Frontend**: Azure Static Web Apps (Edge CDN, lightweight, highly scalable).
-- **Backend**: Azure Container Apps (Serverless containers, KEDA scaling).
-- **Database**: Azure SQL Database (Managed, elastic pools).
-- **Messaging**: Azure Service Bus (Decoupled events).
-- **Observability**: Azure Application Insights & Log Analytics (End-to-End Tracing).
-- **Security**: Azure Key Vault & Managed Identities.
+## Target Architecture
+
+The platform is designed for a cloud-native Azure environment:
+
+- Frontend: Azure Static Web Apps.
+- Backend: Azure Container Apps.
+- Database: Azure SQL Database.
+- Messaging: Azure Service Bus.
+- Secrets: Azure Key Vault with Managed Identity.
+- Observability: Application Insights and Log Analytics.
+- Images: Azure Container Registry.
 
 ## Prerequisites
-- Azure Subscription.
-- Azure CLI (`az`) installed locally.
-- GitHub repository with Actions enabled.
 
-## Environment Variables and GitHub Secrets
-To automate deployment via `.github/workflows/azure-deploy-template.yml`, the following secrets must be configured in your GitHub repository:
-- `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`: Required for OIDC federated authentication to Azure.
-- `SQL_ADMIN_PASSWORD`: Passed as a secure parameter to the SQL Database deployment.
-- `ACR_LOGIN_SERVER`: The URI of the Container Registry (e.g., `entloanacrdev.azurecr.io`).
+- Azure subscription.
+- Azure CLI.
+- GitHub Actions enabled.
+- Permission to create a resource group, managed identities, Container Apps, SQL, Service Bus, Key Vault, and monitoring resources.
 
-## Key Vault and Managed Identity Strategy
-1. **Managed Identity**: Container Apps are assigned System-Assigned Managed Identities.
-2. **Role Assignments**: The Managed Identities are granted `Key Vault Secrets User` roles.
-3. **Configuration**: Instead of placing raw connection strings in environment variables, the Container Apps retrieve `ConnectionStrings__CustomerDb` from Key Vault dynamically on startup.
+## Validate Bicep Locally
+
+```powershell
+az bicep build --file infra/bicep/main.bicep
+```
+
+## What-If Deployment
+
+```powershell
+az deployment group what-if `
+  --resource-group rg-entloan-dev `
+  --template-file infra/bicep/main.bicep `
+  --parameters infra/bicep/parameters/dev.parameters.json `
+  --parameters sqlAdministratorLoginPassword="<secure-password>"
+```
+
+## Create Deployment
+
+```powershell
+az deployment group create `
+  --resource-group rg-entloan-dev `
+  --template-file infra/bicep/main.bicep `
+  --parameters infra/bicep/parameters/dev.parameters.json `
+  --parameters sqlAdministratorLoginPassword="<secure-password>"
+```
+
+## GitHub Secrets
+
+For OIDC-based deployments, configure:
+
+- `AZURE_CLIENT_ID`
+- `AZURE_TENANT_ID`
+- `AZURE_SUBSCRIPTION_ID`
+
+For demo image/database deployment, configure:
+
+- `SQL_ADMIN_PASSWORD`
+- `ACR_LOGIN_SERVER`
+
+Use environment protection rules for shared or production-like environments.
 
 ## Deployment Flow
-### 1. Infrastructure as Code
-Navigate to `infra/bicep/` and run a `what-if` deployment:
-```bash
-az deployment group what-if --resource-group <rg-name> --template-file main.bicep --parameters parameters/dev.parameters.json sqlAdministratorLoginPassword="<pwd>"
-```
-### 2. Container Image Build and Push
-Trigger the `Container Build` workflow to package the `.NET` applications into Docker images and push them to ACR.
 
-### 3. Container Apps Deployment
-Once the infrastructure exists and ACR is populated, you can update the Container App revisions using the Azure CLI:
-```bash
-az containerapp update --name customer-api --resource-group <rg-name> --image <acr-name>.azurecr.io/customer-api:latest
-```
+1. Run CI quality gates.
+2. Validate Bicep.
+3. Deploy infrastructure with a secure SQL admin password.
+4. Build and push service images to ACR.
+5. Update Azure Container Apps revisions.
+6. Deploy Angular static assets to Azure Static Web Apps.
+7. Smoke test `/health/ready`, `/swagger`, and the Angular portal.
 
-### 4. Angular Frontend Deployment
-Run the Azure Static Web Apps CLI (`swa`) or use the official `Azure/static-web-apps-deploy` GitHub Action to push the `dist/loan-portal-angular` folder to the Static Web App instance.
+## Key Vault and Managed Identity Strategy
+
+Container Apps should use managed identities to access Key Vault. Connection strings and API keys should be stored as Key Vault secrets or Container Apps secret references, never plain text in source control.
 
 ## Cost Awareness
-- **Demo Environments**: The provided `dev.parameters.json` configures services securely but defaults to low-tier SKUs (e.g., `Basic` SQL Database, `Free` Static Web Apps).
-- **Cleanup**: To prevent ongoing charges after a demo, delete the entire Resource Group:
-```bash
+
+Use demo-friendly SKUs and tags. Review costs before leaving resources running. Delete the demo resource group after evaluation:
+
+```powershell
 az group delete --name rg-entloan-dev --yes --no-wait
 ```
+
+## Known Blueprint Limitations
+
+- The templates are a deployment blueprint, not a one-click production release.
+- Real authentication, Service Bus consumers, database migrations, backup policies, and API gateway policies need hardening before production.

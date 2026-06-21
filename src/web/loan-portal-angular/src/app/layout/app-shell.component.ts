@@ -4,6 +4,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 interface NavigationItem {
   label: string;
   route: string;
+  shortLabel: string;
 }
 
 @Component({
@@ -23,7 +24,10 @@ interface NavigationItem {
 
         <nav aria-label="Primary navigation">
           @for (item of navigationItems; track item.route) {
-            <a [routerLink]="item.route" routerLinkActive="active">{{ item.label }}</a>
+            <a [routerLink]="item.route" routerLinkActive="active">
+              <span>{{ item.shortLabel }}</span>
+              <small>{{ item.label }}</small>
+            </a>
           }
         </nav>
       </aside>
@@ -31,10 +35,10 @@ interface NavigationItem {
       <main class="content">
         <header class="topbar">
           <div>
-            <p class="eyebrow">Banking Platform MVP</p>
+            <p class="eyebrow">Solution Architecture Portfolio</p>
             <h1>Loan Origination Workspace</h1>
           </div>
-          <span class="status-badge">Foundation Ready</span>
+          <span class="status-badge">MVP Portfolio Ready</span>
         </header>
 
         <section class="main-panel">
@@ -55,7 +59,7 @@ interface NavigationItem {
       flex-direction: column;
       gap: 28px;
       border-right: 1px solid #dce3ee;
-      background: #ffffff;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbfd 100%);
       padding: 28px 20px;
     }
 
@@ -96,12 +100,26 @@ interface NavigationItem {
       padding: 11px 12px;
       color: #40506b;
       font-weight: 650;
+      transition: background 160ms ease, color 160ms ease, transform 160ms ease;
     }
 
     nav a.active,
     nav a:hover {
       background: #edf3f8;
       color: #17324d;
+      transform: translateX(2px);
+    }
+
+    nav a span,
+    nav a small {
+      display: block;
+    }
+
+    nav a small {
+      margin-top: 2px;
+      color: #657089;
+      font-size: 0.73rem;
+      font-weight: 600;
     }
 
     .content {
@@ -158,12 +176,12 @@ interface NavigationItem {
 })
 export class AppShellComponent {
   protected readonly navigationItems: NavigationItem[] = [
-    { label: 'Dashboard', route: '/dashboard' },
-    { label: 'Customer Registration', route: '/customers/register' },
-    { label: 'Loan Application', route: '/loan-applications/new' },
-    { label: 'Eligibility Result', route: '/eligibility/result' },
-    { label: 'Application Status', route: '/applications/status' },
-    { label: 'Audit Trail', route: '/audit-trail' },
-    { label: 'Notifications', route: '/notifications' }
+    { shortLabel: 'Dashboard', label: 'Operational overview', route: '/dashboard' },
+    { shortLabel: 'Customers', label: 'Register synthetic profiles', route: '/customers/register' },
+    { shortLabel: 'Applications', label: 'Submit loan requests', route: '/loan-applications/new' },
+    { shortLabel: 'Eligibility', label: 'Review rule outcomes', route: '/eligibility' },
+    { shortLabel: 'Status', label: 'Track workflow state', route: '/applications/status' },
+    { shortLabel: 'Audit', label: 'Trace business events', route: '/audit-trail' },
+    { shortLabel: 'Notifications', label: 'Simulated delivery', route: '/notifications' }
   ];
 }

@@ -2,48 +2,67 @@
 
 ## Prerequisites
 
-- .NET 8 SDK
-- Node.js 22 or another supported Node version for Angular 18
-- npm
-- Docker Desktop
-- Git
+- .NET 8 SDK.
+- Node.js 22 or another Angular 18-compatible LTS/current Node version.
+- npm.
+- Docker Desktop.
+- Git.
+- Azure CLI only when validating the Bicep blueprint.
 
-## Initial Setup
+## First-Time Setup
 
 ```powershell
 dotnet restore EnterpriseLoanOriginationPlatform.sln
+dotnet build EnterpriseLoanOriginationPlatform.sln
+```
+
+```powershell
 cd src/web/loan-portal-angular
 npm install
 ```
 
-## Local Database Dependency
+## Run With Docker Compose
 
 ```powershell
-$env:SQLSERVER_SA_PASSWORD = "<local-development-password>"
-docker compose up sqlserver
+docker compose --profile services --profile frontend build
+docker compose --profile services --profile frontend up -d
 ```
 
-Use a local-only password that satisfies SQL Server complexity requirements. Do not commit local credentials.
+Open `http://localhost:4200`.
 
-## Run A Backend API
+## Run Services Individually
+
+Start only SQL Server:
+
+```powershell
+docker compose up sqlserver -d
+```
+
+Run an API:
 
 ```powershell
 dotnet run --project src/services/Customer.Api/Customer.Api.csproj
 ```
 
-Health endpoint:
-
-```text
-https://localhost:<port>/health
-```
-
-Swagger UI is enabled in development.
-
-## Run The Angular Portal
+Run the Angular portal:
 
 ```powershell
 cd src/web/loan-portal-angular
 npm start
 ```
 
-Open `http://localhost:4200`.
+## Local Ports
+
+| Component | URL |
+| --- | --- |
+| Angular portal | `http://localhost:4200` |
+| Customer API | `http://localhost:7101` |
+| Loan Application API | `http://localhost:7102` |
+| Eligibility API | `http://localhost:7103` |
+| Notification Worker/API | `http://localhost:5004` |
+| Audit API | `http://localhost:5005` |
+| SQL Server | `localhost:1433` |
+
+## Security Note
+
+The Docker Compose SQL password is for local developer execution only. Do not reuse it in Azure or any shared environment.

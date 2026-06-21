@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 
-import { EligibilityResultComponent } from './features/eligibility/eligibility-result.component';
 import { ApplicationStatusComponent } from './features/application-status/application-status.component';
 import { AuditTrailComponent } from './features/audit-trail/audit-trail.component';
 import { SystemHealthComponent } from './features/system-health/system-health.component';
@@ -13,7 +12,6 @@ export const routes: Routes = [
   { path: 'loan-applications', loadChildren: () => import('./features/loan-applications/loan-applications.routes').then(m => m.LOAN_APPLICATION_ROUTES) },
   { path: 'eligibility', loadChildren: () => import('./features/eligibility/eligibility.routes').then(m => m.ELIGIBILITY_ROUTES) },
   { path: 'notifications', loadChildren: () => import('./features/notifications/notifications.routes').then(m => m.NOTIFICATION_ROUTES) },
-  { path: 'eligibility/result', component: EligibilityResultComponent, title: 'Eligibility Result' },
   { path: 'applications/status', component: ApplicationStatusComponent, title: 'Application Status' },
   { path: 'audit-trail', component: AuditTrailComponent, title: 'Audit Trail' },
   { path: 'system-health', component: SystemHealthComponent, title: 'System Health' },

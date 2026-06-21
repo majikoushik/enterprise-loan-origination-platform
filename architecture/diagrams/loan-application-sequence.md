@@ -1,18 +1,21 @@
-# Loan Application Sequence
+# Loan Application Submission Sequence
 
 ```mermaid
 sequenceDiagram
+  autonumber
   participant Portal as Angular Portal
-  participant Customer as Customer API
-  participant Loan as Loan Application API
-  participant Eligibility as Eligibility API
-  participant Audit as Audit API
+  participant Loan as LoanApplication.Api
+  participant Db as LoanApplication DB
+  participant Notify as Notification.Worker
+  participant Audit as Audit.Api
 
-  Portal->>Customer: Register customer
-  Customer-->>Portal: Customer ID
-  Portal->>Loan: Submit loan application
-  Loan-->>Portal: Application submitted
-  Loan->>Eligibility: Request eligibility check
-  Eligibility-->>Loan: Eligibility result
-  Loan->>Audit: Record business event
+  Portal->>Loan: POST /api/v1/loan-applications
+  Loan->>Loan: Validate request DTO
+  Loan->>Loan: Create LoanApplication domain entity
+  Loan->>Db: Persist application and status history
+  Loan->>Notify: POST notification request (MVP HTTP simulation)
+  Notify-->>Loan: Notification accepted
+  Loan->>Audit: POST LoanApplicationSubmitted audit event
+  Audit-->>Loan: Audit event recorded
+  Loan-->>Portal: 201 Created response envelope
 ```
