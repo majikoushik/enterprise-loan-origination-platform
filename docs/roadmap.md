@@ -29,11 +29,10 @@
 - Epic 3: Eligibility Evaluation
 - Epic 4: Status Tracking
 - Epic 5: Notification Simulation
-- Epic 6: Audit Logging
-- Epic 7: Observability and Production Readiness
-- Epic 8: DevOps and Docker
-- Epic 9: Azure Deployment Blueprint
-- Epic 10: Portfolio Polish
+- **Epic 6**: Centralized Audit Logging (Event traceability, `Audit.Api`).
+- **Epic 7**: Observability & Production Readiness (Serilog, Correlation IDs, Problem Details, Health Checks).
+- **Epic 8**: DevOps and Docker (Local container orchestration, GitHub CI quality gates).
+- **Epic 9**: Azure Deployment Blueprint (Bicep IaC, GitHub Actions templates).
 
 ## Security Roadmap
 

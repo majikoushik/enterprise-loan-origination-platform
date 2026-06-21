@@ -9,7 +9,7 @@ For local testing and validation, the platform relies on **Docker Compose** to s
 
 ## Future Target: Azure Architecture
 
-The current containerized infrastructure provides a 1-to-1 migration path to the following Azure resources:
+A complete Bicep Infrastructure as Code (IaC) blueprint exists in `infra/bicep`. Please read the [Azure Deployment Guide](../docs/azure-deployment-guide.md) for detailed deployment steps.
 
 ### 1. Azure Container Registry (ACR)
 All Dockerfiles created in this solution will be built and pushed to a secure ACR instance during a GitHub Actions CI/CD deployment pipeline.

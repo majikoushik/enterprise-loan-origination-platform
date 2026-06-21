@@ -1,13 +1,34 @@
-# Azure Infrastructure
+# Azure Bicep Infrastructure
 
-Epic 0 creates the folder for Azure infrastructure as code. Bicep is the preferred path for future deployment blueprints.
+This directory contains the Bicep templates used to deploy the cloud-native infrastructure for the Enterprise Loan Origination Platform.
 
-Future templates will define:
+## Architecture Highlights
+The blueprint leverages Azure PaaS / Serverless components to maximize scalability while minimizing operational overhead:
+- **Azure Container Apps**: Hosting API backends and background workers.
+- **Azure SQL Database**: Relational storage for all microservices.
+- **Azure Service Bus**: Asynchronous, event-driven messaging.
+- **Azure Key Vault**: Secrets and connection string management.
+- **Application Insights & Log Analytics**: Centralized observability.
+- **Azure Container Registry**: Private Docker image hosting.
+- **Azure Static Web Apps**: Edge-cached frontend hosting.
 
-- Azure Container Apps environment and services
-- Azure SQL Database
-- Azure Service Bus namespace and queues/topics
-- Azure Key Vault
-- Azure Container Registry
-- Application Insights and Log Analytics
-- Static Web App or storage-hosted Angular frontend
+## Deployment Commands
+To perform a dry-run of the deployment:
+```bash
+az deployment group what-if \
+  --resource-group rg-entloan-dev \
+  --template-file main.bicep \
+  --parameters parameters/dev.parameters.json \
+  --parameters sqlAdministratorLoginPassword="YourStrong!Password123"
+```
+
+To execute the deployment:
+```bash
+az deployment group create \
+  --resource-group rg-entloan-dev \
+  --template-file main.bicep \
+  --parameters parameters/dev.parameters.json \
+  --parameters sqlAdministratorLoginPassword="YourStrong!Password123"
+```
+
+> **Warning:** Never commit real passwords to `parameters.json` files. Use secure parameters during execution or fetch them from an existing Key Vault.

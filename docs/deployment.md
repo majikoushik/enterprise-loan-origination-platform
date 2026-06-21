@@ -6,16 +6,11 @@ Epic 0 adds deployment documentation and CI foundation. Production deployment te
 
 ## Local Containers
 
-```powershell
-$env:SQLSERVER_SA_PASSWORD = "<local-development-password>"
-docker compose up sqlserver
-```
+For instructions on how to use Docker Compose and spin up the environment quickly on your laptop, please refer to the [DevOps Guide](devops-guide.md).
 
-The `services` Docker Compose profile can be extended as API Dockerfiles are added.
-
-## Azure Direction
-
-Future deployment will use:
+## Azure Production Deployment
+Our cloud-native topology relies on **Azure Container Apps** and **Azure SQL Database**.
+To understand how the Bicep IaC works and how to set up GitHub Actions CI/CD pipelines for Azure, please read the [Azure Deployment Guide](azure-deployment-guide.md).
 
 - Azure Container Registry for container images
 - Azure Container Apps for APIs and workers

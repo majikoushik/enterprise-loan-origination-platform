@@ -4,13 +4,10 @@
 
 Epic 0 establishes secure engineering expectations without introducing authentication. No secrets or real customer data are included.
 
-## Secret Management
-
-Local secrets should use environment variables or user secrets. Azure secrets should use Key Vault with managed identities.
-
-## Authentication Direction
-
-Future authentication should use Azure Entra ID or Entra External ID with JWT bearer validation in APIs.
+### 4. Secrets Management (Azure Key Vault)
+- No secrets (such as SQL credentials or API tokens) are hardcoded or committed to source control.
+- In Azure, all secrets are securely stored in **Azure Key Vault**.
+- Access to Key Vault is governed by **System-Assigned Managed Identities** applied directly to the Azure Container Apps pods. Container Apps read configurations seamlessly at boot.
 
 ## Authorization Direction
 
