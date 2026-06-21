@@ -1,4 +1,6 @@
-using Notification.Worker;
+using Observability;
+using SharedKernel;
+using Auditing;
 using Notification.Worker.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -18,7 +20,11 @@ builder.Services.AddSwaggerGen();
 
 // Database
 builder.Services.AddDbContext<NotificationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("NotificationDb")));
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddHttpAuditLogging(builder.Configuration);
+
+builder.Services.AddHostedService<NotificationSimulationWorker>();
 
 // Background Worker
 builder.Services.AddHostedService<NotificationSimulationWorker>();

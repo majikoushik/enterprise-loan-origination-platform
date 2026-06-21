@@ -2,6 +2,7 @@ using System;
 using Microsoft.OpenApi.Models;
 using Observability;
 using SharedKernel;
+using Auditing;
 using Eligibility.Api.Application.Services;
 using Eligibility.Api.Domain.Rules;
 using Eligibility.Api.Infrastructure.Data;
@@ -21,6 +22,11 @@ builder.Services.AddDbContext<EligibilityDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Add Rules Engine
+builder.Services.AddScoped<IEligibilityService, EligibilityService>();
+builder.Services.AddScoped<ICustomerLookupService, HttpCustomerLookupService>();
+
+builder.Services.AddHttpAuditLogging(builder.Configuration);
+
 builder.Services.AddScoped<IEligibilityRule, MinimumIncomeRule>();
 builder.Services.AddScoped<IEligibilityRule, DebtToIncomeRule>();
 builder.Services.AddScoped<IEligibilityRule, MaximumAmountRule>();
@@ -29,7 +35,6 @@ builder.Services.AddScoped<IEligibilityRule, EmiObligationRule>();
 builder.Services.AddScoped<RuleEngine>();
 
 // Add Services
-builder.Services.AddScoped<IEligibilityService, EligibilityService>();
 
 // Add HttpClient for LoanApplication API integration
 var loanAppApiUrl = builder.Configuration["ServiceUrls:LoanApplicationApi"] 

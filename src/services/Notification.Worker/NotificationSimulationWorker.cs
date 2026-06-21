@@ -1,6 +1,7 @@
 using Notification.Worker.Domain.Models;
 using Notification.Worker.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Auditing;
 
 namespace Notification.Worker;
 
@@ -38,6 +39,7 @@ public sealed class NotificationSimulationWorker : BackgroundService
     {
         using var scope = _serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
+        var auditLogger = scope.ServiceProvider.GetRequiredService<IAuditLogger>();
 
         var pendingRequests = await dbContext.NotificationRequests
             .Where(r => r.Status == NotificationStatus.Pending)
@@ -64,11 +66,47 @@ public sealed class NotificationSimulationWorker : BackgroundService
             {
                 request.MarkSent("250 OK: simulated successful delivery");
                 _logger.LogInformation("Notification {RequestId} sent successfully", request.Id);
+                
+                await auditLogger.LogAsync(new AuditEventRecord(
+                    Guid.NewGuid(),
+                    request.CorrelationId,
+                    "NotificationDeliveryCompleted",
+                    "Notification",
+                    "NotificationRequest",
+                    request.Id.ToString(),
+                    request.CustomerId,
+                    "System",
+                    "System",
+                    "DeliverNotification",
+                    "Notification delivered successfully",
+                    "{}",
+                    DateTimeOffset.UtcNow,
+                    "Notification.Worker",
+                    "Info"
+                ), stoppingToken);
             }
             else
             {
                 request.MarkFailed("Simulated random provider failure", "500 Server Error");
                 _logger.LogWarning("Notification {RequestId} failed to send", request.Id);
+
+                await auditLogger.LogAsync(new AuditEventRecord(
+                    Guid.NewGuid(),
+                    request.CorrelationId,
+                    "NotificationDeliveryFailed",
+                    "Notification",
+                    "NotificationRequest",
+                    request.Id.ToString(),
+                    request.CustomerId,
+                    "System",
+                    "System",
+                    "DeliverNotification",
+                    "Notification delivery failed",
+                    "{\"reason\": \"Simulated random provider failure\"}",
+                    DateTimeOffset.UtcNow,
+                    "Notification.Worker",
+                    "Warning"
+                ), stoppingToken);
             }
         }
 

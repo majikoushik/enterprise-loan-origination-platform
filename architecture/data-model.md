@@ -1,33 +1,33 @@
-# Data Model
+# Audit Logging Data Model
 
-Epic 0 does not create database tables. The conceptual model is prepared for future epics.
+## Overview
+The `Audit.Api` service owns the `EnterpriseLoan_Audit` database, which stores immutable records of business actions across the platform.
 
-## Implemented Entities
+### Table: AuditEvents
+Stores centralized events from all microservices.
 
-### Customer (Epic 1)
+| Column | Type | Description |
+|---|---|---|
+| `Id` | `UNIQUEIDENTIFIER` | Primary Key |
+| `EventId` | `UNIQUEIDENTIFIER` | Correlates to an original domain/integration event |
+| `CorrelationId` | `NVARCHAR(100)` | Used to track flows across services |
+| `EventType` | `NVARCHAR(100)` | E.g., `CustomerRegistered`, `LoanApplicationSubmitted` |
+| `Category` | `NVARCHAR(50)` | E.g., `Customer`, `LoanApplication`, `Eligibility`, `Notification` |
+| `EntityType` | `NVARCHAR(100)` | Primary entity involved (e.g. `Customer`, `LoanApplication`) |
+| `EntityId` | `NVARCHAR(100)` | ID of the primary entity |
+| `CustomerId` | `UNIQUEIDENTIFIER` | Nullable reference to the customer (if applicable) |
+| `ActorType` | `NVARCHAR(50)` | E.g., `System`, `Customer`, `Underwriter` |
+| `ActorId` | `NVARCHAR(100)` | ID of the actor performing the action |
+| `Action` | `NVARCHAR(100)` | E.g., `Register`, `Submit`, `ChangeStatus`, `Evaluate` |
+| `Summary` | `NVARCHAR(500)` | Human-readable summary |
+| `MetadataJson` | `NVARCHAR(MAX)` | Additional context payload in JSON (must NOT contain secrets/PII) |
+| `OccurredAtUtc` | `DATETIMEOFFSET` | When the event actually happened |
+| `RecordedAtUtc` | `DATETIMEOFFSET` | When the event was saved in the audit log |
+| `SourceService` | `NVARCHAR(100)` | E.g., `Customer.Api` |
+| `Severity` | `NVARCHAR(50)` | E.g., `Info`, `Warning`, `Error` |
 
-Implemented in `Customer.Api` using EF Core. Fields include `Id`, `FullName`, `Email`, `MobileNumber`, `DateOfBirth`, `EmploymentType`, `MonthlyIncome`, `ExistingMonthlyObligations`, and `CreatedAt`.
-
-### LoanApplication (Epic 2 & 4)
-
-Implemented in `LoanApplication.Api` using EF Core. Fields include `Id`, `CustomerId`, `LoanType`, `RequestedAmount`, `RequestedTenureInMonths`, `Purpose`, `DeclaredMonthlyIncome`, `ExistingEmiObligations`, `Status`, `CreatedAt`, and `UpdatedAt`.
-
-Epic 4 introduced `ApplicationStatusHistory` to track all lifecycle changes. It includes `Id`, `ApplicationId`, `PreviousStatus`, `NewStatus`, `Reason`, `ChangedBy`, and `ChangedAt`.
-
-### EligibilityResult (Epic 3)
-
-Implemented in `Eligibility.Api` using EF Core. Fields include `Id`, `ApplicationId`, `CustomerId`, `Decision`, `RuleVersion`, `EvaluatedAt`, financial snapshots, and a collection of `RuleResults`.
-
-## Future Candidate Entities
-
-### NotificationRequest
-
-Fields will include channel, recipient reference, event type, delivery status, correlation ID, and timestamps.
-
-### AuditEvent
-
-Fields will include event type, entity type, entity ID, timestamp, correlation ID, and summary message.
-
-## Database Direction
-
-SQL Server is used locally and Azure SQL Database is the cloud target. EF Core migrations should be introduced with the first persisted feature.
+#### Indexes
+- `IX_AuditEvents_EntityId`
+- `IX_AuditEvents_CorrelationId`
+- `IX_AuditEvents_OccurredAtUtc`
+- `IX_AuditEvents_CustomerId`

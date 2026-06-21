@@ -1,6 +1,7 @@
 using Microsoft.OpenApi.Models;
 using Observability;
 using SharedKernel;
+using Auditing;
 using Customer.Api.Infrastructure.Data;
 using Customer.Api.Application.Services;
 using Customer.Api.Application.Validators;
@@ -22,6 +23,8 @@ builder.Services.AddDbContext<CustomerDbContext>(options =>
 // Add Application Services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddValidatorsFromAssemblyContaining<CustomerRegistrationRequestValidator>();
+
+builder.Services.AddHttpAuditLogging(builder.Configuration);
 
 builder.Services.AddSwaggerGen(options =>
 {

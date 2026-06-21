@@ -8,6 +8,9 @@ using Eligibility.Api.Domain.Models;
 using Eligibility.Api.Domain.Rules;
 using Eligibility.Api.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Observability;
+using Auditing;
 
 namespace Eligibility.Api.Application.Services;
 
@@ -15,15 +18,24 @@ public class EligibilityService : IEligibilityService
 {
     private readonly EligibilityDbContext _dbContext;
     private readonly ILoanApplicationClient _loanApplicationClient;
+    private readonly ILogger<EligibilityService> _logger;
+    private readonly CorrelationIdProvider _correlationIdProvider;
+    private readonly IAuditLogger _auditLogger;
     private readonly RuleEngine _ruleEngine;
 
     public EligibilityService(
         EligibilityDbContext dbContext,
         ILoanApplicationClient loanApplicationClient,
+        ILogger<EligibilityService> logger,
+        CorrelationIdProvider correlationIdProvider,
+        IAuditLogger auditLogger,
         RuleEngine ruleEngine)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _loanApplicationClient = loanApplicationClient ?? throw new ArgumentNullException(nameof(loanApplicationClient));
+        _logger = logger;
+        _correlationIdProvider = correlationIdProvider;
+        _auditLogger = auditLogger;
         _ruleEngine = ruleEngine ?? throw new ArgumentNullException(nameof(ruleEngine));
     }
 
@@ -43,8 +55,25 @@ public class EligibilityService : IEligibilityService
         _dbContext.EligibilityResults.Add(result);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        // TODO: In a future epic, publish an integration event (e.g. EligibilityCheckCompleted)
-        // so that LoanApplication.Api can update the application status to EligibilityPassed/Failed.
+        _logger.LogInformation("Eligibility evaluated for Application {ApplicationId}. Result: {IsEligible}", request.ApplicationId, result.IsEligible);
+
+        await _auditLogger.LogAsync(new AuditEventRecord(
+            Guid.NewGuid(),
+            _correlationIdProvider.Get(),
+            "EligibilityCheckCompleted",
+            "Eligibility",
+            "LoanApplication",
+            request.ApplicationId.ToString(),
+            request.CustomerId,
+            "System",
+            "System",
+            "Evaluate",
+            $"Eligibility check completed. Result: {(result.IsEligible ? "Passed" : "Failed")}",
+            System.Text.Json.JsonSerializer.Serialize(new { isEligible = result.IsEligible, requestedAmount = result.RequestedAmount }),
+            DateTimeOffset.UtcNow,
+            "Eligibility.Api",
+            "Info"
+        ), cancellationToken);
 
         return MapToResponse(result);
     }

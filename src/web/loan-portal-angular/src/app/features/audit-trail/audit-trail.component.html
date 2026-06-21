@@ -1,0 +1,89 @@
+<div class="page-shell">
+  <div class="header-actions">
+    <div>
+      <h2 class="section-title">Audit Trail</h2>
+      <p class="muted">Centralized immutable record of business events across the platform.</p>
+    </div>
+    <button class="btn btn-secondary" (click)="loadEvents()" [disabled]="isLoading">
+      &#x21bb; Refresh
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error mb-4">
+    {{ errorMessage }}
+  </div>
+
+  <div class="card">
+    <div class="card-body p-0">
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner-dark"></div>
+        <p>Loading audit events...</p>
+      </div>
+
+      <div *ngIf="!isLoading && events.length === 0" class="empty-state">
+        <p>No audit events found. Start performing some actions in the platform.</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoading && events.length > 0">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Category</th>
+              <th>Severity</th>
+              <th>Event Type</th>
+              <th>Summary</th>
+              <th>Actor</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let ev of events">
+              <tr class="clickable-row" [class.expanded]="expandedRowId === ev.id" (click)="toggleRow(ev.id)">
+                <td class="text-nowrap">{{ ev.occurredAtUtc | date:'medium' }}</td>
+                <td><span class="badge" [ngClass]="getCategoryClass(ev.category)">{{ ev.category }}</span></td>
+                <td><span class="badge" [ngClass]="getSeverityClass(ev.severity)">{{ ev.severity }}</span></td>
+                <td class="font-weight-bold">{{ ev.eventType }}</td>
+                <td>{{ ev.summary }}</td>
+                <td>{{ ev.actorType }}: {{ ev.actorId }}</td>
+                <td>
+                  <span class="expand-icon" [class.rotated]="expandedRowId === ev.id">&#x25BC;</span>
+                </td>
+              </tr>
+              <tr class="details-row" *ngIf="expandedRowId === ev.id">
+                <td colspan="7">
+                  <div class="audit-details">
+                    <div class="detail-grid">
+                      <div>
+                        <strong>Event ID:</strong> <span class="code-sm">{{ ev.eventId }}</span>
+                      </div>
+                      <div>
+                        <strong>Correlation ID:</strong> <span class="code-sm">{{ ev.correlationId }}</span>
+                      </div>
+                      <div>
+                        <strong>Entity:</strong> {{ ev.entityType }} (<span class="code-sm">{{ ev.entityId }}</span>)
+                      </div>
+                      <div *ngIf="ev.customerId">
+                        <strong>Customer ID:</strong> <span class="code-sm">{{ ev.customerId }}</span>
+                      </div>
+                      <div>
+                        <strong>Source Service:</strong> {{ ev.sourceService }}
+                      </div>
+                      <div>
+                        <strong>Action:</strong> {{ ev.action }}
+                      </div>
+                    </div>
+                    <div class="metadata-block">
+                      <strong>Metadata payload:</strong>
+                      <pre><code>{{ formatMetadata(ev.metadataJson) }}</code></pre>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

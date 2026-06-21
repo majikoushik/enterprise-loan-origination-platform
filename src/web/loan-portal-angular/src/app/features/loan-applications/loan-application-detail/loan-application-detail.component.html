@@ -122,6 +122,46 @@
         </div>
       </div>
     </div>
+  </div>
 
+  <div class="card mt-4" *ngIf="application">
+    <div class="card-header">
+      <h3 class="m-0">Audit History</h3>
+    </div>
+    <div class="card-body p-0">
+      <div *ngIf="isLoadingAudit" class="p-4 text-center">
+        <div class="spinner-dark inline-block mb-2"></div>
+        <p class="muted">Loading audit history...</p>
+      </div>
+
+      <div *ngIf="auditErrorMessage" class="p-4 alert alert-error m-3">
+        {{ auditErrorMessage }}
+      </div>
+
+      <div *ngIf="!isLoadingAudit && !auditErrorMessage && auditEvents.length === 0" class="p-4 text-center muted">
+        No audit events found for this application.
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoadingAudit && auditEvents.length > 0">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Event Type</th>
+              <th>Action</th>
+              <th>Actor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let ev of auditEvents">
+              <td>{{ ev.occurredAtUtc | date:'short' }}</td>
+              <td><strong>{{ ev.eventType }}</strong></td>
+              <td>{{ ev.summary }}</td>
+              <td>{{ ev.actorType }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>

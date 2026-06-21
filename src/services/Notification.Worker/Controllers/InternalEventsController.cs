@@ -1,7 +1,7 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Notification.Worker.Domain.Models;
 using Notification.Worker.Infrastructure.Data;
+using Auditing;
 
 namespace Notification.Worker.Controllers;
 
@@ -11,11 +11,13 @@ public class InternalEventsController : ControllerBase
 {
     private readonly NotificationDbContext _dbContext;
     private readonly ILogger<InternalEventsController> _logger;
+    private readonly IAuditLogger _auditLogger;
 
-    public InternalEventsController(NotificationDbContext dbContext, ILogger<InternalEventsController> logger)
+    public InternalEventsController(NotificationDbContext dbContext, ILogger<InternalEventsController> logger, IAuditLogger auditLogger)
     {
         _dbContext = dbContext;
         _logger = logger;
+        _auditLogger = auditLogger;
     }
 
     [HttpPost]
@@ -52,6 +54,24 @@ public class InternalEventsController : ControllerBase
                 await _dbContext.SaveChangesAsync();
 
                 _logger.LogInformation("Stored pending NotificationRequest {RequestId} for event {EventType}", notificationRequest.Id, eventType);
+
+                await _auditLogger.LogAsync(new AuditEventRecord(
+                    Guid.NewGuid(),
+                    correlationId,
+                    "NotificationRequested",
+                    "Notification",
+                    "LoanApplication",
+                    entityId.ToString(),
+                    customerId,
+                    "System",
+                    "System",
+                    "RequestNotification",
+                    $"Notification requested for {eventType}",
+                    System.Text.Json.JsonSerializer.Serialize(new { channel = "Email", eventType = eventType }),
+                    DateTimeOffset.UtcNow,
+                    "Notification.Worker",
+                    "Info"
+                ));
             }
             // Future events like CustomerRegistered can be handled here
 

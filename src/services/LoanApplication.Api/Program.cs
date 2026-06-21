@@ -1,12 +1,13 @@
 using Microsoft.OpenApi.Models;
 using Observability;
 using SharedKernel;
+using Messaging;
+using Auditing;
 using LoanApplication.Api.Infrastructure.Data;
 using LoanApplication.Api.Application.Services;
 using LoanApplication.Api.Application.Validators;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
-using Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,9 +29,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<LoanApplicationRequestValid
 // Configure HTTP Event Publisher for MVP simulation of Azure Service Bus
 builder.Services.AddHttpClient<IMessagePublisher, HttpEventPublisher>(client =>
 {
-    // Point to the Notification Worker internal events API
-    // In a real environment, this would be an Azure Service Bus connection
-    // For local dev, Notification.Worker is expected to run on port 5004
+    // Configuration happens in the factory below
 });
 builder.Services.AddScoped<IMessagePublisher>(sp =>
 {
@@ -40,6 +39,8 @@ builder.Services.AddScoped<IMessagePublisher>(sp =>
     var webhookUrl = configuration["ServiceUrls:NotificationWorker"] ?? "http://localhost:5004/api/v1/internal/events";
     return new HttpEventPublisher(httpClient, webhookUrl);
 });
+
+builder.Services.AddHttpAuditLogging(builder.Configuration);
 
 builder.Services.AddSwaggerGen(options =>
 {

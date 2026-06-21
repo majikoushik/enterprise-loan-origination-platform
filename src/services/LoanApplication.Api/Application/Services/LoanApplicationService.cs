@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Auditing;
 using LoanApplication.Api.Application.DTOs;
 using LoanApplication.Api.Domain.Exceptions;
 using LoanApplication.Api.Domain.Models;
 using LoanApplication.Api.Infrastructure.Data;
 using Messaging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Observability;
 
 namespace LoanApplication.Api.Application.Services;
 
@@ -16,16 +19,25 @@ public class LoanApplicationService : ILoanApplicationService
 {
     private readonly LoanApplicationDbContext _dbContext;
     private readonly ICustomerLookupService _customerLookupService;
+    private readonly ILogger<LoanApplicationService> _logger;
+    private readonly CorrelationIdProvider _correlationIdProvider;
     private readonly IMessagePublisher _messagePublisher;
+    private readonly IAuditLogger _auditLogger;
 
     public LoanApplicationService(
         LoanApplicationDbContext dbContext,
         ICustomerLookupService customerLookupService,
-        IMessagePublisher messagePublisher)
+        ILogger<LoanApplicationService> logger,
+        CorrelationIdProvider correlationIdProvider,
+        IMessagePublisher messagePublisher,
+        IAuditLogger auditLogger)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _customerLookupService = customerLookupService ?? throw new ArgumentNullException(nameof(customerLookupService));
-        _messagePublisher = messagePublisher ?? throw new ArgumentNullException(nameof(messagePublisher));
+        _logger = logger;
+        _correlationIdProvider = correlationIdProvider;
+        _messagePublisher = messagePublisher;
+        _auditLogger = auditLogger;
     }
 
     public async Task<LoanApplicationResponse> SubmitApplicationAsync(LoanApplicationRequest request, CancellationToken cancellationToken = default)
@@ -49,8 +61,25 @@ public class LoanApplicationService : ILoanApplicationService
         _dbContext.LoanApplications.Add(entity);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        // TODO: In a future epic, publish a Domain/Integration Event (e.g. LoanApplicationSubmitted)
-        // for Audit and Notification services.
+        _logger.LogInformation("Loan application {ApplicationId} submitted for Customer {CustomerId}", entity.Id, entity.CustomerId);
+
+        await _auditLogger.LogAsync(new AuditEventRecord(
+            Guid.NewGuid(),
+            _correlationIdProvider.Get(),
+            "LoanApplicationSubmitted",
+            "LoanApplication",
+            "LoanApplication",
+            entity.Id.ToString(),
+            entity.CustomerId,
+            "Customer",
+            "Self",
+            "Submit",
+            $"Loan application submitted for {request.RequestedAmount}",
+            System.Text.Json.JsonSerializer.Serialize(new { requestedAmount = entity.RequestedAmount, purpose = entity.Purpose }),
+            DateTimeOffset.UtcNow,
+            "LoanApplication.Api",
+            "Info"
+        ), cancellationToken);
 
         return MapToResponse(entity);
     }
@@ -102,9 +131,30 @@ public class LoanApplicationService : ILoanApplicationService
             throw new LoanApplicationDomainException($"Invalid application status: {request.NewStatus}");
         }
 
+        var oldStatus = application.Status;
         application.ChangeStatus(newStatusEnum, request.Reason, request.ChangedBy);
         
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("Loan application {ApplicationId} status updated to {NewStatus}", application.Id, request.NewStatus);
+
+        await _auditLogger.LogAsync(new AuditEventRecord(
+            Guid.NewGuid(),
+            _correlationIdProvider.Get(),
+            "LoanApplicationStatusChanged",
+            "StatusTransition",
+            "LoanApplication",
+            application.Id.ToString(),
+            application.CustomerId,
+            "System",
+            "System",
+            "ChangeStatus",
+            $"Loan application status changed from {oldStatus} to {application.Status}",
+            System.Text.Json.JsonSerializer.Serialize(new { oldStatus = oldStatus.ToString(), newStatus = application.Status.ToString() }),
+            DateTimeOffset.UtcNow,
+            "LoanApplication.Api",
+            "Info"
+        ), cancellationToken);
 
         // Publish event
         var integrationEvent = new LoanApplicationStatusChangedEvent(

@@ -1,9 +1,12 @@
+using Audit.Api.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Observability;
 using SharedKernel;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -17,11 +20,25 @@ builder.Services.AddSwaggerGen(options =>
 });
 builder.Services.AddHealthChecks();
 
+builder.Services.AddDbContext<AuditDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AuditDb")));
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCorrelationId();
+app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {
@@ -29,6 +46,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.MapControllers();
 app.MapHealthChecks("/health");
 app.MapGet("/api/v1/audit-service/metadata", (HttpContext context) =>
 {

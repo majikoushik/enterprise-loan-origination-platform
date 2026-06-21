@@ -4,19 +4,28 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Customer.Api.Application.DTOs;
-using Customer.Api.Domain;
+using Customer.Api.Domain.Models;
 using Customer.Api.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Observability;
+using Auditing;
 
 namespace Customer.Api.Application.Services;
 
 public class CustomerService : ICustomerService
 {
     private readonly CustomerDbContext _dbContext;
+    private readonly ILogger<CustomerService> _logger;
+    private readonly CorrelationIdProvider _correlationIdProvider;
+    private readonly IAuditLogger _auditLogger;
 
-    public CustomerService(CustomerDbContext dbContext)
+    public CustomerService(CustomerDbContext dbContext, ILogger<CustomerService> logger, CorrelationIdProvider correlationIdProvider, IAuditLogger auditLogger)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _logger = logger;
+        _correlationIdProvider = correlationIdProvider;
+        _auditLogger = auditLogger;
     }
 
     public async Task<CustomerResponse> RegisterCustomerAsync(CustomerRegistrationRequest request, CancellationToken cancellationToken = default)
@@ -43,6 +52,26 @@ public class CustomerService : ICustomerService
 
         _dbContext.Customers.Add(customer);
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        _logger.LogInformation("Customer registered successfully with Id: {CustomerId}", customer.Id);
+
+        await _auditLogger.LogAsync(new AuditEventRecord(
+            Guid.NewGuid(),
+            _correlationIdProvider.Get(),
+            "CustomerRegistered",
+            "Customer",
+            "Customer",
+            customer.Id.ToString(),
+            customer.Id,
+            "Customer",
+            "Self",
+            "Register",
+            $"Customer registered: {request.FullName}",
+            System.Text.Json.JsonSerializer.Serialize(new { email = customer.Email.Value }),
+            DateTimeOffset.UtcNow,
+            "Customer.Api",
+            "Info"
+        ), cancellationToken);
 
         return MapToResponse(customer);
     }

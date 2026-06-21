@@ -3,7 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LoanApplicationService } from '../../../core/services/loan-application.service';
-import { LoanApplicationResponse, ApplicationStatusHistoryResponse, UpdateApplicationStatusRequest } from '../../../core/models/loan-application.model';
+import { AuditService } from '../../../core/services/audit.service';
+import { LoanApplication } from '../../../core/models/loan-application.model';
+import { AuditEvent } from '../../../core/models/audit.model';
 
 @Component({
   selector: 'app-loan-application-detail',
@@ -13,12 +15,14 @@ import { LoanApplicationResponse, ApplicationStatusHistoryResponse, UpdateApplic
   styleUrls: ['./loan-application-detail.component.css']
 })
 export class LoanApplicationDetailComponent implements OnInit {
-  application: LoanApplicationResponse | null = null;
-  history: ApplicationStatusHistoryResponse[] = [];
+  application: LoanApplication | null = null;
+  auditEvents: AuditEvent[] = [];
   
   isLoading = true;
+  isLoadingAudit = true;
   isUpdating = false;
   errorMessage = '';
+  auditErrorMessage = '';
 
   ApplicationStatus: { [key: number]: string } = {
     1: 'Draft',
@@ -37,7 +41,8 @@ export class LoanApplicationDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private loanApplicationService: LoanApplicationService
+    private loanService: LoanApplicationService,
+    private auditService: AuditService
   ) {}
 
   ngOnInit(): void {
@@ -49,31 +54,30 @@ export class LoanApplicationDetailComponent implements OnInit {
 
   loadApplicationDetails(id: string): void {
     this.isLoading = true;
+    this.isLoadingAudit = true;
     this.errorMessage = '';
+    this.auditErrorMessage = '';
 
-    this.loanApplicationService.getApplication(id).subscribe({
-      next: (app) => {
-        this.application = app;
-        this.determineValidNextStatuses(app.status);
-        this.loadHistory(id);
+    this.loanService.getApplication(id).subscribe({
+      next: (data) => {
+        this.application = data;
+        this.determineValidNextStatuses(data.status);
+        this.isLoading = false;
       },
       error: (err) => {
         this.errorMessage = err.message;
         this.isLoading = false;
       }
     });
-  }
 
-  loadHistory(id: string): void {
-    this.loanApplicationService.getApplicationStatusHistory(id).subscribe({
-      next: (history) => {
-        this.history = history;
-        this.isLoading = false;
+    this.auditService.getEventsByEntity('LoanApplication', id).subscribe({
+      next: (response) => {
+        this.auditEvents = response.data;
+        this.isLoadingAudit = false;
       },
       error: (err) => {
-        // Just log history error, show app anyway
-        console.error('Failed to load history', err);
-        this.isLoading = false;
+        this.auditErrorMessage = err.message;
+        this.isLoadingAudit = false;
       }
     });
   }
@@ -105,19 +109,20 @@ export class LoanApplicationDetailComponent implements OnInit {
     this.isUpdating = true;
     this.errorMessage = '';
 
-    const request: UpdateApplicationStatusRequest = {
+    const request = {
       newStatus: this.selectedNextStatus,
       reason: this.transitionReason,
       changedBy: 'System Admin (Demo)'
     };
 
-    this.loanApplicationService.updateApplicationStatus(this.application.id, request).subscribe({
+    this.loanService.updateApplicationStatus(this.application.id, request).subscribe({
       next: (app) => {
         this.application = app;
         this.determineValidNextStatuses(app.status);
         this.transitionReason = '';
-        this.loadHistory(this.application.id);
         this.isUpdating = false;
+        // Refresh audit after update
+        this.loadApplicationDetails(app.id);
       },
       error: (err) => {
         this.errorMessage = err.message;
