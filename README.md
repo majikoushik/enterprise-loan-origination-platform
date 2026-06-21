@@ -1,6 +1,6 @@
 # Enterprise Loan Origination Platform
 
-[![CI](https://github.com/koushikchandramaji/enterprise-loan-origination-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/koushikchandramaji/enterprise-loan-origination-platform/actions/workflows/ci.yml)
+[![CI](https://github.com/majikoushik/enterprise-loan-origination-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/majikoushik/enterprise-loan-origination-platform/actions/workflows/ci.yml)
 ![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)
 ![Angular](https://img.shields.io/badge/Angular-18-DD0031)
 ![Azure Ready](https://img.shields.io/badge/Azure-Container%20Apps%20%7C%20SQL%20%7C%20Service%20Bus-0078D4)
