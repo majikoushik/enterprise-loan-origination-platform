@@ -1,0 +1,192 @@
+Implement Epic 4: Application Status Tracking based on AGENTS.md and the existing repository.
+
+Build the next business feature for the `enterprise-loan-origination-platform`: Loan Application Status Tracking and Controlled Status Transitions.
+
+Before implementation:
+
+1. Read `AGENTS.md`.
+2. Review the current repository structure.
+3. Review the implementation from Epic 0, Epic 1, Epic 2, and Epic 3.
+4. Review existing Customer, Loan Application, and Eligibility APIs.
+5. Review existing Angular routes, services, components, tests, documentation, and CI workflow.
+6. Preserve the existing architecture direction, naming conventions, API response pattern, error handling pattern, observability standards, testing standards, and Azure-readiness.
+
+Epic 4 Goal:
+
+Allow users to view loan application status clearly and support controlled status transitions according to defined business rules.
+
+This epic should make the loan application lifecycle look professional, traceable, and enterprise-ready.
+
+Backend scope:
+
+1. Enhance `LoanApplication.Api` to support status tracking.
+2. Implement controlled status transition logic.
+3. Add status history tracking if not already present.
+4. Add APIs to fetch current status and status history.
+5. Add validation for status transition requests.
+6. Prevent invalid status transitions.
+7. Add clear error responses for invalid transitions.
+8. Add structured logging for status changes.
+9. Use correlation ID support if available.
+10. Add audit event creation for status changes if audit foundation exists.
+11. Add notification event/request creation for important status changes if notification foundation exists.
+12. Add Swagger/OpenAPI documentation readiness.
+13. Add unit tests and API/integration tests where practical.
+
+Supported application statuses:
+
+* Draft
+* Submitted
+* UnderReview
+* EligibilityPassed
+* EligibilityFailed
+* Approved
+* Rejected
+* Cancelled
+
+Recommended status transition rules:
+
+* Draft → Submitted
+* Submitted → UnderReview
+* Submitted → Cancelled
+* UnderReview → EligibilityPassed
+* UnderReview → EligibilityFailed
+* EligibilityPassed → Approved
+* EligibilityPassed → Rejected
+* EligibilityFailed → Rejected
+* EligibilityFailed → Cancelled
+* Approved → no further transition
+* Rejected → no further transition
+* Cancelled → no further transition
+
+If the existing implementation from Epic 2 or Epic 3 already uses slightly different status flow, align with it only if it is clean and documented. Otherwise, refactor toward the above controlled transition model.
+
+Suggested status history fields:
+
+* Status history ID
+* Loan application ID
+* Previous status
+* New status
+* Reason
+* Changed by
+* Changed timestamp
+* Correlation ID
+
+Suggested API endpoints:
+
+* `GET /api/v1/loan-applications/{applicationId}/status`
+* `GET /api/v1/loan-applications/{applicationId}/status-history`
+* `PATCH /api/v1/loan-applications/{applicationId}/status`
+
+Suggested status update request:
+
+```json
+{
+  "newStatus": "UnderReview",
+  "reason": "Application picked for review",
+  "changedBy": "System"
+}
+```
+
+Use consistent API response and error response patterns according to `AGENTS.md`.
+
+Frontend scope:
+
+1. Implement Application Status Tracking UI in Angular.
+2. Use the existing feature-based frontend structure.
+3. Add a status dashboard or enhance the existing loan application detail page.
+4. Display current status clearly using professional status badges.
+5. Display status history in a timeline or clean table.
+6. Add controlled status update action if appropriate for demo use.
+7. Show only valid next statuses where possible.
+8. Show user-friendly error message for invalid transitions.
+9. Show loading state while fetching status or updating status.
+10. Use typed Angular models and services.
+11. Do not call APIs directly from components; use a dedicated loan application/status API service.
+12. Keep the UI professional and suitable for a banking platform demo.
+
+Frontend route expectations:
+
+* `/loan-applications/:id/status`
+* Optional: integrate current status and status history into `/loan-applications/:id`
+* Optional: add status overview to `/dashboard`
+
+Documentation scope:
+
+Update or create relevant documentation:
+
+* `README.md`
+* `docs/api-contracts.md`
+* `docs/local-development.md`
+* `docs/testing-strategy.md`
+* `docs/roadmap.md`
+* `architecture/lld.md`
+* `architecture/data-model.md`
+* `architecture/event-model.md`
+* `architecture/api-governance.md`
+* `architecture/security-architecture.md`
+* `architecture/observability-architecture.md`
+
+Architecture expectations:
+
+1. Keep controllers thin.
+2. Keep status transition rules out of controllers.
+3. Put transition logic in domain or application layer.
+4. Make invalid transitions impossible through normal application flow.
+5. Document the status lifecycle clearly.
+6. Preserve event-driven thinking for future notification and audit integration.
+7. Keep the design ready for future Notification, Audit, Observability, DevOps, and Azure deployment epics.
+8. Avoid overbuilding full underwriting or approval workflow beyond this epic.
+
+Testing expectations:
+
+Add tests for:
+
+* Fetching current application status
+* Fetching status history
+* Valid transition from Draft to Submitted
+* Valid transition from Submitted to UnderReview
+* Valid transition from UnderReview to EligibilityPassed
+* Valid transition from UnderReview to EligibilityFailed
+* Valid transition from EligibilityPassed to Approved
+* Valid transition from EligibilityPassed to Rejected
+* Valid transition from Submitted to Cancelled
+* Invalid transition from Approved to Rejected
+* Invalid transition from Rejected to Approved
+* Invalid transition from Cancelled to Submitted
+* Invalid transition when loan application does not exist
+* Status history record creation after successful transition
+* Audit event creation if audit foundation exists
+* API validation failure for missing new status
+* API validation failure for invalid status value
+
+CI/CD expectation:
+
+Update GitHub Actions if required so the build and tests include the new backend and frontend changes.
+
+Important rules:
+
+* Do not hardcode secrets.
+* Do not use real customer data.
+* Do not overbuild beyond Epic 4.
+* Do not implement real underwriting.
+* Do not implement real credit bureau integration.
+* Do not implement authentication unless already required by the existing foundation.
+* Do not implement Azure deployment yet unless required by the current foundation.
+* Keep the project Azure-ready.
+* Keep the implementation portfolio-grade and Solution Architect quality.
+
+After implementation, provide:
+
+1. What was implemented.
+2. Backend files created or modified.
+3. Frontend files created or modified.
+4. Database/migration changes.
+5. API endpoints added.
+6. Status transition rules implemented.
+7. Tests added.
+8. Documentation updated.
+9. Commands to run locally.
+10. Commands to test.
+11. Any assumptions made.
+12. Recommended next epic.

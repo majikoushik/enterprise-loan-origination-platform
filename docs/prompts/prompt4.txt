@@ -1,0 +1,188 @@
+Implement Epic 3: Eligibility Evaluation based on AGENTS.md and the existing repository.
+
+Build the next business feature for the `enterprise-loan-origination-platform`: Rule-Based Loan Eligibility Evaluation.
+
+Before implementation:
+
+1. Read `AGENTS.md`.
+2. Review the current repository structure.
+3. Review the implementation from Epic 0, Epic 1, and Epic 2.
+4. Review existing Customer and Loan Application APIs, Angular structure, tests, documentation, and CI workflow.
+5. Preserve the existing architecture direction, naming conventions, testing standards, API response patterns, error handling approach, observability standards, and Azure-readiness.
+
+Epic 3 Goal:
+
+Add a rule-based eligibility evaluation capability so that a submitted loan application can be evaluated using transparent demo banking rules.
+
+This is a demo rule engine for portfolio and architecture purposes. Do not represent it as a real banking credit approval engine.
+
+Backend scope:
+
+1. Implement Eligibility Evaluation in `Eligibility.Api`.
+2. Create a clean domain model for `EligibilityResult`.
+3. Create a rule evaluation structure that is easy to extend.
+4. Add request and response DTOs.
+5. Add validation for all required fields.
+6. Add persistence using Entity Framework Core.
+7. Add database migration support.
+8. Store eligibility result against the related loan application.
+9. Return decision explanation and individual rule results.
+10. Add rule versioning readiness.
+11. Add Swagger/OpenAPI documentation readiness.
+12. Add structured logging.
+13. Use correlation ID support if available.
+14. Add proper error handling using the existing Problem Details or global error-handling pattern.
+15. Update loan application status to `EligibilityPassed` or `EligibilityFailed` if cross-service update is already practical in the current implementation.
+16. If direct cross-service update is not yet appropriate, document the event-driven design for status update and keep the implementation clean.
+17. Add audit event creation for eligibility evaluation if the audit foundation already exists.
+18. Add notification request creation if notification foundation already exists.
+19. Add unit tests and API/integration tests where practical.
+
+Eligibility rules for MVP:
+
+Use these demo rules unless the existing implementation already defines a better documented rule set:
+
+1. Minimum monthly income: 25,000
+2. Maximum debt-to-income ratio: 50%
+3. Maximum requested amount: 20 times declared monthly income
+4. Minimum tenure: 6 months
+5. Maximum tenure: 84 months
+6. Existing EMI obligations cannot be greater than declared monthly income
+
+Eligibility decision logic:
+
+* If all mandatory rules pass, decision should be `Passed`.
+* If one or more mandatory rules fail, decision should be `Failed`.
+* The response must clearly explain which rules passed and which rules failed.
+* Include calculated values such as debt-to-income ratio where useful.
+* Include rule version, evaluated timestamp, and correlation ID.
+
+Suggested eligibility result fields:
+
+* Eligibility result ID
+* Loan application ID
+* Customer ID
+* Decision: Passed or Failed
+* Rule version
+* Evaluated timestamp
+* Requested amount
+* Declared monthly income
+* Existing EMI obligations
+* Debt-to-income ratio
+* Decision summary
+* Rule results collection
+
+Suggested rule result fields:
+
+* Rule code
+* Rule name
+* Passed true/false
+* Actual value
+* Expected value or threshold
+* Explanation
+
+Suggested API endpoints:
+
+* `POST /api/v1/eligibility/check`
+* `GET /api/v1/eligibility/applications/{applicationId}`
+* `GET /api/v1/eligibility/results/{eligibilityResultId}`
+
+Use consistent API response and error response patterns according to `AGENTS.md`.
+
+Frontend scope:
+
+1. Implement Eligibility Evaluation UI in Angular.
+2. Use the existing feature-based frontend structure.
+3. Add a screen to trigger eligibility check for a submitted loan application.
+4. Add a screen or section to display eligibility result.
+5. Show decision clearly using professional status badges.
+6. Show rule-by-rule explanation in a clean table or card layout.
+7. Show calculated debt-to-income ratio where available.
+8. Show loading state during eligibility evaluation.
+9. Show API error message when evaluation fails.
+10. Use typed Angular models and services.
+11. Do not call APIs directly from components; use a dedicated eligibility API service.
+12. Keep the UI professional and suitable for a banking platform demo.
+
+Frontend route expectations:
+
+* `/eligibility/check/:applicationId`
+* `/eligibility/results/:applicationId`
+* Optional: integrate eligibility result display into `/loan-applications/:id`
+
+Documentation scope:
+
+Update or create relevant documentation:
+
+* `README.md`
+* `docs/api-contracts.md`
+* `docs/local-development.md`
+* `docs/testing-strategy.md`
+* `docs/roadmap.md`
+* `architecture/lld.md`
+* `architecture/data-model.md`
+* `architecture/event-model.md`
+* `architecture/api-governance.md`
+* `architecture/security-architecture.md`
+* `architecture/observability-architecture.md`
+
+Architecture expectations:
+
+1. Keep controllers thin.
+2. Keep rule logic out of controllers.
+3. Use clear application/domain/infrastructure boundaries.
+4. Keep the eligibility rule engine extensible.
+5. Use banking-friendly naming.
+6. Document the Eligibility service responsibility.
+7. Clearly document that the rule engine is a demo and not a real credit bureau or underwriting engine.
+8. Keep the design ready for future Status Tracking, Notification, Audit, Observability, and Azure deployment epics.
+9. Prefer event-driven thinking for cross-service updates, even if implementation remains simplified for MVP.
+10. Avoid tight coupling between services unless the current foundation already established a clean integration approach.
+
+Testing expectations:
+
+Add tests for:
+
+* Successful eligibility evaluation with all rules passed
+* Eligibility failure due to income below threshold
+* Eligibility failure due to debt-to-income ratio above 50%
+* Eligibility failure due to requested amount greater than 20 times monthly income
+* Eligibility failure due to tenure below 6 months
+* Eligibility failure due to tenure above 84 months
+* Eligibility failure due to existing EMI obligations greater than monthly income
+* Fetching eligibility result by application ID
+* Fetching eligibility result by eligibility result ID
+* Eligibility result not found scenario
+* Validation failure for missing or invalid loan application ID
+* Rule result explanation accuracy
+
+CI/CD expectation:
+
+Update GitHub Actions if required so the build and tests include the new backend and frontend changes.
+
+Important rules:
+
+* Do not hardcode secrets.
+* Do not use real customer data.
+* Do not overbuild beyond Epic 3.
+* Do not implement real credit bureau integration.
+* Do not implement real underwriting logic.
+* Do not implement final loan approval or rejection workflow yet.
+* Do not implement authentication unless already required by the existing foundation.
+* Keep the project Azure-ready.
+* Keep the implementation portfolio-grade and Solution Architect quality.
+
+After implementation, provide:
+
+1. What was implemented.
+2. Backend files created or modified.
+3. Frontend files created or modified.
+4. Database/migration changes.
+5. API endpoints added.
+6. Eligibility rules implemented.
+7. Tests added.
+8. Documentation updated.
+9. Commands to run locally.
+10. Commands to test.
+11. Any assumptions made.
+12. Recommended next epic.

@@ -1,0 +1,146 @@
+Implement Epic 1: Customer Registration based on AGENTS.md and the existing repository foundation.
+
+Build the first business feature for the `enterprise-loan-origination-platform`: Customer Registration.
+
+Before implementation:
+
+1. Read `AGENTS.md`.
+2. Review the existing repository structure created in Epic 0.
+3. Review existing architecture documents, README, tests, CI workflow, and Angular structure.
+4. Preserve the architecture direction and quality standards already defined.
+
+Epic 1 Goal:
+
+Allow a new customer to register with basic profile and financial summary details through backend APIs and Angular frontend.
+
+Backend scope:
+
+1. Implement Customer Registration in `Customer.Api`.
+2. Create a clean domain model for `Customer`.
+3. Add request and response DTOs.
+4. Add validation for all required fields.
+5. Add persistence using Entity Framework Core.
+6. Add database migration support.
+7. Add synthetic seed data if appropriate.
+8. Add Swagger/OpenAPI documentation readiness.
+9. Add structured logging.
+10. Add correlation ID support if already available from Epic 0.
+11. Add health check readiness if not already present.
+12. Add proper error handling using Problem Details or the existing error-handling pattern.
+13. Add unit tests and API/integration tests where practical.
+
+Customer registration fields:
+
+* Full name
+* Email
+* Mobile number
+* Date of birth
+* Employment type
+* Monthly income
+* Existing monthly obligations
+
+Validation rules:
+
+* Full name is required.
+* Email is required and must be valid.
+* Mobile number is required and must be valid enough for demo use.
+* Date of birth is required.
+* Customer must be at least 18 years old.
+* Employment type is required.
+* Monthly income must be greater than zero.
+* Existing monthly obligations cannot be negative.
+* Existing monthly obligations should not be greater than monthly income.
+
+Suggested API endpoints:
+
+* `POST /api/v1/customers`
+* `GET /api/v1/customers/{customerId}`
+* `GET /api/v1/customers`
+
+Use consistent API response and error response patterns according to `AGENTS.md`.
+
+Frontend scope:
+
+1. Implement Customer Registration UI in Angular.
+2. Use a feature-based folder structure.
+3. Use reactive forms.
+4. Add form-level and field-level validation.
+5. Show user-friendly validation messages.
+6. Show loading state during submission.
+7. Show success message after successful registration.
+8. Show API error message when registration fails.
+9. Add a customer list or customer lookup view if it fits naturally.
+10. Ensure UI looks professional, clean, and suitable for a banking platform demo.
+11. Use typed Angular models and services.
+12. Do not call APIs directly from components; use a dedicated customer API service.
+
+Frontend route expectations:
+
+* `/customers/register`
+* Optional: `/customers`
+* Optional: `/customers/:id`
+
+Documentation scope:
+
+Update or create relevant documentation:
+
+* `README.md`
+* `docs/api-contracts.md`
+* `docs/local-development.md`
+* `docs/testing-strategy.md`
+* `docs/roadmap.md`
+* `architecture/lld.md`
+* `architecture/data-model.md`
+* `architecture/api-governance.md`
+* `architecture/security-architecture.md`
+
+Architecture expectations:
+
+1. Keep controllers thin.
+2. Keep business validation out of controllers.
+3. Use clear service/application/domain boundaries.
+4. Use banking-friendly naming.
+5. Document the Customer service responsibility.
+6. Do not add unrelated loan application logic yet.
+7. Keep the design ready for future Loan Application and Eligibility epics.
+
+Testing expectations:
+
+Add tests for:
+
+* Successful customer registration
+* Missing required fields
+* Invalid email
+* Underage customer
+* Monthly income less than or equal to zero
+* Existing obligations greater than income
+* Fetching customer by ID
+* Customer not found scenario
+
+CI/CD expectation:
+
+Update GitHub Actions if required so the build and tests include the new backend and frontend changes.
+
+Important rules:
+
+* Do not hardcode secrets.
+* Do not use real customer data.
+* Do not overbuild beyond Epic 1.
+* Do not implement authentication yet unless the foundation already requires it.
+* Do not implement Loan Application features yet.
+* Keep the project Azure-ready.
+* Keep the implementation portfolio-grade and Solution Architect quality.
+
+After implementation, provide:
+
+1. What was implemented.
+2. Backend files created or modified.
+3. Frontend files created or modified.
+4. Database/migration changes.
+5. API endpoints added.
+6. Tests added.
+7. Documentation updated.
+8. Commands to run locally.
+9. Commands to test.
+10. Any assumptions made.
+11. Recommended next epic.

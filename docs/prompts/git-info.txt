@@ -1,0 +1,22 @@
+Repository name:
+enterprise-loan-origination-platform
+
+Description:
+Cloud-native loan origination platform demonstrating .NET, Angular, Azure, microservices, DevOps, observability, and enterprise solution architecture.
+
+Topics:
+dotnet
+angular
+azure
+microservices
+solution-architecture
+loan-origination
+banking
+clean-architecture
+devops
+docker
+github-actions
+observability
+application-insights
+azure-container-apps
+bicep

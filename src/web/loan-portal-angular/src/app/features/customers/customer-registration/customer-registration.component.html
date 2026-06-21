@@ -1,0 +1,106 @@
+<div class="registration-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>Register New Customer</h2>
+      <p>Enter the customer's personal and financial details to begin the journey.</p>
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success">
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-error">
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" class="registration-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" formControlName="fullName" placeholder="John Doe" 
+                 [ngClass]="{'is-invalid': registrationForm.get('fullName')?.invalid && registrationForm.get('fullName')?.touched}">
+          <div class="error-message" *ngIf="registrationForm.get('fullName')?.invalid && registrationForm.get('fullName')?.touched">
+            Full name is required.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" formControlName="email" placeholder="john.doe@example.com"
+                 [ngClass]="{'is-invalid': registrationForm.get('email')?.invalid && registrationForm.get('email')?.touched}">
+          <div class="error-message" *ngIf="registrationForm.get('email')?.errors?.['required'] && registrationForm.get('email')?.touched">
+            Email is required.
+          </div>
+          <div class="error-message" *ngIf="registrationForm.get('email')?.errors?.['email'] && registrationForm.get('email')?.touched">
+            Please enter a valid email address.
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="mobileNumber">Mobile Number</label>
+          <input type="tel" id="mobileNumber" formControlName="mobileNumber" placeholder="+1234567890"
+                 [ngClass]="{'is-invalid': registrationForm.get('mobileNumber')?.invalid && registrationForm.get('mobileNumber')?.touched}">
+          <div class="error-message" *ngIf="registrationForm.get('mobileNumber')?.invalid && registrationForm.get('mobileNumber')?.touched">
+            Valid mobile number is required (e.g., +1234567890).
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="dateOfBirth">Date of Birth</label>
+          <input type="date" id="dateOfBirth" formControlName="dateOfBirth"
+                 [ngClass]="{'is-invalid': registrationForm.get('dateOfBirth')?.invalid && registrationForm.get('dateOfBirth')?.touched}">
+          <div class="error-message" *ngIf="registrationForm.get('dateOfBirth')?.invalid && registrationForm.get('dateOfBirth')?.touched">
+            Date of birth is required.
+          </div>
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+      <h3 class="section-title">Financial Profile</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="employmentType">Employment Type</label>
+          <select id="employmentType" formControlName="employmentType"
+                  [ngClass]="{'is-invalid': registrationForm.get('employmentType')?.invalid && registrationForm.get('employmentType')?.touched}">
+            <option value="" disabled selected>Select Employment Type</option>
+            <option *ngFor="let type of employmentTypes" [value]="type.value">{{ type.label }}</option>
+          </select>
+          <div class="error-message" *ngIf="registrationForm.get('employmentType')?.invalid && registrationForm.get('employmentType')?.touched">
+            Employment type is required.
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="monthlyIncome">Monthly Income (USD)</label>
+          <input type="number" id="monthlyIncome" formControlName="monthlyIncome" placeholder="5000"
+                 [ngClass]="{'is-invalid': registrationForm.get('monthlyIncome')?.invalid && registrationForm.get('monthlyIncome')?.touched}">
+          <div class="error-message" *ngIf="registrationForm.get('monthlyIncome')?.invalid && registrationForm.get('monthlyIncome')?.touched">
+            Monthly income must be greater than 0.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="existingMonthlyObligations">Existing Monthly Obligations (USD)</label>
+          <input type="number" id="existingMonthlyObligations" formControlName="existingMonthlyObligations" placeholder="1000"
+                 [ngClass]="{'is-invalid': registrationForm.get('existingMonthlyObligations')?.invalid && registrationForm.get('existingMonthlyObligations')?.touched}">
+          <div class="error-message" *ngIf="registrationForm.get('existingMonthlyObligations')?.invalid && registrationForm.get('existingMonthlyObligations')?.touched">
+            Cannot be negative.
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/customers" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+          <span *ngIf="isLoading" class="spinner"></span>
+          <span *ngIf="!isLoading">Register Customer</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,178 @@
+Implement Epic 2: Loan Application Submission based on AGENTS.md and the existing repository.
+
+Build the next business feature for the `enterprise-loan-origination-platform`: Loan Application Submission.
+
+Before implementation:
+
+1. Read `AGENTS.md`.
+2. Review the current repository structure.
+3. Review the implementation from Epic 0 and Epic 1.
+4. Review existing backend APIs, Angular structure, tests, documentation, and CI workflow.
+5. Preserve the existing architecture direction, naming conventions, testing standards, and Azure-readiness.
+
+Epic 2 Goal:
+
+Allow a registered customer to submit a loan application through backend APIs and Angular frontend.
+
+Backend scope:
+
+1. Implement Loan Application Submission in `LoanApplication.Api`.
+2. Create a clean domain model for `LoanApplication`.
+3. Add request and response DTOs.
+4. Add validation for all required fields.
+5. Add persistence using Entity Framework Core.
+6. Add database migration support.
+7. Add application status model.
+8. Add initial status as `Submitted` when a valid application is created.
+9. Add status transition readiness for future epics.
+10. Add Swagger/OpenAPI documentation readiness.
+11. Add structured logging.
+12. Use correlation ID support if available.
+13. Add proper error handling using the existing Problem Details or global error-handling pattern.
+14. Add audit event creation for loan application submission if the audit foundation already exists.
+15. Add unit tests and API/integration tests where practical.
+
+Loan application fields:
+
+* Customer ID
+* Loan type
+* Requested amount
+* Requested tenure in months
+* Loan purpose
+* Declared monthly income
+* Existing EMI obligations
+
+Supported loan types for MVP:
+
+* PersonalLoan
+* HomeLoan
+* VehicleLoan
+* EducationLoan
+
+Supported application statuses:
+
+* Draft
+* Submitted
+* UnderReview
+* EligibilityPassed
+* EligibilityFailed
+* Approved
+* Rejected
+* Cancelled
+
+Validation rules:
+
+* Customer ID is required.
+* Customer ID must refer to an existing customer if customer lookup is available.
+* Loan type is required.
+* Requested amount must be greater than zero.
+* Requested tenure must be between 6 and 84 months.
+* Loan purpose is required.
+* Declared monthly income must be greater than zero.
+* Existing EMI obligations cannot be negative.
+* Existing EMI obligations should not be greater than declared monthly income.
+
+Suggested API endpoints:
+
+* `POST /api/v1/loan-applications`
+* `GET /api/v1/loan-applications/{applicationId}`
+* `GET /api/v1/loan-applications/customer/{customerId}`
+* `GET /api/v1/loan-applications`
+
+Use consistent API response and error response patterns according to `AGENTS.md`.
+
+Frontend scope:
+
+1. Implement Loan Application Submission UI in Angular.
+2. Use the existing feature-based frontend structure.
+3. Use reactive forms.
+4. Add field-level and form-level validation.
+5. Add dropdown for loan type.
+6. Add professional form layout suitable for a banking platform.
+7. Show loading state during submission.
+8. Show success message after successful application submission.
+9. Show application ID and initial status after submission.
+10. Show API error message when submission fails.
+11. Add loan application list or customer-specific application list if it fits naturally.
+12. Use typed Angular models and services.
+13. Do not call APIs directly from components; use a dedicated loan application API service.
+
+Frontend route expectations:
+
+* `/loan-applications/new`
+* Optional: `/loan-applications`
+* Optional: `/loan-applications/:id`
+* Optional: `/customers/:customerId/loan-applications`
+
+Documentation scope:
+
+Update or create relevant documentation:
+
+* `README.md`
+* `docs/api-contracts.md`
+* `docs/local-development.md`
+* `docs/testing-strategy.md`
+* `docs/roadmap.md`
+* `architecture/lld.md`
+* `architecture/data-model.md`
+* `architecture/event-model.md`
+* `architecture/api-governance.md`
+* `architecture/security-architecture.md`
+
+Architecture expectations:
+
+1. Keep controllers thin.
+2. Keep business validation out of controllers.
+3. Use clear application/domain/infrastructure boundaries.
+4. Use banking-friendly naming.
+5. Document the Loan Application service responsibility.
+6. Do not implement eligibility evaluation yet.
+7. Do not implement final approval/rejection workflow yet.
+8. Keep the design ready for future Eligibility, Status Tracking, Notification, and Audit epics.
+
+Testing expectations:
+
+Add tests for:
+
+* Successful loan application submission
+* Missing customer ID
+* Invalid customer ID if customer lookup exists
+* Missing loan type
+* Invalid requested amount
+* Invalid tenure below 6 months
+* Invalid tenure above 84 months
+* Missing loan purpose
+* Declared monthly income less than or equal to zero
+* Existing EMI obligations greater than declared income
+* Fetching loan application by ID
+* Fetching loan applications by customer ID
+* Loan application not found scenario
+
+CI/CD expectation:
+
+Update GitHub Actions if required so the build and tests include the new backend and frontend changes.
+
+Important rules:
+
+* Do not hardcode secrets.
+* Do not use real customer data.
+* Do not overbuild beyond Epic 2.
+* Do not implement eligibility evaluation yet.
+* Do not implement real credit bureau integration.
+* Do not implement authentication unless already required by the existing foundation.
+* Keep the project Azure-ready.
+* Keep the implementation portfolio-grade and Solution Architect quality.
+
+After implementation, provide:
+
+1. What was implemented.
+2. Backend files created or modified.
+3. Frontend files created or modified.
+4. Database/migration changes.
+5. API endpoints added.
+6. Tests added.
+7. Documentation updated.
+8. Commands to run locally.
+9. Commands to test.
+10. Any assumptions made.
+11. Recommended next epic.

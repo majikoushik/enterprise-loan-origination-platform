@@ -1,0 +1,330 @@
+Implement Epic 9: Azure Deployment Blueprint based on AGENTS.md and the existing repository.
+
+Build the next architecture capability for the `enterprise-loan-origination-platform`: Azure Deployment Blueprint, Infrastructure as Code, Secure Configuration, and Cloud-Ready Deployment Documentation.
+
+Before implementation:
+
+1. Read `AGENTS.md`.
+2. Review the current repository structure.
+3. Review the implementation from Epic 0 through Epic 8.
+4. Review existing backend services, Angular frontend, Docker setup, GitHub Actions CI, observability implementation, documentation, and architecture decisions.
+5. Preserve the existing architecture direction, naming conventions, API response pattern, security standards, testing standards, observability standards, Docker standards, and Solution Architect quality bar.
+
+Epic 9 Goal:
+
+Prepare the project for Azure deployment using a professional, cloud-native architecture blueprint.
+
+This epic should demonstrate Azure solution architecture thinking, secure configuration, infrastructure planning, deployment documentation, environment separation, and enterprise cloud-readiness.
+
+Do not require actual Azure deployment to be completed unless the repository is already configured for it. The main goal is a complete, professional Azure deployment foundation.
+
+Target Azure Architecture:
+
+Use the following Azure-aligned deployment model unless the existing repository has a cleaner documented approach:
+
+1. Angular frontend:
+
+   * Azure Static Web Apps
+     or
+   * Azure Storage Static Website with CDN readiness
+
+2. Backend APIs and workers:
+
+   * Azure Container Apps
+
+3. Container registry:
+
+   * Azure Container Registry
+
+4. Database:
+
+   * Azure SQL Database
+
+5. Messaging:
+
+   * Azure Service Bus
+
+6. Secrets and configuration:
+
+   * Azure Key Vault
+   * Managed Identity readiness
+
+7. Monitoring:
+
+   * Azure Application Insights
+   * Azure Log Analytics
+   * Azure Monitor readiness
+
+8. Optional future edge/API layer:
+
+   * Azure API Management
+   * Azure Front Door
+
+Infrastructure as Code Scope:
+
+1. Create or update the `infra/bicep/` folder.
+2. Use Bicep as the preferred Azure Infrastructure as Code approach.
+3. Create modular and readable Bicep templates.
+4. Add parameters for environment-specific values.
+5. Add safe placeholder configuration only.
+6. Do not include real Azure subscription IDs, tenant IDs, secrets, passwords, or production values.
+7. Add deployment scripts or command examples using Azure CLI.
+8. Add documentation explaining deployment order and assumptions.
+
+Suggested Bicep structure:
+
+```text
+infra/
+  bicep/
+    main.bicep
+    parameters/
+      dev.parameters.json
+      prod.parameters.example.json
+    modules/
+      container-registry.bicep
+      container-apps-environment.bicep
+      container-app.bicep
+      sql-database.bicep
+      service-bus.bicep
+      key-vault.bicep
+      application-insights.bicep
+      log-analytics.bicep
+      static-web-app.bicep
+    README.md
+```
+
+If the existing repository already has a different IaC structure, improve it without unnecessarily breaking it.
+
+Azure Resource Scope:
+
+Create IaC foundation for:
+
+1. Resource group assumptions
+2. Log Analytics workspace
+3. Application Insights
+4. Azure Container Registry
+5. Azure Container Apps environment
+6. Container Apps for backend APIs and workers
+7. Azure SQL Server and Azure SQL Database
+8. Azure Service Bus namespace and queues/topics
+9. Azure Key Vault
+10. Azure Static Web Apps or frontend hosting placeholder
+
+Backend Service Deployment Readiness:
+
+For each backend API or worker, document or configure:
+
+* Container image name
+* Environment variables
+* Port
+* Health probe path
+* Required secrets
+* Required connection strings
+* Application Insights configuration
+* Database dependency if any
+* Service Bus dependency if any
+* Scaling assumptions
+
+Backend services to include where applicable:
+
+* Customer.Api
+* LoanApplication.Api
+* Eligibility.Api
+* Notification.Worker or Notification service
+* Audit.Api
+
+Angular Frontend Deployment Readiness:
+
+1. Add or update frontend deployment documentation.
+2. Explain how Angular environment configuration should point to backend API endpoints.
+3. Avoid hardcoded production backend URLs.
+4. Add placeholder production environment configuration if appropriate.
+5. Document deployment option:
+
+   * Azure Static Web Apps preferred
+     or
+   * Static website hosting with Azure Storage and CDN readiness
+
+GitHub Actions Deployment Readiness:
+
+Create or update deployment workflow templates under:
+
+```text
+.github/workflows/
+```
+
+Suggested files:
+
+```text
+.github/workflows/azure-deploy-template.yml
+.github/workflows/container-build-template.yml
+```
+
+The workflow templates should be safe and non-destructive.
+
+They should show readiness for:
+
+1. Building backend Docker images
+2. Pushing images to Azure Container Registry
+3. Deploying backend containers to Azure Container Apps
+4. Building Angular frontend
+5. Deploying frontend to Azure Static Web Apps or documented hosting target
+6. Using GitHub repository secrets
+7. Avoiding hardcoded Azure credentials
+
+Do not include real secrets.
+
+Use placeholder secret names such as:
+
+* `AZURE_CLIENT_ID`
+* `AZURE_TENANT_ID`
+* `AZURE_SUBSCRIPTION_ID`
+* `AZURE_CREDENTIALS`
+* `ACR_LOGIN_SERVER`
+* `AZURE_STATIC_WEB_APPS_API_TOKEN`
+
+Security and Configuration Scope:
+
+1. Document secure configuration strategy.
+2. Document Key Vault usage.
+3. Document Managed Identity readiness.
+4. Document how connection strings should be handled.
+5. Document how Service Bus credentials should be handled.
+6. Document how Application Insights connection string should be handled.
+7. Ensure no secrets are committed.
+8. Add or update `.env.example` if needed with safe placeholders only.
+
+Observability Scope:
+
+Update deployment and observability documentation to explain:
+
+* Application Insights integration
+* Log Analytics workspace
+* Correlation ID usage in Azure
+* Container Apps logs
+* Health probe monitoring
+* Azure Monitor alerts readiness
+* Dashboard readiness
+* Troubleshooting with correlation ID
+
+Documentation Scope:
+
+Update or create these files:
+
+* `infra/bicep/README.md`
+* `docs/deployment.md`
+* `docs/azure-deployment-guide.md`
+* `docs/devops-guide.md`
+* `docs/local-development.md`
+* `docs/roadmap.md`
+* `docs/operational-runbook.md`
+* `architecture/deployment-architecture.md`
+* `architecture/observability-architecture.md`
+* `architecture/security-architecture.md`
+* `architecture/nfrs.md`
+* `README.md`
+
+Create `docs/azure-deployment-guide.md` if it does not exist.
+
+The Azure deployment guide should include:
+
+1. Target Azure architecture overview.
+2. Resource list.
+3. Prerequisites.
+4. Required Azure CLI tools.
+5. Required GitHub secrets.
+6. Environment variable strategy.
+7. Key Vault and Managed Identity strategy.
+8. Bicep deployment commands.
+9. Container image build and push flow.
+10. Container Apps deployment flow.
+11. Angular frontend deployment flow.
+12. Database migration strategy.
+13. Service Bus configuration.
+14. Application Insights and Log Analytics setup.
+15. Health check validation.
+16. Cost-awareness notes.
+17. Cleanup commands for demo environments.
+18. Known limitations.
+
+Architecture Documentation Expectations:
+
+Update architecture documentation to show:
+
+* Azure container architecture
+* Frontend-to-backend communication
+* Backend-to-database communication
+* Backend-to-Service-Bus communication
+* Key Vault usage
+* Managed Identity usage
+* Monitoring and logging flow
+* Future API Management option
+* Future Front Door option
+* Environment separation: dev, test, prod
+
+Cost-Awareness Expectations:
+
+Add a cost-awareness section.
+
+Include notes for:
+
+* Using small SKUs for demo environments
+* Avoiding unnecessary always-on resources
+* Cleaning up demo resource groups
+* Monitoring Azure SQL and Container Apps cost
+* Keeping Application Insights retention reasonable
+* Using dev/test resources carefully
+
+Testing and Validation Scope:
+
+Add or document validation steps for:
+
+1. Bicep syntax validation.
+2. Azure CLI what-if deployment.
+3. Docker image build.
+4. Container App health endpoint validation.
+5. Angular production build.
+6. API health checks after deployment.
+7. Application Insights telemetry validation.
+8. Service Bus connectivity validation if implemented.
+
+Suggested commands may include:
+
+```bash
+az bicep build --file infra/bicep/main.bicep
+az deployment group what-if --resource-group <resource-group-name> --template-file infra/bicep/main.bicep --parameters infra/bicep/parameters/dev.parameters.json
+docker compose build
+dotnet test
+npm run build
+```
+
+Use commands that match the actual repository structure.
+
+Important Rules:
+
+* Do not commit real Azure credentials.
+* Do not commit real connection strings.
+* Do not hardcode subscription IDs.
+* Do not hardcode tenant IDs.
+* Do not create destructive deployment scripts.
+* Do not require actual Azure deployment to complete the epic.
+* Do not implement unrelated business features.
+* Do not break local Docker development.
+* Keep the project Azure-ready and portfolio-grade.
+* Make the output look like it was prepared by a senior Azure Solution Architect.
+
+After implementation, provide:
+
+1. What was implemented.
+2. Azure architecture files created or modified.
+3. Bicep files created or modified.
+4. GitHub Actions deployment templates created or modified.
+5. Documentation updated.
+6. Environment variables and GitHub secrets required.
+7. Azure resources included in the blueprint.
+8. Commands to validate Bicep.
+9. Commands to build and test locally.
+10. Commands or outline for future Azure deployment.
+11. Any assumptions made.
+12. Any known limitations.
+13. Recommended next epic.

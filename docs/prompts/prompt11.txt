@@ -1,0 +1,355 @@
+Implement Epic 10: Portfolio Polish based on AGENTS.md and the existing repository.
+
+Build the final portfolio-quality polish for the `enterprise-loan-origination-platform` repository.
+
+Before implementation:
+
+1. Read `AGENTS.md`.
+2. Review the current repository structure.
+3. Review the implementation from Epic 0 through Epic 9.
+4. Review all backend services, Angular frontend, Docker setup, GitHub Actions workflows, Azure deployment blueprint, architecture documents, ADRs, tests, and README.
+5. Preserve the existing architecture direction, naming conventions, API response pattern, security standards, observability standards, testing standards, Docker standards, Azure deployment direction, and Solution Architect quality bar.
+
+Epic 10 Goal:
+
+Make the repository look complete, professional, recruiter-friendly, and suitable for a Solution Architect GitHub portfolio.
+
+The final repository should clearly demonstrate:
+
+* Banking domain understanding
+* .NET backend architecture
+* Angular frontend architecture
+* Microservices thinking
+* API-first design
+* Azure cloud-readiness
+* DevOps maturity
+* Observability and production-readiness
+* Security awareness
+* Architecture documentation quality
+* Professional engineering discipline
+
+This epic is not mainly about adding new business features. It is about improving presentation, documentation, diagrams, consistency, usability, and portfolio impact.
+
+Repository Presentation Scope:
+
+1. Rewrite or polish the root `README.md`.
+2. Make the README visually professional and easy to scan.
+3. Add project badges where appropriate.
+4. Add a clear project overview.
+5. Add architecture summary.
+6. Add tech stack section.
+7. Add feature list.
+8. Add local setup section.
+9. Add Docker setup section.
+10. Add API documentation section.
+11. Add Azure deployment architecture section.
+12. Add testing section.
+13. Add observability section.
+14. Add security section.
+15. Add roadmap section.
+16. Add screenshots section or placeholders if screenshots are not available.
+17. Add architecture diagram links.
+18. Add recruiter/interviewer-focused summary.
+
+README should make the visitor quickly understand:
+
+* What the project is
+* Why it exists
+* What architectural skills it demonstrates
+* How to run it
+* How it maps to Azure
+* What enterprise patterns are included
+
+Suggested README sections:
+
+```markdown
+# Enterprise Loan Origination Platform
+
+## Executive Summary
+## Architecture Highlights
+## Business Capabilities
+## Technology Stack
+## Repository Structure
+## System Architecture
+## Application Screens
+## API Overview
+## Local Development
+## Docker-Based Development
+## Testing
+## Observability and Production Readiness
+## Security and Compliance Readiness
+## Azure Deployment Blueprint
+## Architecture Decision Records
+## Roadmap
+## Portfolio Value
+```
+
+Architecture Diagram Scope:
+
+Create or improve architecture diagrams using Mermaid markdown where possible.
+
+Add diagrams under:
+
+```text
+architecture/diagrams/
+```
+
+Required diagrams:
+
+1. System context diagram
+2. Container diagram
+3. Loan application submission sequence diagram
+4. Eligibility evaluation sequence diagram
+5. Notification and audit event flow diagram
+6. Azure deployment diagram
+7. CI/CD pipeline diagram
+
+Use Mermaid diagrams unless the repository already has a better diagram approach.
+
+Suggested files:
+
+```text
+architecture/diagrams/system-context.md
+architecture/diagrams/container-diagram.md
+architecture/diagrams/loan-application-sequence.md
+architecture/diagrams/eligibility-evaluation-sequence.md
+architecture/diagrams/notification-audit-event-flow.md
+architecture/diagrams/azure-deployment.md
+architecture/diagrams/cicd-pipeline.md
+```
+
+Documentation Polish Scope:
+
+Review and polish all major documentation files.
+
+Update or improve:
+
+* `README.md`
+* `architecture/README.md`
+* `architecture/hld.md`
+* `architecture/lld.md`
+* `architecture/nfrs.md`
+* `architecture/api-governance.md`
+* `architecture/security-architecture.md`
+* `architecture/observability-architecture.md`
+* `architecture/deployment-architecture.md`
+* `architecture/data-model.md`
+* `architecture/event-model.md`
+* `docs/setup.md`
+* `docs/local-development.md`
+* `docs/api-contracts.md`
+* `docs/testing-strategy.md`
+* `docs/deployment.md`
+* `docs/azure-deployment-guide.md`
+* `docs/devops-guide.md`
+* `docs/operational-runbook.md`
+* `docs/roadmap.md`
+
+Documentation should be:
+
+* Clear
+* Consistent
+* Professional
+* Free from obvious placeholders
+* Aligned with actual code
+* Useful to a recruiter, architect, or interviewer
+* Honest about limitations
+
+ADR Polish Scope:
+
+Review all ADRs under:
+
+```text
+architecture/adr/
+```
+
+Ensure each ADR has:
+
+* Clear title
+* Status
+* Context
+* Decision
+* Consequences
+* Alternatives considered
+
+Add any missing ADRs if the project has made important decisions not yet captured.
+
+Possible additional ADRs:
+
+```text
+0005-api-response-and-error-handling.md
+0006-event-driven-notification-and-audit.md
+0007-angular-frontend-architecture.md
+0008-docker-and-devops-strategy.md
+0009-azure-infrastructure-as-code-strategy.md
+```
+
+Frontend Polish Scope:
+
+Improve Angular frontend presentation where practical.
+
+Focus on:
+
+1. Professional dashboard layout.
+2. Clean navigation.
+3. Consistent status badges.
+4. Consistent cards and tables.
+5. Better empty states.
+6. Better loading states.
+7. Better API error messages.
+8. Consistent spacing and typography.
+9. Responsive layout.
+10. Screens that look like a banking platform demo.
+
+Do not introduce a heavy UI framework unless already used.
+
+Do not overbuild.
+
+If screenshots are practical to generate or document, add a screenshots section in README and place screenshots under:
+
+```text
+docs/screenshots/
+```
+
+If screenshots cannot be generated, add clear placeholders and instructions for adding them later.
+
+Backend Polish Scope:
+
+Review backend implementation for consistency.
+
+Improve where practical:
+
+1. API route consistency.
+2. Response envelope consistency.
+3. Problem Details consistency.
+4. Swagger metadata.
+5. Validation messages.
+6. Logging messages.
+7. Correlation ID usage.
+8. Health check consistency.
+9. Naming consistency.
+10. Removal of dead code or unnecessary placeholders.
+
+Do not introduce major architectural rewrites unless there is a clear issue.
+
+Testing Polish Scope:
+
+Review test coverage and test organization.
+
+Improve where practical:
+
+1. Ensure important domain rules have tests.
+2. Ensure validation scenarios have tests.
+3. Ensure API behavior has tests where practical.
+4. Ensure frontend tests do not block CI unnecessarily.
+5. Ensure CI commands match documentation.
+6. Add a testing summary in `docs/testing-strategy.md`.
+
+Do not create fake tests that do not validate meaningful behavior.
+
+DevOps and Azure Polish Scope:
+
+Review Docker, CI, and Azure deployment documentation.
+
+Ensure:
+
+1. Docker Compose instructions are correct.
+2. CI workflow names are professional.
+3. Azure deployment templates are clearly marked as blueprint-ready.
+4. GitHub secrets are documented.
+5. Azure resources are documented.
+6. Bicep validation commands are documented.
+7. Cost-awareness notes are included.
+8. Cleanup steps are included for demo resources.
+9. No real credentials or sensitive values are present.
+
+Portfolio Quality Scope:
+
+Add a section explaining what this project demonstrates for a Solution Architect role.
+
+Suggested points:
+
+* Enterprise modernization thinking
+* API-first architecture
+* Microservices-ready design
+* Azure cloud-native deployment planning
+* Event-driven notification and audit design
+* Observability and supportability
+* Secure configuration and secret management readiness
+* CI/CD and containerization
+* Documentation and architecture governance
+
+Code Cleanup Scope:
+
+Perform safe cleanup only.
+
+Allowed cleanup:
+
+* Remove unused imports.
+* Remove obsolete comments.
+* Improve naming clarity.
+* Improve folder organization only if low-risk.
+* Fix obvious inconsistencies.
+* Align documentation with actual commands.
+* Ensure `.gitignore` is complete.
+* Ensure `.dockerignore` is present where needed.
+
+Avoid risky cleanup:
+
+* Do not rewrite major architecture.
+* Do not break working features.
+* Do not remove tests.
+* Do not remove documentation.
+* Do not introduce unrelated features.
+* Do not add real authentication unless already implemented.
+* Do not deploy to Azure.
+
+Final Validation Scope:
+
+Run or provide commands for:
+
+```bash
+dotnet restore
+dotnet build
+dotnet test
+npm install
+npm run build
+npm test
+docker compose build
+docker compose up
+az bicep build --file infra/bicep/main.bicep
+```
+
+Use only commands that match the actual repository structure.
+
+If some commands cannot be run, explain the reason clearly and document the expected validation command.
+
+Important Rules:
+
+* Do not hardcode secrets.
+* Do not add real customer data.
+* Do not use sensitive financial data.
+* Do not overbuild beyond portfolio polish.
+* Do not deploy to Azure.
+* Do not introduce breaking changes.
+* Do not hide known limitations.
+* Keep the repository honest and professional.
+* Make the final output look like it was prepared by a senior Azure Solution Architect.
+
+After implementation, provide:
+
+1. What was polished.
+2. README improvements.
+3. Architecture diagram files created or modified.
+4. Documentation files updated.
+5. ADRs created or updated.
+6. Frontend polish completed.
+7. Backend consistency improvements completed.
+8. DevOps/Azure documentation improvements completed.
+9. Tests or validation performed.
+10. Commands to run locally.
+11. Commands to test.
+12. Commands to validate Docker.
+13. Commands to validate Azure Bicep.
+14. Any known limitations.
+15. Recommended final manual checks before publishing the repo.

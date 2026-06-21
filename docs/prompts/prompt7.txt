@@ -1,0 +1,246 @@
+Implement Epic 6: Audit Logging based on AGENTS.md and the existing repository.
+
+Build the next business feature for the `enterprise-loan-origination-platform`: Centralized Audit Logging and Business Event Traceability.
+
+Before implementation:
+
+1. Read `AGENTS.md`.
+2. Review the current repository structure.
+3. Review the implementation from Epic 0, Epic 1, Epic 2, Epic 3, Epic 4, and Epic 5.
+4. Review existing Customer, Loan Application, Eligibility, Status Tracking, and Notification implementations.
+5. Review existing Angular routes, services, components, tests, documentation, CI workflow, Docker setup, and event abstractions.
+6. Preserve the existing architecture direction, naming conventions, API response pattern, error handling pattern, observability standards, testing standards, and Azure-readiness.
+
+Epic 6 Goal:
+
+Add centralized audit logging for important business actions so that the loan origination journey becomes traceable, reviewable, and enterprise-ready.
+
+This epic should demonstrate architecture maturity around governance, operational traceability, compliance-readiness, event history, and supportability.
+
+Backend scope:
+
+1. Implement centralized Audit Logging in `Audit.Api` or the existing audit service structure.
+2. Create a clean domain model for `AuditEvent`.
+3. Add request and response DTOs if the audit service exposes APIs.
+4. Add persistence using Entity Framework Core.
+5. Add database migration support.
+6. Create audit records for important business events across the platform.
+7. Add APIs to query audit history.
+8. Add structured logging for audit event creation and query actions.
+9. Use correlation ID support if available.
+10. Ensure audit events include safe, minimal, non-sensitive business context.
+11. Add Swagger/OpenAPI documentation readiness.
+12. Add unit tests and integration tests where practical.
+
+Important audit trigger events:
+
+Create audit records for these business events where integration is practical in the current repository:
+
+* Customer registered
+* Customer viewed
+* Loan application submitted
+* Loan application viewed
+* Eligibility check completed
+* Loan application status changed
+* Notification requested
+* Notification delivery simulated
+* Notification delivery failed
+* Loan application approved
+* Loan application rejected
+* Loan application cancelled
+
+If direct cross-service audit integration is not clean yet, implement a shared audit abstraction and document how it will map to Azure Service Bus or centralized audit ingestion in the future.
+
+Suggested audit event fields:
+
+* Audit event ID
+* Correlation ID
+* Event type
+* Event category
+* Entity type
+* Entity ID
+* Customer ID if applicable
+* Actor type
+* Actor ID or actor name
+* Action
+* Summary
+* Metadata as safe JSON
+* Occurred timestamp
+* Source service
+* Severity or importance level
+
+Suggested event categories:
+
+* Customer
+* LoanApplication
+* Eligibility
+* StatusTransition
+* Notification
+* System
+
+Suggested actor types:
+
+* Customer
+* LoanOfficer
+* System
+* Admin
+
+For MVP, most actions may use `System` as actor if authentication is not yet implemented.
+
+Suggested API endpoints:
+
+* `GET /api/v1/audit/events`
+* `GET /api/v1/audit/events/{auditEventId}`
+* `GET /api/v1/audit/entity/{entityType}/{entityId}`
+* `GET /api/v1/audit/customer/{customerId}`
+* `GET /api/v1/audit/correlation/{correlationId}`
+
+Use consistent API response and error response patterns according to `AGENTS.md`.
+
+Audit event design expectations:
+
+1. Audit events should represent business actions that already happened.
+2. Audit events should be immutable after creation.
+3. Audit event names should be business-friendly.
+4. Audit metadata should not contain secrets, passwords, full financial payloads, or unnecessary personal data.
+5. Audit events should include correlation ID wherever available.
+6. Audit events should include source service name.
+7. Audit query APIs should support traceability by entity ID, customer ID, and correlation ID.
+
+Example audit event names:
+
+* `CustomerRegistered`
+* `LoanApplicationSubmitted`
+* `EligibilityCheckCompleted`
+* `LoanApplicationStatusChanged`
+* `NotificationRequested`
+* `NotificationDeliveryCompleted`
+* `NotificationDeliveryFailed`
+
+Frontend scope:
+
+1. Implement Audit Trail UI in Angular.
+2. Use the existing feature-based frontend structure.
+3. Add an audit event list view.
+4. Add an entity-specific audit history view if practical.
+5. Add audit details view if useful.
+6. Show event type, entity type, entity ID, actor, timestamp, source service, and summary.
+7. Show correlation ID in a clean technical details section.
+8. Use professional badges or chips for event category and severity.
+9. Add filters if practical:
+
+   * Entity type
+   * Entity ID
+   * Customer ID
+   * Correlation ID
+   * Event type
+10. Show loading, empty, and error states.
+11. Use typed Angular models and services.
+12. Do not call APIs directly from components; use a dedicated audit API service.
+13. Keep the UI professional and suitable for a banking platform demo.
+
+Frontend route expectations:
+
+* `/audit`
+* `/audit/events/:id`
+* Optional: `/audit/entity/:entityType/:entityId`
+* Optional: integrate audit history into `/loan-applications/:id`
+* Optional: integrate recent audit events into `/dashboard`
+
+Documentation scope:
+
+Update or create relevant documentation:
+
+* `README.md`
+* `docs/api-contracts.md`
+* `docs/local-development.md`
+* `docs/testing-strategy.md`
+* `docs/roadmap.md`
+* `architecture/lld.md`
+* `architecture/data-model.md`
+* `architecture/event-model.md`
+* `architecture/api-governance.md`
+* `architecture/security-architecture.md`
+* `architecture/observability-architecture.md`
+* `architecture/deployment-architecture.md`
+
+Architecture expectations:
+
+1. Keep audit logging separate from core business logic.
+2. Do not put audit persistence logic directly inside controllers.
+3. Prefer shared audit abstraction or event-driven integration.
+4. Keep the design Azure Service Bus ready.
+5. Document local audit logging versus future centralized audit ingestion.
+6. Document audit immutability expectations.
+7. Document safe audit metadata rules.
+8. Document how audit records support compliance-readiness and supportability.
+9. Avoid storing sensitive personal or financial data in audit metadata.
+10. Keep the implementation simple enough for MVP but professional enough for a Solution Architect portfolio.
+
+Testing expectations:
+
+Add tests for:
+
+* Audit event creation
+* Audit event created after customer registration if integrated
+* Audit event created after loan application submission if integrated
+* Audit event created after eligibility evaluation if integrated
+* Audit event created after status change if integrated
+* Audit event created after notification request if integrated
+* Fetching audit event by ID
+* Fetching audit events by entity type and entity ID
+* Fetching audit events by customer ID
+* Fetching audit events by correlation ID
+* Audit event not found scenario
+* Validation failure for invalid audit event request if manual creation API exists
+* Audit metadata does not contain obvious sensitive fields
+* Correlation ID propagation into audit event
+
+CI/CD expectation:
+
+Update GitHub Actions if required so the build and tests include the new backend, audit service, and frontend changes.
+
+Docker expectation:
+
+Update Docker Compose if required so the audit service can run locally.
+
+If full service execution is not practical yet, document how it will run in local and Azure environments.
+
+Azure-readiness expectation:
+
+Document how the audit logging design maps to future Azure resources:
+
+* Azure Service Bus topic or queue for audit event ingestion
+* Azure SQL Database for audit records
+* Azure Log Analytics for operational logs
+* Azure Application Insights for telemetry correlation
+* Azure Container Apps for audit API or audit worker
+* Azure Key Vault for secure configuration
+* Azure Monitor dashboards for operational visibility
+
+Important rules:
+
+* Do not hardcode secrets.
+* Do not use real customer data.
+* Do not store sensitive data in audit metadata.
+* Do not overbuild beyond Epic 6.
+* Do not implement authentication unless already required by the existing foundation.
+* Do not implement Azure deployment yet unless required by the current foundation.
+* Keep the project Azure-ready.
+* Keep the implementation portfolio-grade and Solution Architect quality.
+
+After implementation, provide:
+
+1. What was implemented.
+2. Backend or audit service files created or modified.
+3. Frontend files created or modified.
+4. Database/migration changes.
+5. API endpoints added.
+6. Audit events implemented.
+7. Tests added.
+8. Documentation updated.
+9. Docker Compose changes if any.
+10. Commands to run locally.
+11. Commands to test.
+12. Any assumptions made.
+13. Recommended next epic.

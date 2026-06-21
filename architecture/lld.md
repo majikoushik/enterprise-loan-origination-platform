@@ -11,7 +11,13 @@ Each API starts as an ASP.NET Core Web API project with:
 - Correlation ID middleware
 - Shared response envelope support
 
-Future epics should split meaningful business logic into domain, application, and infrastructure folders within the owning service.
+In Epic 1, `Customer.Api` introduced the standard Clean/Onion architecture structure:
+- **Domain**: Entities, Enums, Domain Exceptions.
+- **Application**: DTOs, FluentValidation Validators, Application Services.
+- **Infrastructure**: EF Core DbContext, Configurations.
+- **Controllers**: API Endpoints.
+
+Future epics should follow this structure.
 
 ## Frontend Structure
 

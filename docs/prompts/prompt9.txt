@@ -1,0 +1,229 @@
+Implement Epic 8: DevOps and Docker based on AGENTS.md and the existing repository.
+
+Build the next engineering capability for the `enterprise-loan-origination-platform`: Dockerized Local Development, CI Validation, and DevOps Foundation.
+
+Before implementation:
+
+1. Read `AGENTS.md`.
+2. Review the current repository structure.
+3. Review the implementation from Epic 0 through Epic 7.
+4. Review existing backend services, Angular frontend, tests, documentation, CI workflow, Docker files, observability setup, and Azure-readiness notes.
+5. Preserve the existing architecture direction, naming conventions, API response pattern, security standards, testing standards, observability standards, and Azure deployment direction.
+
+Epic 8 Goal:
+
+Make the platform easy to build, test, run, and validate using Docker and GitHub Actions.
+
+This epic should demonstrate enterprise delivery maturity, local developer experience, repeatable builds, CI quality gates, containerization readiness, and Azure Container Apps deployment readiness.
+
+Do not deploy to Azure in this epic. Prepare the project for future Azure deployment.
+
+Backend Docker scope:
+
+1. Add or standardize Dockerfiles for all backend APIs and workers.
+2. Use multi-stage Docker builds where practical.
+3. Ensure backend services can run in containers.
+4. Ensure containers use environment-based configuration.
+5. Ensure services expose documented ports.
+6. Ensure health check endpoints are usable inside containers.
+7. Do not hardcode secrets.
+8. Do not include development-only secrets inside images.
+9. Optimize Dockerfiles for clean, repeatable builds.
+10. Add `.dockerignore` files where appropriate.
+
+Backend services to consider:
+
+* Customer.Api
+* LoanApplication.Api
+* Eligibility.Api
+* Notification.Worker or Notification service
+* Audit.Api
+
+If some services are not fully implemented yet, create a clean Docker-ready foundation and document any limitations.
+
+Frontend Docker scope:
+
+1. Add Dockerfile for Angular frontend.
+2. Use production-style Angular build.
+3. Serve the built Angular app using a lightweight web server such as Nginx if appropriate.
+4. Keep environment configuration flexible for API base URLs.
+5. Do not hardcode backend URLs unless they are local Docker defaults and documented.
+6. Add `.dockerignore` for frontend if appropriate.
+
+Docker Compose scope:
+
+1. Update or create `docker-compose.yml`.
+2. Add services for backend APIs, workers, frontend, and SQL Server.
+3. Add local networking between services.
+4. Add environment variables for local development.
+5. Add health checks where practical.
+6. Add named volumes for database persistence.
+7. Add clear startup dependencies where practical.
+8. Ensure the full system can be started locally with one command.
+
+Suggested Docker Compose services:
+
+* `customer-api`
+* `loan-application-api`
+* `eligibility-api`
+* `notification-worker` or `notification-api`
+* `audit-api`
+* `loan-portal-angular`
+* `sqlserver`
+
+If the current architecture uses fewer services for MVP, align with the existing structure but keep the naming and documentation Azure-ready.
+
+Local developer experience scope:
+
+1. Add clear local run commands.
+2. Add clear Docker run commands.
+3. Add clear database migration commands.
+4. Add clear test commands.
+5. Add troubleshooting notes.
+6. Add environment variable documentation.
+7. Add sample `.env.example` file if useful.
+8. Ensure local setup does not require Azure credentials.
+
+GitHub Actions CI scope:
+
+Update or create `.github/workflows/ci.yml`.
+
+The CI pipeline should:
+
+1. Trigger on pull requests and pushes to main.
+2. Restore backend dependencies.
+3. Build backend solution.
+4. Run backend tests.
+5. Install frontend dependencies.
+6. Run frontend linting if available.
+7. Build Angular frontend.
+8. Run frontend tests where practical.
+9. Validate Docker builds where practical.
+10. Keep the workflow readable and maintainable.
+
+Optional but useful CI improvements:
+
+* Separate jobs for backend, frontend, and Docker validation
+* Dependency caching
+* Test result visibility
+* Build summary
+* Path-based organization if the repository is large
+
+Do not add complex deployment automation yet. That belongs to the Azure deployment epic.
+
+Quality gate expectations:
+
+The repository should clearly support these validation commands:
+
+* Backend restore
+* Backend build
+* Backend test
+* Frontend install
+* Frontend build
+* Frontend test where practical
+* Docker Compose startup
+* Docker image build
+
+Documentation scope:
+
+Update or create relevant documentation:
+
+* `README.md`
+* `docs/setup.md`
+* `docs/local-development.md`
+* `docs/testing-strategy.md`
+* `docs/deployment.md`
+* `docs/roadmap.md`
+* `architecture/deployment-architecture.md`
+* `architecture/observability-architecture.md`
+* `architecture/nfrs.md`
+
+Create or update a dedicated DevOps document if useful:
+
+* `docs/devops-guide.md`
+
+The DevOps guide should include:
+
+1. Local development without Docker.
+2. Local development with Docker Compose.
+3. Required environment variables.
+4. Database container usage.
+5. Migration guidance.
+6. How to run tests.
+7. How CI is structured.
+8. How Docker images map to future Azure Container Apps.
+9. Troubleshooting common local setup issues.
+
+Azure-readiness expectation:
+
+Document how this DevOps and Docker foundation maps to future Azure resources:
+
+* Azure Container Registry
+* Azure Container Apps
+* Azure SQL Database
+* Azure Static Web Apps or Azure Storage Static Website
+* Azure Service Bus
+* Azure Key Vault
+* Azure Application Insights
+* GitHub Actions deployment workflows
+
+Architecture expectations:
+
+1. Keep Docker and DevOps configuration clean and understandable.
+2. Avoid unnecessary complexity.
+3. Do not mix deployment secrets with application code.
+4. Use environment variables for runtime configuration.
+5. Keep containers small and production-oriented where practical.
+6. Keep local Docker setup developer-friendly.
+7. Preserve service boundaries.
+8. Do not implement unrelated business features in this epic.
+
+Testing expectations:
+
+Add or update tests and validation where practical:
+
+* CI builds backend successfully.
+* CI runs backend tests.
+* CI builds Angular frontend.
+* CI validates Dockerfile builds if practical.
+* Docker Compose configuration is syntactically valid.
+* Health endpoints remain functional in containerized mode where practical.
+
+Docker validation expectation:
+
+Where practical, provide commands for:
+
+```bash
+docker compose build
+docker compose up
+docker compose down
+```
+
+Do not assume the user has Azure credentials.
+
+Important rules:
+
+* Do not hardcode secrets.
+* Do not commit real `.env` files with sensitive values.
+* Use `.env.example` only with safe placeholder values.
+* Do not require real Azure resources.
+* Do not implement Azure deployment yet.
+* Do not overbuild beyond Epic 8.
+* Keep the project Azure-ready.
+* Keep the implementation portfolio-grade and Solution Architect quality.
+
+After implementation, provide:
+
+1. What was implemented.
+2. Docker files created or modified.
+3. Docker Compose services added or modified.
+4. GitHub Actions changes.
+5. Backend build/test validation.
+6. Frontend build/test validation.
+7. Documentation updated.
+8. Commands to run locally without Docker.
+9. Commands to run locally with Docker.
+10. Commands to test.
+11. Any assumptions made.
+12. Any known limitations.
+13. Recommended next epic.

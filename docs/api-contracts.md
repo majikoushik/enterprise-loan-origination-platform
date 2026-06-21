@@ -1,7 +1,5 @@
 # API Contracts
 
-Epic 0 exposes metadata endpoints only. Future epics will document full request and response DTOs here.
-
 ## Foundation Endpoints
 
 | Service | Endpoint | Purpose |
@@ -11,6 +9,15 @@ Epic 0 exposes metadata endpoints only. Future epics will document full request 
 | Eligibility API | `GET /api/v1/eligibility-service/metadata` | Service identity and responsibility |
 | Audit API | `GET /api/v1/audit-service/metadata` | Service identity and responsibility |
 | APIs | `GET /health` | Health check |
+
+## Customer API
+
+| Endpoint | Method | Request Body | Response Body | Status Codes |
+| --- | --- | --- | --- | --- |
+| `/api/v1/customers` | `POST` | `CustomerRegistrationRequest` | `CustomerResponse` | `201 Created`, `400 Bad Request` |
+| `/api/v1/customers/{id}` | `GET` | None | `CustomerResponse` | `200 OK`, `404 Not Found` |
+| `/api/v1/customers` | `GET` | None | `IEnumerable<CustomerResponse>` | `200 OK` |
+
 
 ## Response Envelope
 

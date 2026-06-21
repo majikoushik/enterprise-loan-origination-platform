@@ -1,0 +1,42 @@
+Perform a Security, Secrets, and Safe Data Review for the entire `enterprise-loan-origination-platform` repository.
+
+Read `AGENTS.md` first.
+
+Goal:
+
+Ensure the repository is safe to publish publicly on GitHub.
+
+Scope:
+
+1. Search for hardcoded secrets.
+2. Search for connection strings.
+3. Search for passwords, API keys, tokens, subscription IDs, tenant IDs, and client secrets.
+4. Review `.env`, `.env.example`, `appsettings`, Docker Compose, GitHub Actions, Bicep files, and documentation.
+5. Confirm that only safe placeholder values are committed.
+6. Confirm that no real customer data is used.
+7. Confirm that no sensitive financial data is stored in seed data, logs, screenshots, or docs.
+8. Review logging to ensure sensitive data is not logged.
+9. Review frontend environment files for unsafe values.
+10. Review Azure deployment documentation for safe secret handling.
+
+Fix issues where appropriate.
+
+Use safe placeholder values such as:
+
+* `<your-subscription-id>`
+* `<your-tenant-id>`
+* `<your-client-id>`
+* `<your-key-vault-name>`
+* `<connection-string-from-key-vault>`
+* `<application-insights-connection-string>`
+
+Do not remove useful documentation. Replace unsafe examples with safe placeholders.
+
+After completion, provide:
+
+1. Security risks found.
+2. Secrets or unsafe values removed.
+3. Files changed.
+4. Safe configuration strategy.
+5. GitHub secrets required for future deployment.
+6. Final confirmation whether the repo is safe to publish publicly.

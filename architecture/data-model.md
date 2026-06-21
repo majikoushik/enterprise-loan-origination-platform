@@ -2,11 +2,13 @@
 
 Epic 0 does not create database tables. The conceptual model is prepared for future epics.
 
-## Candidate Entities
+## Implemented Entities
 
-### Customer
+### Customer (Epic 1)
 
-Fields will include customer identity, contact details, employment type, monthly income, existing obligations, and audit timestamps.
+Implemented in `Customer.Api` using EF Core. Fields include `Id`, `FullName`, `Email`, `MobileNumber`, `DateOfBirth`, `EmploymentType`, `MonthlyIncome`, `ExistingMonthlyObligations`, and `CreatedAt`.
+
+## Future Candidate Entities
 
 ### LoanApplication
 

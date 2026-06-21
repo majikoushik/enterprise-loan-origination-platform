@@ -1,0 +1,58 @@
+<div class="list-container">
+  <div class="header-actions">
+    <div>
+      <h2>Customers</h2>
+      <p>Manage registered customers and their profiles.</p>
+    </div>
+    <a routerLink="register" class="btn btn-primary">
+      <span>+ Register Customer</span>
+    </a>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="table-card">
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner-dark"></div>
+      <p>Loading customers...</p>
+    </div>
+
+    <table *ngIf="!isLoading && customers.length > 0" class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Mobile</th>
+          <th>Registered Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let customer of customers">
+          <td>
+            <div class="customer-name">{{ customer.fullName }}</div>
+          </td>
+          <td>{{ customer.email }}</td>
+          <td>{{ customer.mobileNumber }}</td>
+          <td>{{ customer.createdAt | date:'mediumDate' }}</td>
+          <td>
+            <button class="btn-icon" title="View Profile">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!isLoading && customers.length === 0 && !errorMessage" class="empty-state">
+      <div class="empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+      </div>
+      <h3>No customers found</h3>
+      <p>Get started by registering the first customer.</p>
+      <a routerLink="register" class="btn btn-secondary mt-3">Register Customer</a>
+    </div>
+  </div>
+</div>

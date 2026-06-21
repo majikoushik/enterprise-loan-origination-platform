@@ -1,11 +1,28 @@
 using Microsoft.OpenApi.Models;
 using Observability;
 using SharedKernel;
+using Customer.Api.Infrastructure.Data;
+using Customer.Api.Application.Services;
+using Customer.Api.Application.Validators;
+using Microsoft.EntityFrameworkCore;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddControllers();
+
+// Add Database Context
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+builder.Services.AddDbContext<CustomerDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// Add Application Services
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddValidatorsFromAssemblyContaining<CustomerRegistrationRequestValidator>();
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -29,6 +46,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.MapControllers();
 app.MapHealthChecks("/health");
 app.MapGet("/api/v1/customer-service/metadata", (HttpContext context) =>
 {

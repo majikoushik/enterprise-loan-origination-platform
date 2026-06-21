@@ -1,0 +1,86 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Customer.Api.Application.DTOs;
+using Customer.Api.Domain;
+using Customer.Api.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace Customer.Api.Application.Services;
+
+public class CustomerService : ICustomerService
+{
+    private readonly CustomerDbContext _dbContext;
+
+    public CustomerService(CustomerDbContext dbContext)
+    {
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+    }
+
+    public async Task<CustomerResponse> RegisterCustomerAsync(CustomerRegistrationRequest request, CancellationToken cancellationToken = default)
+    {
+        // Domain validation happens in the entity constructor
+        var customer = new CustomerProfile(
+            request.FullName,
+            request.Email,
+            request.MobileNumber,
+            request.DateOfBirth,
+            request.EmploymentType,
+            request.MonthlyIncome,
+            request.ExistingMonthlyObligations
+        );
+
+        // Check if email already exists
+        bool emailExists = await _dbContext.Customers
+            .AnyAsync(c => c.Email == request.Email, cancellationToken);
+            
+        if (emailExists)
+        {
+            throw new CustomerDomainException("A customer with this email already exists.");
+        }
+
+        _dbContext.Customers.Add(customer);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return MapToResponse(customer);
+    }
+
+    public async Task<CustomerResponse?> GetCustomerByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var customer = await _dbContext.Customers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+
+        if (customer == null)
+            return null;
+
+        return MapToResponse(customer);
+    }
+
+    public async Task<IEnumerable<CustomerResponse>> GetAllCustomersAsync(CancellationToken cancellationToken = default)
+    {
+        var customers = await _dbContext.Customers
+            .AsNoTracking()
+            .OrderByDescending(c => c.CreatedAt)
+            .ToListAsync(cancellationToken);
+
+        return customers.Select(MapToResponse);
+    }
+
+    private static CustomerResponse MapToResponse(CustomerProfile customer)
+    {
+        return new CustomerResponse(
+            customer.Id,
+            customer.FullName,
+            customer.Email,
+            customer.MobileNumber,
+            customer.DateOfBirth,
+            customer.EmploymentType,
+            customer.MonthlyIncome,
+            customer.ExistingMonthlyObligations,
+            customer.CreatedAt
+        );
+    }
+}

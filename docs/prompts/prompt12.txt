@@ -1,0 +1,52 @@
+Perform a Final QA and Stabilization Pass for the entire `enterprise-loan-origination-platform` repository.
+
+Read `AGENTS.md` first.
+
+Review the complete implementation from Epic 0 through Epic 10.
+
+Goal:
+
+Make sure the repository is stable, consistent, buildable, testable, documented, and ready for GitHub publishing.
+
+Scope:
+
+1. Review backend solution structure.
+2. Review Angular frontend structure.
+3. Review Docker and Docker Compose setup.
+4. Review GitHub Actions workflows.
+5. Review architecture documentation.
+6. Review ADRs.
+7. Review Azure deployment blueprint.
+8. Review README.
+9. Review tests.
+10. Review local run commands.
+
+Check and fix:
+
+* Broken build issues
+* Broken test issues
+* Incorrect commands in documentation
+* Inconsistent naming
+* Inconsistent API response format
+* Missing or outdated documentation
+* Dead files
+* Placeholder text that should be replaced
+* Broken links in README or docs
+* Docker Compose issues
+* CI workflow issues
+* Formatting inconsistencies
+
+Do not add new business features.
+
+Do not make major architecture changes unless required to fix a real issue.
+
+After completion, provide:
+
+1. Issues found.
+2. Issues fixed.
+3. Files changed.
+4. Build validation result.
+5. Test validation result.
+6. Docker validation result.
+7. Remaining known limitations.
+8. Final recommended manual checks.

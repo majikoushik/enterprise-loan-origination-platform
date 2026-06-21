@@ -1,0 +1,43 @@
+Perform a GitHub Portfolio Publishing Pass for the `enterprise-loan-origination-platform` repository.
+
+Read `AGENTS.md` first.
+
+Goal:
+
+Make the repository impressive and easy to understand for recruiters, solution architects, engineering managers, and interviewers.
+
+Focus on presentation, clarity, and professional impact.
+
+Scope:
+
+1. Polish the root `README.md`.
+2. Make the first 30 seconds of the README highly impressive.
+3. Add a strong executive summary.
+4. Highlight architecture skills demonstrated by the project.
+5. Highlight .NET, Angular, Azure, Microservices, DevOps, Observability, and Security capabilities.
+6. Ensure architecture diagrams are linked from the README.
+7. Ensure setup instructions are clear.
+8. Ensure screenshots section exists.
+9. Add screenshot placeholders if real screenshots are not available.
+10. Add a clear “Portfolio Value” section.
+11. Add a clear “What This Project Demonstrates” section.
+12. Add a final roadmap section.
+13. Ensure documentation links work.
+14. Ensure badges are useful and not excessive.
+15. Ensure the repo does not look like a toy project.
+
+Do not add new business features.
+
+Do not exaggerate capabilities that are not implemented.
+
+Be honest about what is implemented, what is simulated, and what is Azure-ready blueprint only.
+
+After completion, provide:
+
+1. README improvements made.
+2. Portfolio positioning improvements.
+3. Documentation links verified.
+4. Screenshots or placeholders added.
+5. Final publishing checklist.
+6. Suggested GitHub repo description.
+7. Suggested GitHub topics/tags.

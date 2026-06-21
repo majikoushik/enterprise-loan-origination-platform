@@ -1,0 +1,209 @@
+Implement Epic 7: Observability and Production Readiness based on AGENTS.md and the existing repository.
+
+Build the next architecture capability for the `enterprise-loan-origination-platform`: Observability, Error Handling, Correlation ID, Health Checks, and Production Readiness.
+
+Before implementation:
+
+1. Read `AGENTS.md`.
+2. Review the current repository structure.
+3. Review the implementation from Epic 0 through Epic 6.
+4. Review existing Customer, Loan Application, Eligibility, Status Tracking, Notification, and Audit implementations.
+5. Review existing Angular routes, services, components, tests, documentation, CI workflow, Docker setup, and event abstractions.
+6. Preserve the existing architecture direction, naming conventions, API response pattern, security standards, testing standards, and Azure-readiness.
+
+Epic 7 Goal:
+
+Make the application more production-ready by adding consistent observability, global error handling, correlation ID propagation, structured logging, health checks, and operational support documentation.
+
+This epic should demonstrate that the platform is not only functionally correct, but also supportable, traceable, diagnosable, and ready for enterprise cloud deployment.
+
+Backend scope:
+
+1. Implement or standardize correlation ID middleware across all backend APIs and workers.
+2. Ensure every incoming request has a correlation ID.
+3. Return correlation ID in API responses and error responses.
+4. Propagate correlation ID into logs, audit events, notification requests, and business events where practical.
+5. Implement or standardize global exception handling.
+6. Use Problem Details style error responses consistently.
+7. Ensure validation errors follow a consistent response format.
+8. Add structured logging across services.
+9. Add service name, environment, correlation ID, request path, HTTP method, status code, elapsed time, and exception details where appropriate.
+10. Add health check endpoints for all APIs.
+11. Add readiness/liveness style health check structure where practical.
+12. Add Application Insights readiness without requiring real Azure secrets.
+13. Add safe logging practices to prevent sensitive data leakage.
+14. Add operational logging for important business events.
+15. Add retry/circuit-breaker readiness notes where external dependencies are simulated.
+16. Add tests for middleware, error handling, and health checks where practical.
+
+Required observability capabilities:
+
+* Correlation ID middleware
+* Structured request logging
+* Global exception handling
+* Problem Details response model
+* Validation error response model
+* Health check endpoints
+* Application Insights configuration placeholder
+* Safe logging policy
+* Operational support notes
+* Azure Monitor / Log Analytics readiness documentation
+
+Suggested backend endpoints:
+
+* `GET /health`
+* `GET /health/live`
+* `GET /health/ready`
+
+If the existing service structure uses different health check conventions, align with it only if it is clean and documented.
+
+Correlation ID expectations:
+
+1. Accept incoming correlation ID from request header:
+
+   * `X-Correlation-ID`
+2. Generate a new correlation ID if not provided.
+3. Add correlation ID to response headers.
+4. Include correlation ID in structured logs.
+5. Include correlation ID in API response envelopes if the current pattern supports it.
+6. Include correlation ID in Problem Details error responses.
+7. Include correlation ID in audit events, notification requests, and business events where practical.
+
+Error handling expectations:
+
+Use consistent error categories:
+
+* Validation error
+* Not found
+* Conflict
+* Unauthorized readiness
+* Forbidden readiness
+* Business rule violation
+* External dependency failure readiness
+* Unexpected server error
+
+Do not expose stack traces to the frontend.
+
+Do not leak secrets, connection strings, or sensitive customer/financial data in error responses.
+
+Frontend scope:
+
+1. Improve Angular error handling consistency.
+2. Add or enhance HTTP interceptor for correlation ID.
+3. Add or enhance HTTP interceptor for API error handling.
+4. Show user-friendly error messages.
+5. Avoid exposing raw backend stack traces or technical internals in the UI.
+6. Add loading and empty-state consistency where practical.
+7. Add a simple system health/status page if appropriate.
+8. Use typed error models where practical.
+9. Keep UI professional and suitable for a banking platform demo.
+
+Frontend route expectation:
+
+* Optional: `/system-health`
+* Optional: show health/status indicators on `/dashboard`
+
+Documentation scope:
+
+Update or create relevant documentation:
+
+* `README.md`
+* `docs/local-development.md`
+* `docs/testing-strategy.md`
+* `docs/roadmap.md`
+* `docs/operational-runbook.md`
+* `architecture/observability-architecture.md`
+* `architecture/security-architecture.md`
+* `architecture/deployment-architecture.md`
+* `architecture/nfrs.md`
+* `architecture/lld.md`
+
+Create `docs/operational-runbook.md` if it does not exist.
+
+Operational runbook should include:
+
+* How to check service health
+* How to use correlation ID for troubleshooting
+* Common failure scenarios
+* Where logs would go in Azure
+* How Application Insights would be used
+* How Log Analytics would be used
+* Basic incident triage flow
+* Safe logging guidelines
+
+Architecture expectations:
+
+1. Observability should be implemented as shared infrastructure or reusable building blocks where practical.
+2. Do not duplicate middleware logic unnecessarily across services.
+3. Keep implementation simple but enterprise-ready.
+4. Keep Application Insights configuration optional and environment-driven.
+5. Do not require actual Azure resources for local development.
+6. Document how local observability maps to Azure production observability.
+7. Preserve service boundaries.
+8. Do not implement unrelated business features in this epic.
+
+Testing expectations:
+
+Add tests for:
+
+* Correlation ID generated when missing
+* Incoming correlation ID preserved when provided
+* Correlation ID returned in response header
+* Correlation ID included in error response
+* Global exception handling returns safe Problem Details response
+* Validation error returns consistent response
+* Not found scenario returns consistent response
+* Health endpoint returns healthy response
+* Angular interceptor adds or propagates correlation ID if practical
+* Angular error handling maps API error to user-friendly message if practical
+
+CI/CD expectation:
+
+Update GitHub Actions if required so the build and tests include the new observability and frontend changes.
+
+Docker expectation:
+
+Update Docker Compose if required so health checks can be used locally.
+
+Azure-readiness expectation:
+
+Document how this observability implementation maps to future Azure resources:
+
+* Azure Application Insights
+* Azure Log Analytics
+* Azure Monitor
+* Azure Container Apps health probes
+* Azure Service Bus diagnostics
+* Azure SQL monitoring
+* Distributed tracing
+* Dashboard and alerting readiness
+
+Important rules:
+
+* Do not hardcode secrets.
+* Do not require real Azure credentials.
+* Do not log sensitive data.
+* Do not expose stack traces to frontend.
+* Do not overbuild beyond Epic 7.
+* Do not implement authentication unless already required by the existing foundation.
+* Do not implement full Azure deployment yet unless required by the current foundation.
+* Keep the project Azure-ready.
+* Keep the implementation portfolio-grade and Solution Architect quality.
+
+After implementation, provide:
+
+1. What was implemented.
+2. Backend files created or modified.
+3. Frontend files created or modified.
+4. Shared building blocks added or changed.
+5. Middleware added.
+6. Health check endpoints added.
+7. Error handling improvements.
+8. Logging and correlation ID improvements.
+9. Tests added.
+10. Documentation updated.
+11. Docker Compose changes if any.
+12. Commands to run locally.
+13. Commands to test.
+14. Any assumptions made.
+15. Recommended next epic.

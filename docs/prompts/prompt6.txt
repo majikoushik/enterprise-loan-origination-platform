@@ -1,0 +1,239 @@
+Implement Epic 5: Notification Simulation based on AGENTS.md and the existing repository.
+
+Build the next business feature for the `enterprise-loan-origination-platform`: Event-Driven Notification Simulation.
+
+Before implementation:
+
+1. Read `AGENTS.md`.
+2. Review the current repository structure.
+3. Review the implementation from Epic 0, Epic 1, Epic 2, Epic 3, and Epic 4.
+4. Review existing Customer, Loan Application, Eligibility, and Status Tracking APIs.
+5. Review existing Angular routes, services, components, tests, documentation, CI workflow, and Docker setup.
+6. Preserve the existing architecture direction, naming conventions, API response pattern, error handling pattern, observability standards, testing standards, and Azure-readiness.
+
+Epic 5 Goal:
+
+Add notification request creation and simulated notification delivery for important loan application lifecycle events.
+
+This epic should demonstrate event-driven architecture thinking, Azure Service Bus readiness, worker/service separation, traceability, and production-style notification design.
+
+Do not integrate real email, SMS, WhatsApp, or third-party notification providers in this epic. This is a safe demo simulation for architecture and portfolio purposes.
+
+Backend scope:
+
+1. Implement Notification Simulation in `Notification.Worker` or the existing notification service structure.
+2. Create a clean domain model for `NotificationRequest`.
+3. Create a clean domain model for `NotificationDeliveryAttempt` if useful.
+4. Add request and response DTOs if the notification service exposes APIs.
+5. Add persistence using Entity Framework Core.
+6. Add database migration support.
+7. Add notification request creation when important business events occur.
+8. Simulate notification delivery for Email and SMS channels.
+9. Track notification status.
+10. Add structured logging for notification request creation and delivery simulation.
+11. Use correlation ID support if available.
+12. Add audit event creation for notification request and delivery outcome if audit foundation exists.
+13. Add Swagger/OpenAPI documentation if notification APIs are exposed.
+14. Add unit tests and integration tests where practical.
+
+Important notification trigger events:
+
+Create notification requests for these business events where integration is practical in the current repository:
+
+* Customer registered
+* Loan application submitted
+* Eligibility check completed
+* Loan application status changed
+* Loan application approved
+* Loan application rejected
+* Loan application cancelled
+
+If direct event integration is not clean yet, implement a simple internal event abstraction and document how it will map to Azure Service Bus in the future.
+
+Supported notification channels for MVP:
+
+* Email simulation
+* SMS simulation
+
+Supported notification statuses:
+
+* Pending
+* Processing
+* Sent
+* Failed
+* Cancelled
+
+Suggested notification request fields:
+
+* Notification request ID
+* Correlation ID
+* Event type
+* Entity type
+* Entity ID
+* Customer ID
+* Recipient
+* Channel
+* Subject or title
+* Message body
+* Status
+* Created timestamp
+* Processed timestamp
+* Failure reason
+
+Suggested notification delivery attempt fields:
+
+* Delivery attempt ID
+* Notification request ID
+* Attempt number
+* Channel
+* Status
+* Attempted timestamp
+* Provider response simulation
+* Failure reason
+
+Suggested API endpoints if applicable:
+
+* `GET /api/v1/notifications`
+* `GET /api/v1/notifications/{notificationRequestId}`
+* `GET /api/v1/notifications/entity/{entityType}/{entityId}`
+* `POST /api/v1/notifications/{notificationRequestId}/simulate-delivery`
+
+Use consistent API response and error response patterns according to `AGENTS.md`.
+
+Messaging and event-driven expectations:
+
+1. Create or enhance a shared event abstraction under the existing building blocks if appropriate.
+2. Use business-event naming, not command-style naming.
+3. Keep event payloads minimal and safe.
+4. Include correlation ID in events.
+5. Include occurred timestamp in events.
+6. Document how the local simulation maps to Azure Service Bus.
+7. Do not tightly couple unrelated services unless the current repository architecture already supports it cleanly.
+
+Example event names:
+
+* `CustomerRegistered`
+* `LoanApplicationSubmitted`
+* `EligibilityCheckCompleted`
+* `LoanApplicationStatusChanged`
+* `NotificationRequested`
+* `NotificationDeliveryCompleted`
+* `NotificationDeliveryFailed`
+
+Frontend scope:
+
+1. Implement Notification UI in Angular if it fits the current frontend structure.
+2. Add a notification list or notification history view.
+3. Add notification details view if useful.
+4. Show notification status using professional status badges.
+5. Show related entity details such as loan application ID or customer ID.
+6. Show channel as Email or SMS.
+7. Show created and processed timestamps.
+8. Show failure reason if notification simulation fails.
+9. Use typed Angular models and services.
+10. Do not call APIs directly from components; use a dedicated notification API service.
+11. Keep the UI professional and suitable for a banking platform demo.
+
+Frontend route expectations:
+
+* `/notifications`
+* Optional: `/notifications/:id`
+* Optional: integrate recent notifications into `/dashboard`
+* Optional: integrate notification history into `/loan-applications/:id`
+
+Documentation scope:
+
+Update or create relevant documentation:
+
+* `README.md`
+* `docs/api-contracts.md`
+* `docs/local-development.md`
+* `docs/testing-strategy.md`
+* `docs/roadmap.md`
+* `architecture/lld.md`
+* `architecture/event-model.md`
+* `architecture/api-governance.md`
+* `architecture/security-architecture.md`
+* `architecture/observability-architecture.md`
+* `architecture/deployment-architecture.md`
+
+Architecture expectations:
+
+1. Keep notification simulation separate from core business decision logic.
+2. Do not put notification delivery logic inside Customer, Loan Application, or Eligibility controllers.
+3. Prefer event-driven integration.
+4. Keep the design Azure Service Bus ready.
+5. Keep the implementation simple enough for MVP but professional enough for a Solution Architect portfolio.
+6. Document local simulation versus future production design.
+7. Document notification failure handling.
+8. Document retry-readiness, even if full retry policy is not implemented yet.
+9. Do not send real external notifications.
+10. Do not expose sensitive data in notification logs or UI.
+
+Testing expectations:
+
+Add tests for:
+
+* Notification request creation
+* Notification request created after customer registration if integrated
+* Notification request created after loan application submission if integrated
+* Notification request created after eligibility evaluation if integrated
+* Notification request created after status change if integrated
+* Simulated email delivery success
+* Simulated SMS delivery success
+* Simulated delivery failure if failure scenario is implemented
+* Fetching notification by ID
+* Fetching notifications by related entity
+* Notification not found scenario
+* Validation failure for invalid notification request
+* Correlation ID propagation into notification request
+* Audit event creation if audit foundation exists
+
+CI/CD expectation:
+
+Update GitHub Actions if required so the build and tests include the new backend, worker, and frontend changes.
+
+Docker expectation:
+
+Update Docker Compose if required so the notification worker or service can run locally.
+
+If full worker execution is not practical yet, document how it will run in local and Azure environments.
+
+Azure-readiness expectation:
+
+Document how this notification simulation maps to future Azure resources:
+
+* Azure Service Bus topic or queue
+* Azure Container Apps job or worker
+* Azure Communication Services or provider abstraction for future real delivery
+* Application Insights for notification telemetry
+* Log Analytics for notification operational support
+* Key Vault for future provider secrets
+
+Important rules:
+
+* Do not hardcode secrets.
+* Do not use real customer data.
+* Do not send real emails or SMS.
+* Do not integrate real external providers.
+* Do not overbuild beyond Epic 5.
+* Do not implement authentication unless already required by the existing foundation.
+* Do not implement Azure deployment yet unless required by the current foundation.
+* Keep the project Azure-ready.
+* Keep the implementation portfolio-grade and Solution Architect quality.
+
+After implementation, provide:
+
+1. What was implemented.
+2. Backend or worker files created or modified.
+3. Frontend files created or modified.
+4. Database/migration changes.
+5. API endpoints added if any.
+6. Notification events and statuses implemented.
+7. Tests added.
+8. Documentation updated.
+9. Docker Compose changes if any.
+10. Commands to run locally.
+11. Commands to test.
+12. Any assumptions made.
+13. Recommended next epic.

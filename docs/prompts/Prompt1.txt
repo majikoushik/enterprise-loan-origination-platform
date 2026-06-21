@@ -1,0 +1,126 @@
+Implement Epic 0: Repository Foundation based on AGENTS.md.
+
+Create the initial enterprise-grade foundation for the `enterprise-loan-origination-platform` repository.
+
+Follow the architecture, quality standards, folder structure, Azure-readiness direction, documentation expectations, testing expectations, and agent workflow rules defined in `AGENTS.md`.
+
+Scope for Epic 0:
+
+1. Create the recommended repository structure.
+2. Create the initial .NET backend solution skeleton.
+3. Create the Angular frontend skeleton under the correct folder.
+4. Add initial architecture documentation.
+5. Add initial ADR files.
+6. Add developer setup documentation.
+7. Add Docker Compose foundation.
+8. Add GitHub Actions CI foundation.
+9. Add `.gitignore` and `.editorconfig`.
+10. Add a professional root `README.md`.
+
+Backend expectations:
+
+* Use ASP.NET Core Web API.
+* Create the initial service folders for:
+
+  * Customer.Api
+  * LoanApplication.Api
+  * Eligibility.Api
+  * Notification.Worker
+  * Audit.Api
+* Add building block folders for:
+
+  * SharedKernel
+  * Messaging
+  * Observability
+  * Security
+* Keep the initial implementation minimal but clean.
+* Add health check endpoints or health check readiness where appropriate.
+* Add Swagger/OpenAPI readiness for APIs.
+* Add placeholder test projects where appropriate.
+
+Frontend expectations:
+
+* Use Angular.
+* Create the Angular app under:
+  `src/web/loan-portal-angular`
+* Use a professional feature-based structure.
+* Add initial routes or placeholders for:
+
+  * Dashboard
+  * Customer Registration
+  * Loan Application
+  * Eligibility Result
+  * Application Status
+  * Audit Trail
+* Keep the UI foundation clean and enterprise-ready.
+
+Documentation expectations:
+
+Create or update these files:
+
+* `README.md`
+* `architecture/README.md`
+* `architecture/hld.md`
+* `architecture/lld.md`
+* `architecture/nfrs.md`
+* `architecture/api-governance.md`
+* `architecture/security-architecture.md`
+* `architecture/observability-architecture.md`
+* `architecture/deployment-architecture.md`
+* `architecture/data-model.md`
+* `architecture/event-model.md`
+* `docs/setup.md`
+* `docs/local-development.md`
+* `docs/api-contracts.md`
+* `docs/testing-strategy.md`
+* `docs/deployment.md`
+* `docs/roadmap.md`
+
+ADR expectations:
+
+Create these initial ADRs:
+
+* `architecture/adr/0001-architecture-style.md`
+* `architecture/adr/0002-database-choice.md`
+* `architecture/adr/0003-azure-hosting-strategy.md`
+* `architecture/adr/0004-observability-strategy.md`
+
+CI/CD expectations:
+
+Create GitHub Actions workflow foundation under:
+
+* `.github/workflows/ci.yml`
+
+The CI should be prepared to:
+
+* Restore backend dependencies
+* Build backend
+* Run backend tests
+* Install frontend dependencies
+* Build Angular frontend
+* Run frontend tests where practical
+
+Docker expectations:
+
+Create Docker Compose foundation for future local development.
+
+Do not overbuild the business features yet. Epic 0 is only the repository foundation.
+
+Important quality rules:
+
+* Do not hardcode secrets.
+* Do not use real customer data.
+* Keep the project Azure-ready.
+* Keep documentation professional.
+* Make the repository look like it was created by a Solution Architect, not as a toy project.
+* Ensure the structure supports future MVP epics.
+
+After implementation, provide:
+
+1. Summary of what was created.
+2. Final repository structure.
+3. Commands to run locally.
+4. Commands to build and test.
+5. Documentation files created.
+6. Any assumptions made.
+7. Recommended next epic.

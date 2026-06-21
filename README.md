@@ -52,16 +52,19 @@ infra/
 
 ## Current Epic Status
 
-Epic 0 establishes the repository foundation only. Business workflows will be implemented incrementally in later epics.
+Epic 1: Customer Registration is complete.
 
 Implemented now:
 
+- Customer API domain model, validation, and persistence using EF Core.
+- Angular portal customer registration and listing screens.
 - Backend solution and service skeletons
 - Angular portal shell and route placeholders
 - Correlation ID readiness
 - Health check readiness
 - Swagger/OpenAPI readiness
 - Architecture documentation and ADRs
+- Docker Compose and CI foundation
 - Docker Compose and CI foundation
 
 ## Run Locally
@@ -126,4 +129,4 @@ No real customer data, credentials, secrets, or production financial data should
 
 ## Next Epic
 
-Epic 1: Customer Registration, including Customer API domain model, validation, persistence, frontend reactive form, tests, and documentation updates.
+Epic 2: Loan Application Submission, including the Loan Application API, related UI components, and API integration.
