@@ -16,10 +16,14 @@ Shared building blocks live under `src/building-blocks` and are intentionally sm
 
 The target Azure architecture uses Azure Container Apps, Azure SQL Database, Azure Service Bus, Azure Key Vault, Azure Application Insights, Log Analytics, Azure Container Registry, and Azure Static Web Apps or Storage Static Website for the Angular portal.
 
-## Technology Stack
+### Backend
+- **Framework**: .NET 8, ASP.NET Core Web API
+- **Language**: C# 12
+- **Data Access**: Entity Framework Core, SQL Server
+- **Architecture**: Clean Architecture, Domain-Driven Design (DDD)
+- **Observability**: Serilog, Standard Health Checks, Global Exception Handling (ProblemDetails), Correlation ID tracking.
 
-- ASP.NET Core Web API on .NET 8
-- Angular 18 with strict TypeScript and standalone components
+### Frontend
 - SQL Server locally, Azure SQL for cloud alignment
 - Swagger/OpenAPI readiness on every API
 - Health check endpoints on APIs

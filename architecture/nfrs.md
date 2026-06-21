@@ -1,37 +1,24 @@
-# Non-Functional Requirements
+# Non-Functional Requirements (NFRs)
 
-## Scalability
+## 1. Scalability
+- **Compute**: Services are containerized and stateless, ready for horizontal scaling via Azure Container Apps (KEDA-driven scaling).
+- **Database**: Azure SQL provides elastic pools and scalability.
+- **Messaging**: Event-driven decoupling using Service Bus prevents bottlenecks during traffic spikes.
 
-APIs should remain stateless and independently deployable. Azure Container Apps will provide horizontal scaling for APIs and workers.
+## 2. Observability & Monitoring
+- **Structured Logging**: All services emit logs via Serilog, enriched with Correlation ID, Service Name, and Environment.
+- **Distributed Tracing**: `X-Correlation-ID` traces transactions end-to-end across frontend, backend, and background workers.
+- **Health Checks**: Standard ASP.NET Core Liveness and Readiness probes are configured for orchestration managers.
+- **Production Sinks**: Ready for Azure Application Insights and Azure Log Analytics.
 
-## Availability
+## 3. Reliability & Resilience
+- **Exception Handling**: Global exception handling prevents crashes and ensures predictable API responses using RFC 7807 Problem Details.
+- **Retry Mechanisms**: Prepared for Polly resilience strategies (circuit breaker, retries) when integrating real external services.
 
-Health checks are required for APIs. Future deployment should use managed Azure services and separate app/database availability concerns.
+## 4. Security
+- **Data Safety**: No stack traces or PII are exposed in HTTP responses or Audit metadata.
+- **Configuration**: Sensitive configuration (like DB connection strings) are loaded via environment variables, ready for Azure Key Vault.
 
-## Performance
-
-MVP APIs should keep request flows simple and avoid unnecessary network hops. Eligibility rules should be deterministic and fast.
-
-## Security
-
-The platform must avoid secrets in source control, validate inputs, avoid sensitive logging, and prepare for Azure Entra ID or Entra External ID authentication.
-
-## Observability
-
-Every request must support correlation ID propagation. Logs, metrics, traces, and health endpoints should support production troubleshooting.
-
-## Maintainability
-
-Service boundaries and domain language must remain clear. Shared building blocks should stay small and justified.
-
-## Reliability
-
-Future event handling should support retry and idempotency. Database migrations should be applied through controlled deployment flows.
-
-## Compliance Readiness
-
-The MVP is not a regulated banking system. It should still demonstrate auditability, data minimization, secure configuration, and traceability.
-
-## Cost Awareness
-
-Azure deployment should prefer right-sized managed services, consumption-based hosting where practical, and explicit cost notes in deployment documentation.
+## 5. Maintainability
+- **Architecture**: Domain-Driven Design and Clean Architecture principles ensure logical separation.
+- **Code Quality**: Shared logic (like auditing and observability) is extracted into reusable NuGet-style building blocks.

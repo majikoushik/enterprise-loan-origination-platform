@@ -1,0 +1,18 @@
+<div class="system-health-container">
+  <h2>System Health Dashboard</h2>
+  <p>Monitoring backend microservices for the Enterprise Loan Origination Platform.</p>
+
+  <div class="health-cards">
+    <div *ngFor="let service of services" class="health-card">
+      <div class="health-card-header">
+        <h3>{{ service.name }}</h3>
+        <span class="badge" [ngClass]="getStatusClass(service.status)">{{ service.status }}</span>
+      </div>
+      <div class="health-card-body">
+        <p class="health-url">{{ service.url }}</p>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-refresh" (click)="checkHealth()">Refresh Status</button>
+</div>

@@ -4,6 +4,7 @@ import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { EligibilityResultComponent } from './features/eligibility/eligibility-result.component';
 import { ApplicationStatusComponent } from './features/application-status/application-status.component';
 import { AuditTrailComponent } from './features/audit-trail/audit-trail.component';
+import { SystemHealthComponent } from './features/system-health/system-health.component';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
@@ -15,5 +16,6 @@ export const routes: Routes = [
   { path: 'eligibility/result', component: EligibilityResultComponent, title: 'Eligibility Result' },
   { path: 'applications/status', component: ApplicationStatusComponent, title: 'Application Status' },
   { path: 'audit-trail', component: AuditTrailComponent, title: 'Audit Trail' },
+  { path: 'system-health', component: SystemHealthComponent, title: 'System Health' },
   { path: '**', redirectTo: 'dashboard' }
 ];

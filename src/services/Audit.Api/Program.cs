@@ -6,6 +6,9 @@ using SharedKernel;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.AddStructuredLogging("Audit.Api");
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
@@ -18,10 +21,14 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Provides traceability APIs for business audit events."
     });
 });
-builder.Services.AddHealthChecks();
 
 builder.Services.AddDbContext<AuditDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("AuditDb")));
+
+builder.Services.AddStandardHealthChecks()
+    .AddSqlServer(builder.Configuration.GetConnectionString("AuditDb") ?? string.Empty, name: "AuditDb", tags: ["ready"]);
+
+builder.Services.AddHealthChecks();
 
 builder.Services.AddCors(options =>
 {
@@ -47,7 +54,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapStandardHealthChecks();
 app.MapGet("/api/v1/audit-service/metadata", (HttpContext context) =>
 {
     var correlationId = context.Items[CorrelationIdOptions.HeaderName]?.ToString() ?? string.Empty;

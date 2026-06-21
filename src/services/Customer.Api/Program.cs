@@ -10,6 +10,9 @@ using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.AddStructuredLogging("Customer.Api");
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
@@ -35,7 +38,8 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Owns customer profile registration and customer master data APIs."
     });
 });
-builder.Services.AddHealthChecks();
+builder.Services.AddStandardHealthChecks()
+    .AddSqlServer(connectionString, name: "CustomerDb", tags: ["ready"]);
 
 var app = builder.Build();
 
@@ -50,7 +54,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapStandardHealthChecks();
 app.MapGet("/api/v1/customer-service/metadata", (HttpContext context) =>
 {
     var correlationId = context.Items[CorrelationIdOptions.HeaderName]?.ToString() ?? string.Empty;

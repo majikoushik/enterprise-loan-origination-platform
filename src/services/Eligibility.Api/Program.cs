@@ -11,6 +11,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.AddStructuredLogging("Eligibility.Api");
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
@@ -54,7 +57,8 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Evaluates loan applications against risk and eligibility rules."
     });
 });
-builder.Services.AddHealthChecks();
+builder.Services.AddStandardHealthChecks()
+    .AddSqlServer(connectionString, name: "EligibilityDb", tags: ["ready"]);
 
 var app = builder.Build();
 
@@ -69,7 +73,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapStandardHealthChecks();
 app.MapGet("/api/v1/eligibility-service/metadata", (HttpContext context) =>
 {
     var correlationId = context.Items[CorrelationIdOptions.HeaderName]?.ToString() ?? string.Empty;

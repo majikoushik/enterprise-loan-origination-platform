@@ -11,6 +11,9 @@ using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.AddStructuredLogging("LoanApplication.Api");
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
@@ -51,7 +54,8 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Owns loan application submission, lifecycle, and status transition APIs."
     });
 });
-builder.Services.AddHealthChecks();
+builder.Services.AddStandardHealthChecks()
+    .AddSqlServer(connectionString, name: "LoanApplicationDb", tags: ["ready"]);
 
 var app = builder.Build();
 
@@ -66,7 +70,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapStandardHealthChecks();
 app.MapGet("/api/v1/loan-application-service/metadata", (HttpContext context) =>
 {
     var correlationId = context.Items[CorrelationIdOptions.HeaderName]?.ToString() ?? string.Empty;
