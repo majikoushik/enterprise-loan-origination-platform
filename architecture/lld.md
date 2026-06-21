@@ -11,11 +11,11 @@ Each API starts as an ASP.NET Core Web API project with:
 - Correlation ID middleware
 - Shared response envelope support
 
-In Epic 1, `Customer.Api` introduced the standard Clean/Onion architecture structure:
-- **Domain**: Entities, Enums, Domain Exceptions.
-- **Application**: DTOs, FluentValidation Validators, Application Services.
+In Epic 1 and 2, `Customer.Api` and `LoanApplication.Api` introduced the standard Clean/Onion architecture structure:
+- **Domain**: Entities (`LoanApplicationEntity`), Enums (`LoanType`, `ApplicationStatus`), Domain Exceptions.
+- **Application**: DTOs, FluentValidation Validators, Application Services (`LoanApplicationService`, `StubCustomerLookupService`).
 - **Infrastructure**: EF Core DbContext, Configurations.
-- **Controllers**: API Endpoints.
+- **Controllers**: Thin API Endpoints handling HTTP responses.
 
 Future epics should follow this structure.
 

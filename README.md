@@ -53,11 +53,14 @@ infra/
 ## Current Epic Status
 
 Epic 1: Customer Registration is complete.
+Epic 2: Loan Application Submission is complete.
 
 Implemented now:
 
 - Customer API domain model, validation, and persistence using EF Core.
+- Loan Application API domain model, validation, logic, and persistence.
 - Angular portal customer registration and listing screens.
+- Angular portal loan application submission and listing screens.
 - Backend solution and service skeletons
 - Angular portal shell and route placeholders
 - Correlation ID readiness
@@ -129,4 +132,4 @@ No real customer data, credentials, secrets, or production financial data should
 
 ## Next Epic
 
-Epic 2: Loan Application Submission, including the Loan Application API, related UI components, and API integration.
+Epic 3: Eligibility Evaluation, adding a rules-based engine for checking if an application passes minimum requirements.

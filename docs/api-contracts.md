@@ -18,6 +18,14 @@
 | `/api/v1/customers/{id}` | `GET` | None | `CustomerResponse` | `200 OK`, `404 Not Found` |
 | `/api/v1/customers` | `GET` | None | `IEnumerable<CustomerResponse>` | `200 OK` |
 
+## Loan Application API
+
+| Endpoint | Method | Request Body | Response Body | Status Codes |
+| --- | --- | --- | --- | --- |
+| `/api/v1/loan-applications` | `POST` | `LoanApplicationRequest` | `LoanApplicationResponse` | `201 Created`, `400 Bad Request` |
+| `/api/v1/loan-applications/{id}` | `GET` | None | `LoanApplicationResponse` | `200 OK`, `404 Not Found` |
+| `/api/v1/loan-applications/customer/{customerId}` | `GET` | None | `IEnumerable<LoanApplicationResponse>` | `200 OK` |
+| `/api/v1/loan-applications` | `GET` | None | `IEnumerable<LoanApplicationResponse>` | `200 OK` |
 
 ## Response Envelope
 

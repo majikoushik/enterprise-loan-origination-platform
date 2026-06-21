@@ -13,10 +13,13 @@ Each integration event should include:
 - Entity ID
 - Minimal business payload
 
-## Initial Event Candidates
+## Identified Events
 
-- `CustomerRegistered`
-- `LoanApplicationSubmitted`
+- `CustomerRegistered` (Epic 1 concept)
+- `LoanApplicationSubmitted` (Epic 2 concept)
+
+## Future Candidate Events
+
 - `EligibilityCheckCompleted`
 - `LoanApplicationStatusChanged`
 - `NotificationRequested`

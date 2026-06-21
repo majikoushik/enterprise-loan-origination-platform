@@ -8,11 +8,11 @@ Epic 0 does not create database tables. The conceptual model is prepared for fut
 
 Implemented in `Customer.Api` using EF Core. Fields include `Id`, `FullName`, `Email`, `MobileNumber`, `DateOfBirth`, `EmploymentType`, `MonthlyIncome`, `ExistingMonthlyObligations`, and `CreatedAt`.
 
+### LoanApplication (Epic 2)
+
+Implemented in `LoanApplication.Api` using EF Core. Fields include `Id`, `CustomerId`, `LoanType`, `RequestedAmount`, `RequestedTenureInMonths`, `Purpose`, `DeclaredMonthlyIncome`, `ExistingEmiObligations`, `Status`, `CreatedAt`, and `UpdatedAt`.
+
 ## Future Candidate Entities
-
-### LoanApplication
-
-Fields will include customer ID, loan type, requested amount, tenure, purpose, declared income, obligations, status, and audit timestamps.
 
 ### EligibilityResult
 

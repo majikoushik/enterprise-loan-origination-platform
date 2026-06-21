@@ -1,0 +1,66 @@
+<div class="list-container">
+  <div class="header-actions">
+    <div>
+      <h2>Loan Applications</h2>
+      <p>Manage and track all submitted loan applications.</p>
+    </div>
+    <a routerLink="new" class="btn btn-primary">
+      <span>+ New Application</span>
+    </a>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+
+  <div class="table-card">
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner-dark"></div>
+      <p>Loading applications...</p>
+    </div>
+
+    <table *ngIf="!isLoading && applications.length > 0" class="data-table">
+      <thead>
+        <tr>
+          <th>Application ID</th>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Tenure</th>
+          <th>Status</th>
+          <th>Submitted On</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let app of applications">
+          <td>
+            <div class="app-id" title="{{ app.id }}">{{ app.id | slice:0:8 }}...</div>
+          </td>
+          <td>{{ getLoanTypeName(app.loanType) }}</td>
+          <td class="amount">{{ app.requestedAmount | currency:'USD' }}</td>
+          <td>{{ app.requestedTenureInMonths }} mos</td>
+          <td>
+            <span class="badge" [ngClass]="getStatusClass(app.status)">
+              {{ ApplicationStatus[app.status] }}
+            </span>
+          </td>
+          <td>{{ app.createdAt | date:'mediumDate' }}</td>
+          <td>
+            <button class="btn-icon" title="View Details">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!isLoading && applications.length === 0 && !errorMessage" class="empty-state">
+      <div class="empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+      </div>
+      <h3>No applications found</h3>
+      <p>There are no loan applications submitted yet.</p>
+      <a routerLink="new" class="btn btn-secondary mt-3">Start an Application</a>
+    </div>
+  </div>
+</div>
