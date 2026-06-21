@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Notification.Worker.Domain.Models;
 using Notification.Worker.Infrastructure.Data;
 using Auditing;
+using System.Text.Json;
 
 namespace Notification.Worker.Controllers;
 
@@ -26,7 +27,8 @@ public class InternalEventsController : ControllerBase
         try
         {
             var eventType = eventPayload.GetProperty("eventType").GetString();
-            var correlationId = eventPayload.TryGetProperty("correlationId", out var cId) ? cId.GetString() : Guid.NewGuid().ToString();
+            var correlationId = eventPayload.TryGetProperty("correlationId", out var cId) ? cId.GetString() : null;
+            correlationId = string.IsNullOrWhiteSpace(correlationId) ? Guid.NewGuid().ToString("N") : correlationId;
             var entityId = eventPayload.TryGetProperty("entityId", out var eId) ? eId.GetGuid() : Guid.Empty;
 
             if (eventType == "LoanApplicationStatusChanged")

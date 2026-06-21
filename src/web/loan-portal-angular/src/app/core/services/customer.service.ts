@@ -3,13 +3,13 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { CustomerRegistrationRequest, CustomerResponse } from '../models/customer.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomerService {
-  // Hardcoded for demo purposes. In a real app, use environment.apiUrl
-  private apiUrl = 'http://localhost:5000/api/v1/customers';
+  private apiUrl = `${environment.customerApiBaseUrl}/api/v1/customers`;
 
   constructor(private http: HttpClient) { }
 

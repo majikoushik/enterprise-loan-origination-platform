@@ -107,7 +107,7 @@ Swagger/OpenAPI is enabled for the APIs in development. Key contracts are summar
 | Notification Worker/API | `5004` | `http://localhost:5004/swagger` |
 | Audit API | `5005` | `http://localhost:5005/swagger` |
 
-All business APIs use `X-Correlation-ID` propagation and a consistent success envelope:
+All APIs use `X-Correlation-ID` propagation. Metadata and audit query endpoints return a standard success envelope:
 
 ```json
 {
@@ -180,7 +180,7 @@ Frontend:
 cd src/web/loan-portal-angular
 npm ci
 npm run build
-npm test -- --watch=false --browsers=ChromeHeadless
+npm run test:ci
 ```
 
 Docker validation:

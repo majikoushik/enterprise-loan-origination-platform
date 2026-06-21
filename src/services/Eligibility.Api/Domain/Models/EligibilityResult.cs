@@ -10,7 +10,7 @@ public class EligibilityResult
     public Guid ApplicationId { get; private set; }
     public Guid CustomerId { get; private set; }
     public EligibilityDecision Decision { get; private set; }
-    public string RuleVersion { get; private set; }
+    public string RuleVersion { get; private set; } = string.Empty;
     public DateTime EvaluatedAt { get; private set; }
     
     // Snapshot of evaluated values
@@ -19,7 +19,7 @@ public class EligibilityResult
     public decimal ExistingEmiObligations { get; private set; }
     public decimal DebtToIncomeRatio { get; private set; }
     
-    public string DecisionSummary { get; private set; }
+    public string DecisionSummary { get; private set; } = string.Empty;
 
     private readonly List<RuleResult> _ruleResults;
     public IReadOnlyCollection<RuleResult> RuleResults => _ruleResults.AsReadOnly();

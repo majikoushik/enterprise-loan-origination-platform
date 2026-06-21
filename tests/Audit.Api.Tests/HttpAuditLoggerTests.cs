@@ -52,7 +52,7 @@ public class HttpAuditLoggerTests
             Times.Exactly(1),
             ItExpr.Is<HttpRequestMessage>(req =>
                 req.Method == HttpMethod.Post &&
-                req.RequestUri.ToString() == "http://localhost:5005/api/v1/audit/events"),
+                req.RequestUri!.ToString() == "http://localhost:5005/api/v1/audit/events"),
             ItExpr.IsAny<CancellationToken>()
         );
     }

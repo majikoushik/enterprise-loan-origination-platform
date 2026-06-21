@@ -1,4 +1,5 @@
 using System;
+using System.Net.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,12 +9,14 @@ public static class AuditingExtensions
 {
     public static IServiceCollection AddHttpAuditLogging(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddHttpClient<IAuditLogger, HttpAuditLogger>((sp, client) =>
+        services.AddHttpClient(nameof(HttpAuditLogger));
+        services.AddScoped<IAuditLogger>(sp =>
         {
-            // By default try to find a URL, otherwise default to localhost 5005
+            var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+            var httpClient = httpClientFactory.CreateClient(nameof(HttpAuditLogger));
             var auditUrl = configuration["ServiceUrls:AuditApi"] ?? "http://localhost:5005/api/v1/audit/events";
             var logger = sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HttpAuditLogger>>();
-            return new HttpAuditLogger(client, auditUrl, logger);
+            return new HttpAuditLogger(httpClient, auditUrl, logger);
         });
 
         return services;

@@ -15,6 +15,7 @@ builder.Host.AddStructuredLogging("LoanApplication.Api");
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+builder.Services.AddCorrelationIdSupport();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 
@@ -54,14 +55,31 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Owns loan application submission, lifecycle, and status transition APIs."
     });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 builder.Services.AddStandardHealthChecks()
     .AddSqlServer(connectionString, name: "LoanApplicationDb", tags: ["ready"]);
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<LoanApplicationDbContext>();
+    dbContext.Database.EnsureCreated();
+}
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCorrelationId();
+app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {
@@ -77,8 +95,7 @@ app.MapGet("/api/v1/loan-application-service/metadata", (HttpContext context) =>
     var metadata = new ServiceMetadata("LoanApplication.Api", "Loan application lifecycle service", "v1");
     return Results.Ok(ApiResponse<ServiceMetadata>.Create(metadata, correlationId));
 })
-.WithName("GetLoanApplicationServiceMetadata")
-.WithOpenApi();
+.WithName("GetLoanApplicationServiceMetadata");
 
 app.Run();
 

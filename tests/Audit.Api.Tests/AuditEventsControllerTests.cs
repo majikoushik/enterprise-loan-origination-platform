@@ -88,8 +88,8 @@ public class AuditEventsControllerTests
         var okResult = result.Result as OkObjectResult;
         okResult.Should().NotBeNull();
         
-        var response = okResult.Value as ApiResponse<System.Collections.Generic.IEnumerable<Domain.Models.AuditEvent>>;
+        var response = okResult!.Value as ApiResponse<System.Collections.Generic.IEnumerable<Domain.Models.AuditEvent>>;
         response.Should().NotBeNull();
-        response.Data.Should().HaveCount(1);
+        response!.Data.Should().HaveCount(1);
     }
 }

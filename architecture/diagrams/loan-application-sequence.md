@@ -17,5 +17,5 @@ sequenceDiagram
   Notify-->>Loan: Notification accepted
   Loan->>Audit: POST LoanApplicationSubmitted audit event
   Audit-->>Loan: Audit event recorded
-  Loan-->>Portal: 201 Created response envelope
+  Loan-->>Portal: 201 Created LoanApplicationResponse
 ```

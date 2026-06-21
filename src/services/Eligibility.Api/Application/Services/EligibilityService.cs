@@ -55,7 +55,9 @@ public class EligibilityService : IEligibilityService
         _dbContext.EligibilityResults.Add(result);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Eligibility evaluated for Application {ApplicationId}. Result: {IsEligible}", request.ApplicationId, result.IsEligible);
+        var isEligible = result.Decision == EligibilityDecision.Passed;
+
+        _logger.LogInformation("Eligibility evaluated for Application {ApplicationId}. Result: {IsEligible}", request.ApplicationId, isEligible);
 
         await _auditLogger.LogAsync(new AuditEventRecord(
             Guid.NewGuid(),
@@ -64,12 +66,12 @@ public class EligibilityService : IEligibilityService
             "Eligibility",
             "LoanApplication",
             request.ApplicationId.ToString(),
-            request.CustomerId,
+            result.CustomerId,
             "System",
             "System",
             "Evaluate",
-            $"Eligibility check completed. Result: {(result.IsEligible ? "Passed" : "Failed")}",
-            System.Text.Json.JsonSerializer.Serialize(new { isEligible = result.IsEligible, requestedAmount = result.RequestedAmount }),
+            $"Eligibility check completed. Result: {(isEligible ? "Passed" : "Failed")}",
+            System.Text.Json.JsonSerializer.Serialize(new { isEligible, requestedAmount = result.RequestedAmount }),
             DateTimeOffset.UtcNow,
             "Eligibility.Api",
             "Info"

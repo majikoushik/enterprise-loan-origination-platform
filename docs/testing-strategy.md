@@ -39,7 +39,7 @@ Command:
 
 ```powershell
 cd src/web/loan-portal-angular
-npm test -- --watch=false --browsers=ChromeHeadless
+npm run test:ci
 ```
 
 ## CI Quality Gates

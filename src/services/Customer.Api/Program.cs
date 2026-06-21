@@ -14,6 +14,7 @@ builder.Host.AddStructuredLogging("Customer.Api");
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+builder.Services.AddCorrelationIdSupport();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 
@@ -38,14 +39,31 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Owns customer profile registration and customer master data APIs."
     });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 builder.Services.AddStandardHealthChecks()
     .AddSqlServer(connectionString, name: "CustomerDb", tags: ["ready"]);
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<CustomerDbContext>();
+    dbContext.Database.EnsureCreated();
+}
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCorrelationId();
+app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {
@@ -61,8 +79,7 @@ app.MapGet("/api/v1/customer-service/metadata", (HttpContext context) =>
     var metadata = new ServiceMetadata("Customer.Api", "Customer profile and registration service", "v1");
     return Results.Ok(ApiResponse<ServiceMetadata>.Create(metadata, correlationId));
 })
-.WithName("GetCustomerServiceMetadata")
-.WithOpenApi();
+.WithName("GetCustomerServiceMetadata");
 
 app.Run();
 

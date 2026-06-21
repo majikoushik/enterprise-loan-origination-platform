@@ -15,6 +15,7 @@ builder.Host.AddStructuredLogging("Eligibility.Api");
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+builder.Services.AddCorrelationIdSupport();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 
@@ -24,9 +25,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<EligibilityDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Add Rules Engine
 builder.Services.AddScoped<IEligibilityService, EligibilityService>();
-builder.Services.AddScoped<ICustomerLookupService, HttpCustomerLookupService>();
 
 builder.Services.AddHttpAuditLogging(builder.Configuration);
 
@@ -57,14 +56,31 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Evaluates loan applications against risk and eligibility rules."
     });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 builder.Services.AddStandardHealthChecks()
     .AddSqlServer(connectionString, name: "EligibilityDb", tags: ["ready"]);
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<EligibilityDbContext>();
+    dbContext.Database.EnsureCreated();
+}
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCorrelationId();
+app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {
@@ -80,8 +96,7 @@ app.MapGet("/api/v1/eligibility-service/metadata", (HttpContext context) =>
     var metadata = new ServiceMetadata("Eligibility.Api", "Rule-based eligibility evaluation service", "v1");
     return Results.Ok(ApiResponse<ServiceMetadata>.Create(metadata, correlationId));
 })
-.WithName("GetEligibilityServiceMetadata")
-.WithOpenApi();
+.WithName("GetEligibilityServiceMetadata");
 
 app.Run();
 

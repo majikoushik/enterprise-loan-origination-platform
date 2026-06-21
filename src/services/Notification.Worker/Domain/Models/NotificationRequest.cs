@@ -6,19 +6,19 @@ namespace Notification.Worker.Domain.Models;
 public class NotificationRequest
 {
     public Guid Id { get; private set; }
-    public string CorrelationId { get; private set; }
-    public string EventType { get; private set; }
-    public string EntityType { get; private set; }
+    public string CorrelationId { get; private set; } = string.Empty;
+    public string EventType { get; private set; } = string.Empty;
+    public string EntityType { get; private set; } = string.Empty;
     public Guid EntityId { get; private set; }
     public Guid? CustomerId { get; private set; }
-    public string Recipient { get; private set; }
+    public string Recipient { get; private set; } = string.Empty;
     public NotificationChannel Channel { get; private set; }
-    public string Subject { get; private set; }
-    public string MessageBody { get; private set; }
+    public string Subject { get; private set; } = string.Empty;
+    public string MessageBody { get; private set; } = string.Empty;
     public NotificationStatus Status { get; private set; }
     public DateTimeOffset CreatedAtUtc { get; private set; }
     public DateTimeOffset? ProcessedAtUtc { get; private set; }
-    public string FailureReason { get; private set; }
+    public string? FailureReason { get; private set; }
 
     private readonly List<NotificationDeliveryAttempt> _deliveryAttempts = new();
     public IReadOnlyCollection<NotificationDeliveryAttempt> DeliveryAttempts => _deliveryAttempts.AsReadOnly();
@@ -63,7 +63,7 @@ public class NotificationRequest
         AddAttempt(NotificationStatus.Sent, providerResponse, null);
     }
 
-    public void MarkFailed(string reason, string providerResponse = null)
+    public void MarkFailed(string reason, string? providerResponse = null)
     {
         Status = NotificationStatus.Failed;
         FailureReason = reason;
@@ -71,7 +71,7 @@ public class NotificationRequest
         AddAttempt(NotificationStatus.Failed, providerResponse, reason);
     }
 
-    private void AddAttempt(NotificationStatus status, string providerResponse, string failureReason)
+    private void AddAttempt(NotificationStatus status, string? providerResponse, string? failureReason)
     {
         _deliveryAttempts.Add(new NotificationDeliveryAttempt(
             Guid.NewGuid(),

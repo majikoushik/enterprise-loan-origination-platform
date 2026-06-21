@@ -118,7 +118,7 @@ public class LoanApplicationService : ILoanApplicationService
     public async Task<LoanApplicationResponse> UpdateStatusAsync(Guid id, UpdateApplicationStatusRequest request, CancellationToken cancellationToken = default)
     {
         var application = await _dbContext.LoanApplications
-            .Include("_statusHistory")
+            .Include(a => a.StatusHistory)
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
 
         if (application == null)
@@ -133,6 +133,11 @@ public class LoanApplicationService : ILoanApplicationService
 
         var oldStatus = application.Status;
         application.ChangeStatus(newStatusEnum, request.Reason, request.ChangedBy);
+        var newHistoryRecord = application.StatusHistory.OrderByDescending(h => h.ChangedAt).First();
+        if (oldStatus != application.Status)
+        {
+            _dbContext.ApplicationStatusHistories.Add(newHistoryRecord);
+        }
         
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -162,7 +167,7 @@ public class LoanApplicationService : ILoanApplicationService
             DateTimeOffset.UtcNow,
             Guid.NewGuid().ToString(), // simple correlation id
             application.Id,
-            application.StatusHistory.Last().PreviousStatus?.ToString() ?? "Draft",
+            newHistoryRecord.PreviousStatus?.ToString() ?? "Draft",
             newStatusEnum.ToString(),
             application.CustomerId
         );
@@ -184,7 +189,7 @@ public class LoanApplicationService : ILoanApplicationService
     public async Task<IEnumerable<ApplicationStatusHistoryResponse>> GetStatusHistoryAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var application = await _dbContext.LoanApplications
-            .Include("_statusHistory")
+            .Include(a => a.StatusHistory)
             .AsNoTracking()
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
 

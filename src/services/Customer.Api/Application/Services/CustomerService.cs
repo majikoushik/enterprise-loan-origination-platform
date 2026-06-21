@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Customer.Api.Application.DTOs;
-using Customer.Api.Domain.Models;
+using Customer.Api.Domain;
 using Customer.Api.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -67,7 +67,7 @@ public class CustomerService : ICustomerService
             "Self",
             "Register",
             $"Customer registered: {request.FullName}",
-            System.Text.Json.JsonSerializer.Serialize(new { email = customer.Email.Value }),
+            System.Text.Json.JsonSerializer.Serialize(new { email = customer.Email }),
             DateTimeOffset.UtcNow,
             "Customer.Api",
             "Info"

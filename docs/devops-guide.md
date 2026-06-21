@@ -16,7 +16,7 @@ dotnet test EnterpriseLoanOriginationPlatform.sln --configuration Release
 cd src/web/loan-portal-angular
 npm ci
 npm run build
-npm test -- --watch=false --browsers=ChromeHeadless
+npm run test:ci
 ```
 
 ## Docker Compose

@@ -10,8 +10,8 @@ public class NotificationDeliveryAttempt
     public NotificationChannel Channel { get; private set; }
     public NotificationStatus Status { get; private set; }
     public DateTimeOffset AttemptedAtUtc { get; private set; }
-    public string ProviderResponse { get; private set; }
-    public string FailureReason { get; private set; }
+    public string? ProviderResponse { get; private set; }
+    public string? FailureReason { get; private set; }
 
     protected NotificationDeliveryAttempt() { }
 
@@ -22,8 +22,8 @@ public class NotificationDeliveryAttempt
         NotificationChannel channel,
         NotificationStatus status,
         DateTimeOffset attemptedAtUtc,
-        string providerResponse,
-        string failureReason)
+        string? providerResponse,
+        string? failureReason)
     {
         Id = id;
         NotificationRequestId = notificationRequestId;

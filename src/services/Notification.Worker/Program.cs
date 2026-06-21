@@ -2,6 +2,7 @@ using Observability;
 using SharedKernel;
 using Auditing;
 using Notification.Worker.Infrastructure.Data;
+using Notification.Worker;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -10,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.AddStructuredLogging("Notification.Worker");
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddCorrelationIdSupport();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -48,6 +50,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
+    dbContext.Database.EnsureCreated();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -56,6 +65,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+app.UseExceptionHandler();
+app.UseStatusCodePages();
+app.UseCorrelationId();
 app.MapControllers();
 app.MapStandardHealthChecks();
 app.MapGet("/api/v1/notification-worker/metadata", (HttpContext context) =>
@@ -64,8 +76,7 @@ app.MapGet("/api/v1/notification-worker/metadata", (HttpContext context) =>
     var metadata = new ServiceMetadata("Notification.Worker", "Notification delivery and simulation service", "v1");
     return Results.Ok(ApiResponse<ServiceMetadata>.Create(metadata, correlationId));
 })
-.WithName("GetNotificationWorkerMetadata")
-.WithOpenApi();
+.WithName("GetNotificationWorkerMetadata");
 
 app.Run();
 

@@ -51,7 +51,7 @@ Check:
 Check:
 
 - Notification Worker/API is running.
-- Loan Application or Eligibility API has the correct `Notification__WebhookUrl`.
+- Loan Application API has the correct `ServiceUrls__NotificationWorker`.
 - Audit API is running if audit records are expected.
 - Notification service logs for failed webhook processing.
 
@@ -59,7 +59,7 @@ Check:
 
 Check:
 
-- `Audit__WebhookUrl` is configured in producer services.
+- `ServiceUrls__AuditApi` is configured in producer services.
 - Audit API is healthy.
 - Producer service logs show successful audit publish or retry failure.
 - Audit query uses the correct entity type and entity ID.

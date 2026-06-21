@@ -5,9 +5,9 @@ namespace Customer.Api.Domain;
 public class CustomerProfile
 {
     public Guid Id { get; private set; }
-    public string FullName { get; private set; }
-    public string Email { get; private set; }
-    public string MobileNumber { get; private set; }
+    public string FullName { get; private set; } = string.Empty;
+    public string Email { get; private set; } = string.Empty;
+    public string MobileNumber { get; private set; } = string.Empty;
     public DateTime DateOfBirth { get; private set; }
     public EmploymentType EmploymentType { get; private set; }
     public decimal MonthlyIncome { get; private set; }

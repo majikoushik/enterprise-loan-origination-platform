@@ -1,6 +1,7 @@
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Auditing;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,11 @@ public class InternalEventsControllerTests
         // Arrange
         using var dbContext = new NotificationDbContext(_dbContextOptions);
         var loggerMock = new Mock<ILogger<InternalEventsController>>();
-        var controller = new InternalEventsController(dbContext, loggerMock.Object);
+        var auditLoggerMock = new Mock<IAuditLogger>();
+        auditLoggerMock
+            .Setup(a => a.LogAsync(It.IsAny<AuditEventRecord>(), default))
+            .Returns(Task.CompletedTask);
+        var controller = new InternalEventsController(dbContext, loggerMock.Object, auditLoggerMock.Object);
 
         var eventJson = @"
         {
@@ -63,7 +68,8 @@ public class InternalEventsControllerTests
         // Arrange
         using var dbContext = new NotificationDbContext(_dbContextOptions);
         var loggerMock = new Mock<ILogger<InternalEventsController>>();
-        var controller = new InternalEventsController(dbContext, loggerMock.Object);
+        var auditLoggerMock = new Mock<IAuditLogger>();
+        var controller = new InternalEventsController(dbContext, loggerMock.Object, auditLoggerMock.Object);
 
         var eventJson = @"{ ""wrongField"": ""value"" }"; // Missing eventType which will throw Exception
         var jsonDoc = JsonDocument.Parse(eventJson);

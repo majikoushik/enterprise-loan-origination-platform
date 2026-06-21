@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,14 @@ namespace Observability;
 
 public static class ObservabilityExtensions
 {
+    public static IServiceCollection AddCorrelationIdSupport(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+        services.TryAddScoped<CorrelationIdProvider>();
+
+        return services;
+    }
+
     public static IApplicationBuilder UseCorrelationId(this IApplicationBuilder app) =>
         app.UseMiddleware<CorrelationIdMiddleware>();
 
@@ -30,12 +39,10 @@ public static class ObservabilityExtensions
         });
     }
 
-    public static IServiceCollection AddStandardHealthChecks(this IServiceCollection services)
+    public static IHealthChecksBuilder AddStandardHealthChecks(this IServiceCollection services)
     {
-        services.AddHealthChecks()
+        return services.AddHealthChecks()
             .AddCheck("self", () => HealthCheckResult.Healthy(), tags: ["live"]);
-        
-        return services;
     }
 
     public static IApplicationBuilder MapStandardHealthChecks(this WebApplication app)

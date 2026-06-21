@@ -3,12 +3,13 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { EligibilityResult } from '../models/eligibility.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EligibilityService {
-  private apiUrl = 'http://localhost:5002/api/v1/eligibility';
+  private apiUrl = `${environment.eligibilityApiBaseUrl}/api/v1/eligibility`;
 
   constructor(private http: HttpClient) { }
 

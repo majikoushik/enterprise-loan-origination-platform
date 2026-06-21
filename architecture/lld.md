@@ -26,7 +26,7 @@ Shared concerns live under `src/building-blocks`:
 5. Domain models enforce lifecycle rules such as valid loan application status transitions.
 6. EF Core persists service-owned state.
 7. Application service emits notification or audit records where relevant.
-8. Controller returns a response envelope or Problem Details error.
+8. Controller returns the documented success DTO or envelope, or a Problem Details error.
 
 ## Database Pattern
 

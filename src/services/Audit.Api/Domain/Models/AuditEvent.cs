@@ -6,20 +6,20 @@ public class AuditEvent
 {
     public Guid Id { get; private set; }
     public Guid EventId { get; private set; }
-    public string CorrelationId { get; private set; }
-    public string EventType { get; private set; }
-    public string Category { get; private set; }
-    public string EntityType { get; private set; }
-    public string EntityId { get; private set; }
+    public string CorrelationId { get; private set; } = string.Empty;
+    public string EventType { get; private set; } = string.Empty;
+    public string Category { get; private set; } = string.Empty;
+    public string EntityType { get; private set; } = string.Empty;
+    public string EntityId { get; private set; } = string.Empty;
     public Guid? CustomerId { get; private set; }
-    public string ActorType { get; private set; }
-    public string ActorId { get; private set; }
-    public string Action { get; private set; }
-    public string Summary { get; private set; }
-    public string MetadataJson { get; private set; }
+    public string ActorType { get; private set; } = string.Empty;
+    public string ActorId { get; private set; } = string.Empty;
+    public string Action { get; private set; } = string.Empty;
+    public string Summary { get; private set; } = string.Empty;
+    public string MetadataJson { get; private set; } = string.Empty;
     public DateTimeOffset OccurredAtUtc { get; private set; }
-    public string SourceService { get; private set; }
-    public string Severity { get; private set; }
+    public string SourceService { get; private set; } = string.Empty;
+    public string Severity { get; private set; } = string.Empty;
     public DateTimeOffset RecordedAtUtc { get; private set; }
 
     protected AuditEvent() { }

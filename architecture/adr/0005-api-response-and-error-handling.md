@@ -10,11 +10,11 @@ The platform exposes multiple APIs that must feel consistent to Angular clients,
 
 ## Decision
 
-Use a standard success envelope containing `data`, `correlationId`, and `timestamp`. Use Problem Details-compatible error responses for validation, domain, not-found, conflict, and unexpected failures. Include correlation IDs in responses and logs.
+Adopt a standard success envelope containing `data`, `correlationId`, and `timestamp` as the target API governance pattern. In the MVP, metadata and audit query endpoints use the envelope while customer, loan application, eligibility, and notification business endpoints return typed DTOs directly for frontend simplicity. Use Problem Details-compatible error responses for validation, domain, not-found, conflict, and unexpected failures. Include correlation IDs in response headers and logs.
 
 ## Consequences
 
-Clients can implement consistent response handling and support teams can trace failures by correlation ID. The pattern adds a small amount of envelope ceremony, but it makes API behavior easier to govern across services.
+Clients can implement consistent response handling where the envelope is used, and support teams can trace failures by correlation ID. The mixed MVP shape should be resolved before publishing a stable external API contract.
 
 ## Alternatives Considered
 

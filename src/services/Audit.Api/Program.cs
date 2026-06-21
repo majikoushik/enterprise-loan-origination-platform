@@ -11,6 +11,7 @@ builder.Host.AddStructuredLogging("Audit.Api");
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
+builder.Services.AddCorrelationIdSupport();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -42,6 +43,13 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AuditDbContext>();
+    dbContext.Database.EnsureCreated();
+}
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCorrelationId();
@@ -61,8 +69,7 @@ app.MapGet("/api/v1/audit-service/metadata", (HttpContext context) =>
     var metadata = new ServiceMetadata("Audit.Api", "Business audit trail service", "v1");
     return Results.Ok(ApiResponse<ServiceMetadata>.Create(metadata, correlationId));
 })
-.WithName("GetAuditServiceMetadata")
-.WithOpenApi();
+.WithName("GetAuditServiceMetadata");
 
 app.Run();
 

@@ -18,7 +18,7 @@ Service metadata endpoints may use service-specific routes for diagnostics and d
 
 ## Response Pattern
 
-Successful responses use a consistent envelope:
+The target governance pattern is a consistent success envelope:
 
 ```json
 {
@@ -27,6 +27,8 @@ Successful responses use a consistent envelope:
   "timestamp": "2026-01-01T10:00:00Z"
 }
 ```
+
+The current MVP applies that envelope to service metadata and audit query endpoints. Customer, loan application, eligibility, and notification business endpoints currently return typed DTOs directly to keep the Angular integration simple. A future contract-hardening epic should either migrate all success responses to the envelope or formally document raw DTO responses as the published external contract.
 
 Errors use Problem Details-compatible responses with correlation ID support. Validation failures should include field-level details when available.
 
@@ -44,7 +46,7 @@ Every API registers Swagger/OpenAPI in development. Controllers should document 
 
 ## Correlation
 
-Clients should send `X-Correlation-ID`. APIs generate one when missing, include it in response headers, and propagate it into logs, response envelopes, audit records, and downstream calls.
+Clients should send `X-Correlation-ID`. APIs generate one when missing, include it in response headers, and propagate it into logs, response envelopes where used, audit records, and downstream calls.
 
 ## Compatibility Rules
 

@@ -11,7 +11,7 @@ public class LoanApplicationEntity
     public LoanType LoanType { get; private set; }
     public decimal RequestedAmount { get; private set; }
     public int RequestedTenureInMonths { get; private set; }
-    public string Purpose { get; private set; }
+    public string Purpose { get; private set; } = string.Empty;
     public decimal DeclaredMonthlyIncome { get; private set; }
     public decimal ExistingEmiObligations { get; private set; }
     public ApplicationStatus Status { get; private set; }

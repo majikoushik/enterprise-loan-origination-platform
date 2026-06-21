@@ -5,12 +5,12 @@ namespace Eligibility.Api.Domain.Models;
 public class RuleResult
 {
     public Guid Id { get; private set; }
-    public string RuleCode { get; private set; }
-    public string RuleName { get; private set; }
+    public string RuleCode { get; private set; } = string.Empty;
+    public string RuleName { get; private set; } = string.Empty;
     public bool Passed { get; private set; }
-    public string ActualValue { get; private set; }
-    public string ExpectedValue { get; private set; }
-    public string Explanation { get; private set; }
+    public string ActualValue { get; private set; } = string.Empty;
+    public string ExpectedValue { get; private set; } = string.Empty;
+    public string Explanation { get; private set; } = string.Empty;
 
     private RuleResult() { } // EF Core
 

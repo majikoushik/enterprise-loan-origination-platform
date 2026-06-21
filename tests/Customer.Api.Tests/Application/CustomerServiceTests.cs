@@ -1,18 +1,37 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Auditing;
 using Customer.Api.Application.DTOs;
 using Customer.Api.Application.Services;
 using Customer.Api.Domain;
 using Customer.Api.Infrastructure.Data;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Observability;
 using Xunit;
 
 namespace Customer.Api.Tests.Application;
 
 public class CustomerServiceTests
 {
+    private static CustomerService CreateService(CustomerDbContext dbContext)
+    {
+        var auditLoggerMock = new Mock<IAuditLogger>();
+        auditLoggerMock
+            .Setup(a => a.LogAsync(It.IsAny<AuditEventRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        return new CustomerService(
+            dbContext,
+            new Mock<ILogger<CustomerService>>().Object,
+            new CorrelationIdProvider(new Mock<IHttpContextAccessor>().Object),
+            auditLoggerMock.Object);
+    }
+
     private DbContextOptions<CustomerDbContext> GetDbContextOptions()
     {
         return new DbContextOptionsBuilder<CustomerDbContext>()
@@ -25,7 +44,7 @@ public class CustomerServiceTests
     {
         // Arrange
         var dbContext = new CustomerDbContext(GetDbContextOptions());
-        var service = new CustomerService(dbContext);
+        var service = CreateService(dbContext);
 
         var request = new CustomerRegistrationRequest(
             "Jane Doe",
@@ -53,7 +72,7 @@ public class CustomerServiceTests
     {
         // Arrange
         var dbContext = new CustomerDbContext(GetDbContextOptions());
-        var service = new CustomerService(dbContext);
+        var service = CreateService(dbContext);
 
         var request = new CustomerRegistrationRequest(
             "Jane Doe",

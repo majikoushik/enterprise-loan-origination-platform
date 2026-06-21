@@ -1,14 +1,18 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Auditing;
 using Eligibility.Api.Application.DTOs;
 using Eligibility.Api.Application.Services;
 using Eligibility.Api.Domain.Exceptions;
 using Eligibility.Api.Domain.Rules;
 using Eligibility.Api.Infrastructure.Data;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Moq;
+using Observability;
 using Xunit;
 
 namespace Eligibility.Api.Tests.Application;
@@ -22,6 +26,22 @@ public class EligibilityServiceTests
         _dbContextOptions = new DbContextOptionsBuilder<EligibilityDbContext>()
             .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
+    }
+
+    private static EligibilityService CreateService(EligibilityDbContext dbContext, ILoanApplicationClient loanApplicationClient, RuleEngine ruleEngine)
+    {
+        var auditLoggerMock = new Mock<IAuditLogger>();
+        auditLoggerMock
+            .Setup(a => a.LogAsync(It.IsAny<AuditEventRecord>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        return new EligibilityService(
+            dbContext,
+            loanApplicationClient,
+            new Mock<ILogger<EligibilityService>>().Object,
+            new CorrelationIdProvider(new Mock<IHttpContextAccessor>().Object),
+            auditLoggerMock.Object,
+            ruleEngine);
     }
 
     [Fact]
@@ -46,7 +66,7 @@ public class EligibilityServiceTests
         var engine = new RuleEngine(rules);
 
         using var dbContext = new EligibilityDbContext(_dbContextOptions);
-        var service = new EligibilityService(dbContext, mockClient.Object, engine);
+        var service = CreateService(dbContext, mockClient.Object, engine);
 
         var request = new EvaluateEligibilityRequest(appId);
 
@@ -86,7 +106,7 @@ public class EligibilityServiceTests
         var engine = new RuleEngine(rules);
 
         using var dbContext = new EligibilityDbContext(_dbContextOptions);
-        var service = new EligibilityService(dbContext, mockClient.Object, engine);
+        var service = CreateService(dbContext, mockClient.Object, engine);
 
         var request = new EvaluateEligibilityRequest(appId);
 
@@ -110,7 +130,7 @@ public class EligibilityServiceTests
 
         var engine = new RuleEngine(Array.Empty<IEligibilityRule>());
         using var dbContext = new EligibilityDbContext(_dbContextOptions);
-        var service = new EligibilityService(dbContext, mockClient.Object, engine);
+        var service = CreateService(dbContext, mockClient.Object, engine);
 
         var request = new EvaluateEligibilityRequest(appId);
 

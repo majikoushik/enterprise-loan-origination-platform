@@ -8,8 +8,8 @@ public class ApplicationStatusHistory
     public Guid ApplicationId { get; private set; }
     public ApplicationStatus? PreviousStatus { get; private set; }
     public ApplicationStatus NewStatus { get; private set; }
-    public string Reason { get; private set; }
-    public string ChangedBy { get; private set; }
+    public string Reason { get; private set; } = string.Empty;
+    public string ChangedBy { get; private set; } = string.Empty;
     public DateTime ChangedAt { get; private set; }
 
     private ApplicationStatusHistory() { } // EF Core

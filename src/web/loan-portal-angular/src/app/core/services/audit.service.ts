@@ -3,12 +3,13 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuditApiResponse } from '../models/audit.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuditService {
-  private apiUrl = 'http://localhost:5005/api/v1/audit';
+  private apiUrl = `${environment.auditApiBaseUrl}/api/v1/audit`;
 
   constructor(private http: HttpClient) { }
 

@@ -70,10 +70,10 @@ public class LoanApplicationEntityTests
     [Theory]
     [InlineData(ApplicationStatus.Submitted, ApplicationStatus.UnderReview)]
     [InlineData(ApplicationStatus.Submitted, ApplicationStatus.Cancelled)]
-    public void ValidTransitionsFromSubmitted_ShouldSucceed(ApplicationStatus current, ApplicationStatus next)
+    public void ValidTransitionsFromSubmitted_ShouldSucceed(ApplicationStatus expectedCurrent, ApplicationStatus next)
     {
         var app = CreateValidApplication();
-        // Since CreateValidApplication returns an app with Submitted status
+        app.Status.Should().Be(expectedCurrent);
         app.ChangeStatus(next, "Testing", "System");
         app.Status.Should().Be(next);
     }

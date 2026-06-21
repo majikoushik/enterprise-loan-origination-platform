@@ -3,7 +3,7 @@
 ## Standards
 
 - Version prefix: `/api/v1`.
-- Success response: `{ data, correlationId, timestamp }`.
+- Success response: business endpoints currently return typed DTOs directly; metadata and audit query endpoints use `{ data, correlationId, timestamp }`.
 - Error response: Problem Details-compatible shape with correlation ID.
 - Correlation header: `X-Correlation-ID`.
 - Swagger/OpenAPI: enabled in development.
@@ -50,15 +50,18 @@
 
 | Method | Endpoint | Request | Response | Status Codes |
 | --- | --- | --- | --- | --- |
-| `POST` | `/api/v1/internal/notifications` | Notification event payload | Notification request | `202`, `400` |
+| `POST` | `/api/v1/internal/events` | Integration event payload | Empty success response | `200`, `400` |
 | `GET` | `/api/v1/notifications` | None | Notification request list | `200` |
 
 ## Audit API
 
 | Method | Endpoint | Request | Response | Status Codes |
 | --- | --- | --- | --- | --- |
-| `POST` | `/api/v1/events` | `AuditEventRecord` | Audit event response | `201`, `400` |
+| `POST` | `/api/v1/audit/events` | `AuditEventRecord` | Empty success response | `200`, `400` |
+| `GET` | `/api/v1/audit/events` | None | Audit event list envelope | `200` |
 | `GET` | `/api/v1/audit/entity/{entityType}/{entityId}` | None | Audit event list | `200` |
+| `GET` | `/api/v1/audit/customer/{customerId}` | None | Audit event list envelope | `200` |
+| `GET` | `/api/v1/audit/correlation/{correlationId}` | None | Audit event list envelope | `200` |
 
 ## Error Contract
 

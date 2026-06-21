@@ -9,7 +9,7 @@ import { LoanApplicationRequest, LoanApplicationResponse, ApplicationStatusHisto
   providedIn: 'root'
 })
 export class LoanApplicationService {
-  private apiUrl = 'http://localhost:5001/api/v1/loan-applications';
+  private apiUrl = `${environment.loanApplicationApiBaseUrl}/api/v1/loan-applications`;
 
   constructor(private http: HttpClient) { }
 
