@@ -1,0 +1,16 @@
+**/.git/
+**/.vs/
+**/.vscode/
+**/bin/
+**/obj/
+**/TestResults/
+**/node_modules/
+**/dist/
+**/.env
+**/.angular/
+**/.dockerignore
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.log

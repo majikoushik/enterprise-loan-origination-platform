@@ -51,3 +51,16 @@ jobs:
 
       - name: Test
         run: npm test -- --watch=false --browsers=ChromeHeadless
+
+  docker-validation:
+    name: Docker Compose Build Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Backend Images
+        run: docker compose --profile services build
+
+      - name: Validate Frontend Image
+        run: docker compose --profile frontend build

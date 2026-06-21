@@ -13,7 +13,7 @@ services:
     volumes:
       - sqlserver-data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -C -Q \"SELECT 1\" || exit 1"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"YourStrong@Password!\" -C -Q \"SELECT 1\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -25,8 +25,56 @@ services:
       dockerfile: src/services/Customer.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__CustomerDb: "Server=sqlserver,1433;Database=EnterpriseLoan_Customer;User Id=sa;Password=YourStrong@Password!;TrustServerCertificate=True"
     ports:
       - "7101:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  loan-application-api:
+    profiles: ["services"]
+    build:
+      context: .
+      dockerfile: src/services/LoanApplication.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__LoanApplicationDb: "Server=sqlserver,1433;Database=EnterpriseLoan_LoanApplication;User Id=sa;Password=YourStrong@Password!;TrustServerCertificate=True"
+      Notification__WebhookUrl: "http://notification-worker:8080/api/v1/internal/notifications"
+      Audit__WebhookUrl: "http://audit-api:8080/api/v1/events"
+    ports:
+      - "7102:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  eligibility-api:
+    profiles: ["services"]
+    build:
+      context: .
+      dockerfile: src/services/Eligibility.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__EligibilityDb: "Server=sqlserver,1433;Database=EnterpriseLoan_Eligibility;User Id=sa;Password=YourStrong@Password!;TrustServerCertificate=True"
+      Audit__WebhookUrl: "http://audit-api:8080/api/v1/events"
+      Notification__WebhookUrl: "http://notification-worker:8080/api/v1/internal/notifications"
+    ports:
+      - "7103:8080"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  notification-worker:
+    profiles: ["services"]
+    build:
+      context: .
+      dockerfile: src/services/Notification.Worker/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__NotificationDb: "Server=sqlserver,1433;Database=EnterpriseLoan_Notification;User Id=sa;Password=YourStrong@Password!;TrustServerCertificate=True"
+      Audit__WebhookUrl: "http://audit-api:8080/api/v1/events"
+    ports:
+      - "5004:8080"
     depends_on:
       sqlserver:
         condition: service_healthy
@@ -38,11 +86,20 @@ services:
       dockerfile: src/services/Audit.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__AuditDb: "Server=sqlserver,1433;Database=EnterpriseLoan_Audit;User Id=sa;Password=YourStrong@Password!;TrustServerCertificate=True"
     ports:
       - "5005:8080"
     depends_on:
       sqlserver:
         condition: service_healthy
+
+  loan-portal-angular:
+    profiles: ["frontend"]
+    build:
+      context: src/web/loan-portal-angular
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
 
 volumes:
   sqlserver-data:

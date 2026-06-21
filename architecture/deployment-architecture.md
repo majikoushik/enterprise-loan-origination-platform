@@ -1,46 +1,29 @@
 # Deployment Architecture
 
-## Local Development
+## Local Deployment
+For local testing and validation, the platform relies on **Docker Compose** to spin up the entire ecosystem simultaneously.
+- **Frontend**: Nginx-based Angular build
+- **Backend APIs**: `mcr.microsoft.com/dotnet/aspnet:8.0` containers
+- **Database**: `mcr.microsoft.com/mssql/server:2022-latest`
+- **Network**: All containers run on an internal default docker bridge network, allowing standard DNS resolution (e.g. `Server=sqlserver,1433`).
 
-Local development uses:
+## Future Target: Azure Architecture
 
-- .NET SDK for APIs and worker
-- Angular CLI for frontend
-- Docker Compose for SQL Server and future dependencies
+The current containerized infrastructure provides a 1-to-1 migration path to the following Azure resources:
 
-## Azure Target Architecture
+### 1. Azure Container Registry (ACR)
+All Dockerfiles created in this solution will be built and pushed to a secure ACR instance during a GitHub Actions CI/CD deployment pipeline.
 
-- Angular Portal: Azure Static Web Apps or Azure Storage Static Website
-- APIs and workers: Azure Container Apps
-- Images: Azure Container Registry
-- Data: Azure SQL Database
-- Messaging: Azure Service Bus
-- Secrets: Azure Key Vault
-- Monitoring: Application Insights and Log Analytics
-- Optional gateway: Azure API Management
-- Optional edge: Azure Front Door
+### 2. Azure Container Apps (ACA)
+The backend APIs (`Customer.Api`, `LoanApplication.Api`, `Eligibility.Api`, `Audit.Api`) and the `Notification.Worker` will be hosted on Azure Container Apps.
+- **Why ACA?**: It provides serverless container execution, automatic KEDA-based scaling, built-in envoy proxy ingress, and seamless integration with Azure Managed Identities.
+- **Health Probes**: ACA will utilize the `/health/live` and `/health/ready` endpoints exposed by the APIs to route traffic efficiently and restart failing pods.
 
-## Container App Breakdown
+### 3. Azure Static Web Apps (or Storage Website)
+While the Angular app *can* run inside ACA via Nginx (as done locally), the most cost-effective and globally performant Azure solution is **Azure Static Web Apps**. The build output (`dist/`) will be synced directly to the edge.
 
-- **Customer API App**: Hosts `Customer.Api` container.
-- **LoanApplication API App**: Hosts `LoanApplication.Api` container.
-- **Eligibility API App**: Hosts `Eligibility.Api` container.
-- **Notification Worker App**: Hosts `Notification.Worker` container. Operates as an API to receive internal webhooks and runs a BackgroundService to process and simulate delivery of messages (Epic 5).
+### 4. Azure SQL Database
+The local Docker SQL Server will be swapped for a managed Azure SQL Database logical server. Connection strings will be injected securely at runtime via Azure Key Vault.
 
-## Deployment Order
-
-1. Provision shared observability and registry.
-2. Provision database and messaging.
-3. Provision Key Vault and managed identities.
-4. Build and push container images.
-5. Deploy APIs and worker.
-6. Deploy Angular portal.
-7. Validate health endpoints and smoke tests.
-
-## Configuration
-
-Environment-specific values must come from environment variables, managed identities, Key Vault references, or Azure platform configuration.
-
-## Cost Awareness
-
-Initial Azure environments should use small SKUs and consumption-based services where practical. Production-scale choices require explicit cost review.
+### 5. Azure Service Bus
+In the MVP, inter-service messaging is simulated via HTTP webhooks. When moving to production Azure, Azure Service Bus Topics/Queues will be provisioned, and the `Messaging` building block will be refactored to emit real AMQP events.

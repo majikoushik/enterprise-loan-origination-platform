@@ -1,35 +1,12 @@
-# Local Development
+# Local Development Guide
 
-## Daily Workflow
+## IDE Setup
+- **Visual Studio 2022** or **JetBrains Rider** is recommended for backend `.NET 8` development.
+- **VS Code** is recommended for Angular frontend development.
 
-1. Start SQL Server when persistence is required.
-2. Run the API being developed with `dotnet run`.
-3. Run the Angular portal with `npm start`.
-4. Execute targeted tests before committing.
+## Running the Platform
+You can run the platform in two ways:
+1. **Isolated Debugging**: Run individual services directly from your IDE. You only need the database. Start the DB with `docker compose up sqlserver -d`.
+2. **Full Container Orchestration**: Run the entire microservice ecosystem as a suite of Docker containers. Run `docker compose --profile services --profile frontend up -d`.
 
-## Backend Commands
-
-```powershell
-dotnet restore EnterpriseLoanOriginationPlatform.sln
-dotnet build EnterpriseLoanOriginationPlatform.sln
-dotnet test EnterpriseLoanOriginationPlatform.sln
-```
-
-## Frontend Commands
-
-```powershell
-cd src/web/loan-portal-angular
-npm install
-npm run build
-npm test -- --watch=false --browsers=ChromeHeadless
-```
-
-## Configuration
-
-Use environment variables, user secrets, or local-only configuration files ignored by Git. Do not commit credentials.
-
-For SQL Server in Docker Compose, set `SQLSERVER_SA_PASSWORD` before starting the container.
-
-## Correlation IDs
-
-The Angular HTTP interceptor sends `X-Correlation-ID`. APIs return the same header for troubleshooting.
+For more details on the exact commands and testing flows, refer to the [DevOps Guide](devops-guide.md).

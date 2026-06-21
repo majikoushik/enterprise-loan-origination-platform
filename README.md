@@ -75,6 +75,18 @@ Implemented now:
 - Docker Compose and CI foundation
 - Docker Compose and CI foundation
 
+## Quick Start
+
+### Option 1: Docker Compose (Recommended)
+You can spin up the entire microservice architecture, frontend portal, and SQL Server database with a single command:
+```bash
+docker compose --profile services --profile frontend up -d --build
+```
+Navigate to `http://localhost:4200` to access the Angular portal.
+
+### Option 2: Local .NET CLI Run
+Please see the [DevOps Guide](docs/devops-guide.md) for step-by-step instructions on running the individual services manually.
+
 ## Run Locally
 
 Prerequisites:
