@@ -17,10 +17,10 @@ Each integration event should include:
 
 - `CustomerRegistered` (Epic 1 concept)
 - `LoanApplicationSubmitted` (Epic 2 concept)
+- `EligibilityCheckCompleted` (Epic 3 concept - emitted when eligibility evaluation completes)
 
 ## Future Candidate Events
 
-- `EligibilityCheckCompleted`
 - `LoanApplicationStatusChanged`
 - `NotificationRequested`
 - `AuditEventRecorded`

@@ -6,7 +6,7 @@ APIs use `/api/v1` route prefixes and domain-oriented resource names. Future exa
 
 - `Customer.Api`: Owns `POST /api/v1/customers`, `GET /api/v1/customers`
 - `LoanApplication.Api`: Owns `POST /api/v1/loan-applications`, `GET /api/v1/loan-applications`
-- `Eligibility.Api`: To be defined.
+- `Eligibility.Api`: Owns `POST /api/v1/eligibility/check`, `GET /api/v1/eligibility/*`
 
 ## Response Pattern
 

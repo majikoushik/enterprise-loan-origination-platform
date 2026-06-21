@@ -1,0 +1,75 @@
+<div class="result-container">
+  
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading eligibility results...</p>
+  </div>
+
+  <div *ngIf="error && !isLoading" class="alert alert-danger">
+    <h4>Error</h4>
+    <p>{{ error }}</p>
+    <button class="btn btn-secondary" (click)="goBack()">Back to Applications</button>
+  </div>
+
+  <div *ngIf="result && !isLoading" class="dashboard">
+    <div class="dashboard-header">
+      <div class="title-area">
+        <h2>Eligibility Evaluation</h2>
+        <span class="badge" [ngClass]="result.decision === 'Passed' ? 'badge-success' : 'badge-danger'">
+          {{ result.decision | uppercase }}
+        </span>
+      </div>
+      <button class="btn btn-secondary" (click)="goBack()">Back</button>
+    </div>
+
+    <div class="summary-cards">
+      <div class="summary-card">
+        <label>Application ID</label>
+        <div class="value code">{{ result.applicationId }}</div>
+      </div>
+      <div class="summary-card">
+        <label>Evaluated At</label>
+        <div class="value">{{ result.evaluatedAt | date:'medium' }}</div>
+      </div>
+      <div class="summary-card">
+        <label>Debt-to-Income (DTI)</label>
+        <div class="value" [class.text-danger]="result.debtToIncomeRatio > 50">
+          {{ result.debtToIncomeRatio }}%
+        </div>
+      </div>
+      <div class="summary-card">
+        <label>Summary</label>
+        <div class="value">{{ result.decisionSummary }}</div>
+      </div>
+    </div>
+
+    <div class="rules-section">
+      <h3>Rule Execution Details</h3>
+      <table class="rules-table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Rule Name</th>
+            <th>Expected</th>
+            <th>Actual</th>
+            <th>Explanation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let rule of result.ruleResults" [ngClass]="{'row-fail': !rule.passed}">
+            <td class="status-cell">
+              <span class="status-indicator" [ngClass]="rule.passed ? 'pass' : 'fail'">
+                {{ rule.passed ? '✓ PASS' : '✗ FAIL' }}
+              </span>
+            </td>
+            <td><strong>{{ rule.ruleName }}</strong><br><small class="code">{{ rule.ruleCode }}</small></td>
+            <td class="code">{{ rule.expectedValue }}</td>
+            <td class="code">{{ rule.actualValue }}</td>
+            <td>{{ rule.explanation }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

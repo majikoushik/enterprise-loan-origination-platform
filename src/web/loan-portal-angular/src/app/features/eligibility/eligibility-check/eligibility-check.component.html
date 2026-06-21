@@ -1,0 +1,24 @@
+<div class="check-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>Evaluate Eligibility</h2>
+      <p>Application ID: {{ applicationId }}</p>
+    </div>
+
+    <div class="card-body">
+      <p>Running the eligibility check will evaluate this application against the configured risk rules.</p>
+      
+      <div *ngIf="error" class="alert alert-danger">
+        <strong>Error!</strong> {{ error }}
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" (click)="goBack()" [disabled]="isLoading">Cancel</button>
+        <button class="btn btn-primary" (click)="runEligibilityCheck()" [disabled]="isLoading || !applicationId">
+          <span *ngIf="isLoading" class="spinner"></span>
+          {{ isLoading ? 'Evaluating...' : 'Run Eligibility Check' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

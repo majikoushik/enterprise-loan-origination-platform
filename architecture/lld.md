@@ -12,12 +12,15 @@ Each API starts as an ASP.NET Core Web API project with:
 - Shared response envelope support
 
 In Epic 1 and 2, `Customer.Api` and `LoanApplication.Api` introduced the standard Clean/Onion architecture structure:
-- **Domain**: Entities (`LoanApplicationEntity`), Enums (`LoanType`, `ApplicationStatus`), Domain Exceptions.
-- **Application**: DTOs, FluentValidation Validators, Application Services (`LoanApplicationService`, `StubCustomerLookupService`).
-- **Infrastructure**: EF Core DbContext, Configurations.
-- **Controllers**: Thin API Endpoints handling HTTP responses.
+- **Domain**: Entities, Enums, Domain Exceptions.
+- **Application**: DTOs, Services, FluentValidation rules.
+- **Infrastructure**: DbContext and EF Core Configurations.
+- **API**: Thin controllers that handle only HTTP concerns and delegate to Application Services.
 
-Future epics should follow this structure.
+In Epic 2, `LoanApplication.Api` further solidified this pattern, adding more complex domain rules.
+In Epic 3, `Eligibility.Api` introduced a Clean Architecture Rules Engine and synchronous HTTP integration (`ILoanApplicationClient`) for cross-service communication.
+
+## Database Pattern
 
 ## Frontend Structure
 

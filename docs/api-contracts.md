@@ -27,6 +27,14 @@
 | `/api/v1/loan-applications/customer/{customerId}` | `GET` | None | `IEnumerable<LoanApplicationResponse>` | `200 OK` |
 | `/api/v1/loan-applications` | `GET` | None | `IEnumerable<LoanApplicationResponse>` | `200 OK` |
 
+## Eligibility API
+
+| Endpoint | Method | Request Body | Response Body | Status Codes |
+| --- | --- | --- | --- | --- |
+| `/api/v1/eligibility/check` | `POST` | `EvaluateEligibilityRequest` | `EligibilityResultResponse` | `201 Created`, `400 Bad Request` |
+| `/api/v1/eligibility/applications/{applicationId}` | `GET` | None | `EligibilityResultResponse` | `200 OK`, `404 Not Found` |
+| `/api/v1/eligibility/results/{id}` | `GET` | None | `EligibilityResultResponse` | `200 OK`, `404 Not Found` |
+
 ## Response Envelope
 
 ```json

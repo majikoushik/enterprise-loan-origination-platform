@@ -12,11 +12,11 @@ Implemented in `Customer.Api` using EF Core. Fields include `Id`, `FullName`, `E
 
 Implemented in `LoanApplication.Api` using EF Core. Fields include `Id`, `CustomerId`, `LoanType`, `RequestedAmount`, `RequestedTenureInMonths`, `Purpose`, `DeclaredMonthlyIncome`, `ExistingEmiObligations`, `Status`, `CreatedAt`, and `UpdatedAt`.
 
+### EligibilityResult (Epic 3)
+
+Implemented in `Eligibility.Api` using EF Core. Fields include `Id`, `ApplicationId`, `CustomerId`, `Decision`, `RuleVersion`, `EvaluatedAt`, financial snapshots, and a collection of `RuleResults`.
+
 ## Future Candidate Entities
-
-### EligibilityResult
-
-Fields will include application ID, decision, rule version, rule outcomes, explanation, and evaluated timestamp.
 
 ### NotificationRequest
 
