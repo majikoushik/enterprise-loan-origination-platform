@@ -1,8 +1,49 @@
 using Notification.Worker;
+using Notification.Worker.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
-var builder = Host.CreateApplicationBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Database
+builder.Services.AddDbContext<NotificationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("NotificationDb")));
+
+// Background Worker
 builder.Services.AddHostedService<NotificationSimulationWorker>();
 
-var host = builder.Build();
-host.Run();
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseCors();
+app.MapControllers();
+
+app.Run();

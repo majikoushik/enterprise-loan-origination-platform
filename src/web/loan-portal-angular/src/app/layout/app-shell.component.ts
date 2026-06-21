@@ -163,6 +163,7 @@ export class AppShellComponent {
     { label: 'Loan Application', route: '/loan-applications/new' },
     { label: 'Eligibility Result', route: '/eligibility/result' },
     { label: 'Application Status', route: '/applications/status' },
-    { label: 'Audit Trail', route: '/audit-trail' }
+    { label: 'Audit Trail', route: '/audit-trail' },
+    { label: 'Notifications', route: '/notifications' }
   ];
 }

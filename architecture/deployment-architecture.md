@@ -20,6 +20,13 @@ Local development uses:
 - Optional gateway: Azure API Management
 - Optional edge: Azure Front Door
 
+## Container App Breakdown
+
+- **Customer API App**: Hosts `Customer.Api` container.
+- **LoanApplication API App**: Hosts `LoanApplication.Api` container.
+- **Eligibility API App**: Hosts `Eligibility.Api` container.
+- **Notification Worker App**: Hosts `Notification.Worker` container. Operates as an API to receive internal webhooks and runs a BackgroundService to process and simulate delivery of messages (Epic 5).
+
 ## Deployment Order
 
 1. Provision shared observability and registry.

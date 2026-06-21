@@ -6,6 +6,7 @@ using LoanApplication.Api.Application.Services;
 using LoanApplication.Api.Application.Validators;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
+using Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,22 @@ builder.Services.AddDbContext<LoanApplicationDbContext>(options =>
 builder.Services.AddScoped<ILoanApplicationService, LoanApplicationService>();
 builder.Services.AddScoped<ICustomerLookupService, StubCustomerLookupService>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoanApplicationRequestValidator>();
+
+// Configure HTTP Event Publisher for MVP simulation of Azure Service Bus
+builder.Services.AddHttpClient<IMessagePublisher, HttpEventPublisher>(client =>
+{
+    // Point to the Notification Worker internal events API
+    // In a real environment, this would be an Azure Service Bus connection
+    // For local dev, Notification.Worker is expected to run on port 5004
+});
+builder.Services.AddScoped<IMessagePublisher>(sp =>
+{
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient(nameof(IMessagePublisher));
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var webhookUrl = configuration["ServiceUrls:NotificationWorker"] ?? "http://localhost:5004/api/v1/internal/events";
+    return new HttpEventPublisher(httpClient, webhookUrl);
+});
 
 builder.Services.AddSwaggerGen(options =>
 {

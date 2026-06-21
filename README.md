@@ -52,7 +52,7 @@ infra/
 
 ## Current Epic Status
 
-Epic 4: Application Status Tracking is complete.
+Epic 5: Notification Simulation is complete.
 
 Implemented now:
 
@@ -60,7 +60,8 @@ Implemented now:
 - Loan Application Submission (Epic 2)
 - Rule-based Eligibility Evaluation engine with synchronous cross-service API calls (Epic 3)
 - Application Status Tracking with strict state machine and timeline history (Epic 4)
-- Angular portal for all four epics.
+- Notification Simulation via local event-driven webhook (Epic 5)
+- Angular portal for all five epics.
 - Backend solution and service skeletons
 - Angular portal shell and route placeholders
 - Correlation ID readiness

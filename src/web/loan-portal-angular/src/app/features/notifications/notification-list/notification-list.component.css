@@ -1,0 +1,31 @@
+.header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.table th, .table td {
+  vertical-align: top;
+}
+
+.code-sm {
+  font-family: monospace;
+  font-size: 0.85rem;
+  background: var(--bg-body);
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+}
+
+.text-danger {
+  color: var(--danger-color);
+  font-size: 0.75rem;
+}
+
+.d-block {
+  display: block;
+}
+
+.mt-1 {
+  margin-top: 0.25rem;
+}

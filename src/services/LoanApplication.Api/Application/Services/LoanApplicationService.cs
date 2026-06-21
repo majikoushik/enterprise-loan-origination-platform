@@ -7,6 +7,7 @@ using LoanApplication.Api.Application.DTOs;
 using LoanApplication.Api.Domain.Exceptions;
 using LoanApplication.Api.Domain.Models;
 using LoanApplication.Api.Infrastructure.Data;
+using Messaging;
 using Microsoft.EntityFrameworkCore;
 
 namespace LoanApplication.Api.Application.Services;
@@ -15,13 +16,16 @@ public class LoanApplicationService : ILoanApplicationService
 {
     private readonly LoanApplicationDbContext _dbContext;
     private readonly ICustomerLookupService _customerLookupService;
+    private readonly IMessagePublisher _messagePublisher;
 
     public LoanApplicationService(
         LoanApplicationDbContext dbContext,
-        ICustomerLookupService customerLookupService)
+        ICustomerLookupService customerLookupService,
+        IMessagePublisher messagePublisher)
     {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _customerLookupService = customerLookupService ?? throw new ArgumentNullException(nameof(customerLookupService));
+        _messagePublisher = messagePublisher ?? throw new ArgumentNullException(nameof(messagePublisher));
     }
 
     public async Task<LoanApplicationResponse> SubmitApplicationAsync(LoanApplicationRequest request, CancellationToken cancellationToken = default)
@@ -101,6 +105,28 @@ public class LoanApplicationService : ILoanApplicationService
         application.ChangeStatus(newStatusEnum, request.Reason, request.ChangedBy);
         
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        // Publish event
+        var integrationEvent = new LoanApplicationStatusChangedEvent(
+            Guid.NewGuid(),
+            DateTimeOffset.UtcNow,
+            Guid.NewGuid().ToString(), // simple correlation id
+            application.Id,
+            application.StatusHistory.Last().PreviousStatus?.ToString() ?? "Draft",
+            newStatusEnum.ToString(),
+            application.CustomerId
+        );
+        
+        try
+        {
+            await _messagePublisher.PublishAsync(integrationEvent, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            // For MVP, don't fail the transaction if notification simulation fails. 
+            // In a production system, use Outbox Pattern.
+            Console.WriteLine($"Warning: Failed to publish event. {ex.Message}");
+        }
 
         return MapToResponse(application);
     }

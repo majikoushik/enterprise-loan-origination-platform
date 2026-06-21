@@ -1,0 +1,60 @@
+<div class="page-shell">
+  <div class="header-actions">
+    <div>
+      <h2 class="section-title">Notifications</h2>
+      <p class="muted">Simulated event-driven communications log.</p>
+    </div>
+    <button class="btn btn-secondary" (click)="loadNotifications()" [disabled]="isLoading">
+      &#x21bb; Refresh
+    </button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-error mb-4">
+    {{ errorMessage }}
+  </div>
+
+  <div class="card">
+    <div class="card-body p-0">
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner-dark"></div>
+        <p>Loading notifications...</p>
+      </div>
+
+      <div *ngIf="!isLoading && notifications.length === 0" class="empty-state">
+        <p>No notifications found. Perform some business actions to trigger events.</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoading && notifications.length > 0">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Channel</th>
+              <th>Recipient</th>
+              <th>Subject</th>
+              <th>Event</th>
+              <th>Entity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let note of notifications">
+              <td>
+                <span class="badge" [ngClass]="getStatusClass(note.status)">
+                  {{ note.status }}
+                </span>
+                <small *ngIf="note.failureReason" class="d-block mt-1 text-danger">{{ note.failureReason }}</small>
+              </td>
+              <td>{{ note.createdAtUtc | date:'short' }}</td>
+              <td>{{ note.channel }}</td>
+              <td>{{ note.recipient }}</td>
+              <td>{{ note.subject }}</td>
+              <td>{{ note.eventType }}</td>
+              <td class="code-sm">{{ note.entityType }}: {{ note.entityId | slice:0:8 }}...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
