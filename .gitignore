@@ -1,0 +1,36 @@
+# Build outputs
+bin/
+obj/
+dist/
+out/
+coverage/
+TestResults/
+
+# .NET
+*.user
+*.suo
+*.rsuser
+*.nupkg
+
+# Angular / Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.angular/cache/
+
+# IDEs
+.vs/
+.vscode/
+.idea/
+
+# Local configuration
+.env
+.env.*
+*.local
+appsettings.Local.json
+
+# Docker and OS
+docker-data/
+Thumbs.db
+.DS_Store

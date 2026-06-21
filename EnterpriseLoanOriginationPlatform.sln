@@ -1,0 +1,96 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customer.Api", "src\services\Customer.Api\Customer.Api.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00101}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoanApplication.Api", "src\services\LoanApplication.Api\LoanApplication.Api.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00102}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eligibility.Api", "src\services\Eligibility.Api\Eligibility.Api.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00103}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notification.Worker", "src\services\Notification.Worker\Notification.Worker.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00104}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Audit.Api", "src\services\Audit.Api\Audit.Api.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00105}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel", "src\building-blocks\SharedKernel\SharedKernel.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00201}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messaging", "src\building-blocks\Messaging\Messaging.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00202}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Observability", "src\building-blocks\Observability\Observability.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00203}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Security", "src\building-blocks\Security\Security.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00204}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Customer.Api.Tests", "tests\Customer.Api.Tests\Customer.Api.Tests.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00301}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoanApplication.Api.Tests", "tests\LoanApplication.Api.Tests\LoanApplication.Api.Tests.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00302}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eligibility.Api.Tests", "tests\Eligibility.Api.Tests\Eligibility.Api.Tests.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00303}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Notification.Worker.Tests", "tests\Notification.Worker.Tests\Notification.Worker.Tests.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00304}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Audit.Api.Tests", "tests\Audit.Api.Tests\Audit.Api.Tests.csproj", "{3B51FE2B-AD55-4F37-82BE-1E5BB2C00305}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00101}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00101}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00101}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00101}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00102}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00102}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00102}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00102}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00103}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00103}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00103}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00103}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00104}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00104}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00104}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00104}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00105}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00105}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00105}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00105}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00201}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00201}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00201}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00202}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00202}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00202}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00202}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00203}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00204}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00204}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00204}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00204}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00301}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00301}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00301}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00301}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00302}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00302}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00302}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00303}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00303}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00303}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00303}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00304}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00304}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00304}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00304}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00305}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00305}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00305}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B51FE2B-AD55-4F37-82BE-1E5BB2C00305}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
