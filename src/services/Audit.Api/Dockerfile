@@ -5,6 +5,7 @@ COPY ["EnterpriseLoanOriginationPlatform.sln", "./"]
 COPY ["src/services/Audit.Api/Audit.Api.csproj", "src/services/Audit.Api/"]
 COPY ["src/building-blocks/SharedKernel/SharedKernel.csproj", "src/building-blocks/SharedKernel/"]
 COPY ["src/building-blocks/Observability/Observability.csproj", "src/building-blocks/Observability/"]
+COPY ["src/building-blocks/Auditing/Auditing.csproj", "src/building-blocks/Auditing/"]
 
 RUN dotnet restore "src/services/Audit.Api/Audit.Api.csproj"
 
