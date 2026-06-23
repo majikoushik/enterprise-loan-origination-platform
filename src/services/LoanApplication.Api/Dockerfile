@@ -3,6 +3,7 @@ WORKDIR /src
 
 # Copy solution and project files for dependency restore
 COPY ["EnterpriseLoanOriginationPlatform.sln", "./"]
+COPY ["Directory.Build.props", "./"]
 COPY ["src/services/LoanApplication.Api/LoanApplication.Api.csproj", "src/services/LoanApplication.Api/"]
 COPY ["src/building-blocks/SharedKernel/SharedKernel.csproj", "src/building-blocks/SharedKernel/"]
 COPY ["src/building-blocks/Observability/Observability.csproj", "src/building-blocks/Observability/"]

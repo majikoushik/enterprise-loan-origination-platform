@@ -55,6 +55,8 @@ jobs:
   docker-validation:
     name: Docker Compose Build Validation
     runs-on: ubuntu-latest
+    env:
+      SQL_SERVER_PASSWORD: "C!_Validation_P@ssw0rd1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 COPY ["EnterpriseLoanOriginationPlatform.sln", "./"]
+COPY ["Directory.Build.props", "./"]
 COPY ["src/services/Notification.Worker/Notification.Worker.csproj", "src/services/Notification.Worker/"]
 COPY ["src/building-blocks/SharedKernel/SharedKernel.csproj", "src/building-blocks/SharedKernel/"]
 COPY ["src/building-blocks/Observability/Observability.csproj", "src/building-blocks/Observability/"]
