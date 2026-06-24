@@ -9,7 +9,9 @@ using Eligibility.Api.Domain.Rules;
 using Eligibility.Api.Infrastructure.Data;
 using Eligibility.Api.Infrastructure.Integration;
 using FluentValidation;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,8 +26,18 @@ builder.Services.AddControllers();
 // Add Database Context
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var useSyntheticDataStore = ShouldUseSyntheticDataStore(builder.Configuration, builder.Environment, connectionString);
 builder.Services.AddDbContext<EligibilityDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    if (useSyntheticDataStore)
+    {
+        options.UseInMemoryDatabase("Synthetic_EligibilityDb");
+    }
+    else
+    {
+        options.UseSqlServer(connectionString);
+    }
+});
 
 builder.Services.AddScoped<IEligibilityService, EligibilityService>();
 builder.Services.AddValidatorsFromAssemblyContaining<EvaluateEligibilityRequestValidator>();
@@ -42,13 +54,20 @@ builder.Services.AddScoped<IRuleEngine, RuleEngine>();
 // Add Services
 
 // Add HttpClient for LoanApplication API integration
-var loanAppApiUrl = builder.Configuration["ServiceUrls:LoanApplicationApi"] 
-    ?? throw new InvalidOperationException("LoanApplicationApi URL not configured.");
-
-builder.Services.AddHttpClient<ILoanApplicationClient, HttpLoanApplicationClient>(client =>
+if (useSyntheticDataStore)
 {
-    client.BaseAddress = new Uri(loanAppApiUrl);
-});
+    builder.Services.AddScoped<ILoanApplicationClient, SyntheticLoanApplicationClient>();
+}
+else
+{
+    var loanAppApiUrl = builder.Configuration["ServiceUrls:LoanApplicationApi"] 
+        ?? throw new InvalidOperationException("LoanApplicationApi URL not configured.");
+
+    builder.Services.AddHttpClient<ILoanApplicationClient, HttpLoanApplicationClient>(client =>
+    {
+        client.BaseAddress = new Uri(loanAppApiUrl);
+    });
+}
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -71,8 +90,15 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
-builder.Services.AddStandardHealthChecks()
-    .AddSqlServer(connectionString, name: "EligibilityDb", tags: ["ready"]);
+var healthChecks = builder.Services.AddStandardHealthChecks();
+if (useSyntheticDataStore)
+{
+    healthChecks.AddCheck("SyntheticEligibilityDb", () => HealthCheckResult.Healthy("Using synthetic in-memory eligibility data because SQL Server is unavailable."), tags: ["ready"]);
+}
+else
+{
+    healthChecks.AddSqlServer(connectionString, name: "EligibilityDb", tags: ["ready"]);
+}
 
 var app = builder.Build();
 
@@ -80,7 +106,15 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<EligibilityDbContext>();
-    await dbContext.Database.MigrateAsync();
+    if (useSyntheticDataStore)
+    {
+        await dbContext.Database.EnsureCreatedAsync();
+        await SyntheticEligibilityDataSeeder.SeedAsync(dbContext);
+    }
+    else
+    {
+        await dbContext.Database.MigrateAsync();
+    }
 }
 
 app.UseExceptionHandler();
@@ -105,5 +139,30 @@ app.MapGet("/api/v1/eligibility-service/metadata", (HttpContext context) =>
 .WithName("GetEligibilityServiceMetadata");
 
 app.Run();
+
+static bool ShouldUseSyntheticDataStore(IConfiguration configuration, IHostEnvironment environment, string connectionString)
+{
+    var fallbackEnabled = configuration.GetValue<bool?>("DataStore:UseSyntheticFallbackWhenSqlUnavailable")
+        ?? environment.IsDevelopment();
+
+    return fallbackEnabled && !CanOpenSqlConnection(connectionString);
+}
+
+static bool CanOpenSqlConnection(string connectionString)
+{
+    try
+    {
+        var builder = new SqlConnectionStringBuilder(connectionString);
+        builder.ConnectTimeout = builder.ConnectTimeout <= 0 ? 2 : Math.Min(builder.ConnectTimeout, 2);
+
+        using var connection = new SqlConnection(builder.ConnectionString);
+        connection.Open();
+        return true;
+    }
+    catch
+    {
+        return false;
+    }
+}
 
 internal sealed record ServiceMetadata(string ServiceName, string Responsibility, string ApiVersion);

@@ -66,7 +66,7 @@ Customer.Api      LoanApplication.Api      Eligibility.Api
                                   SQL Server locally / Azure SQL target
 ```
 
-The MVP runs locally with Docker Compose and SQL Server. The production direction is documented as Azure Container Apps for APIs/workers, Azure Static Web Apps for the Angular portal, Azure SQL for persistence, Azure Service Bus for asynchronous messaging, and Application Insights/Log Analytics for telemetry.
+The MVP runs locally with Docker Compose and SQL Server. For local portfolio demos, each backend service can fall back to an in-memory synthetic dataset when SQL Server is unavailable, so every Angular screen still has realistic demo data. The production direction is documented as Azure Container Apps for APIs/workers, Azure Static Web Apps for the Angular portal, Azure SQL for persistence, Azure Service Bus for asynchronous messaging, and Application Insights/Log Analytics for telemetry.
 
 ## Architecture Documentation
 
@@ -184,6 +184,16 @@ Restore and build:
 dotnet restore EnterpriseLoanOriginationPlatform.sln
 dotnet build EnterpriseLoanOriginationPlatform.sln
 ```
+
+Windows one-click startup:
+
+```powershell
+.\start-local-platform.bat
+```
+
+The batch file starts each backend service with `dotnet run` and starts the Angular frontend with `npm start`. It uses SQL Server LocalDB from the service appsettings files and opens the portal at `http://localhost:4200`.
+
+SQL Server remains the primary local persistence provider. In development, each service probes its configured SQL Server connection at startup. If SQL Server is unavailable and `DataStore:UseSyntheticFallbackWhenSqlUnavailable` is `true`, the service uses EF Core in-memory storage with synthetic records for customers, loan applications, eligibility decisions, notifications, and audit events. Set `DataStore:UseSyntheticFallbackWhenSqlUnavailable=false` to force startup to fail when SQL Server cannot be reached.
 
 Run the Angular portal:
 

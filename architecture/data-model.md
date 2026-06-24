@@ -2,7 +2,7 @@
 
 ## Ownership Model
 
-Each service owns its persistence model. This prevents a shared-database anti-pattern while keeping the MVP easy to run locally on one SQL Server instance.
+Each service owns its persistence model. This prevents a shared-database anti-pattern while keeping the MVP easy to run locally on one SQL Server instance. SQL Server is the primary provider; development services can temporarily use EF Core in-memory storage with deterministic synthetic data when SQL Server is unavailable.
 
 | Service | Logical Database | Key Tables |
 | --- | --- | --- |
@@ -40,6 +40,7 @@ Stores immutable business trace records including event type, category, entity, 
 - Avoid storing unnecessary personal identifiers.
 - Do not store secrets in tables or audit metadata.
 - Treat income and obligations as demo financial data, not real customer records.
+- Use the in-memory synthetic fallback only for local development and portfolio demos, not production.
 
 ## Future Persistence Work
 

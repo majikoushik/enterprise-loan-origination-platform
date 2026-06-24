@@ -1,5 +1,7 @@
 using Audit.Api.Infrastructure.Data;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using Observability;
 using SharedKernel;
@@ -25,12 +27,29 @@ builder.Services.AddSwaggerGen(options =>
 
 var connectionString = builder.Configuration.GetConnectionString("AuditDb")
     ?? throw new InvalidOperationException("Connection string 'AuditDb' not found.");
+var useSyntheticDataStore = ShouldUseSyntheticDataStore(builder.Configuration, builder.Environment, connectionString);
 
 builder.Services.AddDbContext<AuditDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    if (useSyntheticDataStore)
+    {
+        options.UseInMemoryDatabase("Synthetic_AuditDb");
+    }
+    else
+    {
+        options.UseSqlServer(connectionString);
+    }
+});
 
-builder.Services.AddStandardHealthChecks()
-    .AddSqlServer(connectionString, name: "AuditDb", tags: ["ready"]);
+var healthChecks = builder.Services.AddStandardHealthChecks();
+if (useSyntheticDataStore)
+{
+    healthChecks.AddCheck("SyntheticAuditDb", () => HealthCheckResult.Healthy("Using synthetic in-memory audit data because SQL Server is unavailable."), tags: ["ready"]);
+}
+else
+{
+    healthChecks.AddSqlServer(connectionString, name: "AuditDb", tags: ["ready"]);
+}
 
 builder.Services.AddHealthChecks();
 
@@ -53,7 +72,15 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<AuditDbContext>();
-    await dbContext.Database.MigrateAsync();
+    if (useSyntheticDataStore)
+    {
+        await dbContext.Database.EnsureCreatedAsync();
+        await SyntheticAuditDataSeeder.SeedAsync(dbContext);
+    }
+    else
+    {
+        await dbContext.Database.MigrateAsync();
+    }
 }
 
 app.UseExceptionHandler();
@@ -78,5 +105,30 @@ app.MapGet("/api/v1/audit-service/metadata", (HttpContext context) =>
 .WithName("GetAuditServiceMetadata");
 
 app.Run();
+
+static bool ShouldUseSyntheticDataStore(IConfiguration configuration, IHostEnvironment environment, string connectionString)
+{
+    var fallbackEnabled = configuration.GetValue<bool?>("DataStore:UseSyntheticFallbackWhenSqlUnavailable")
+        ?? environment.IsDevelopment();
+
+    return fallbackEnabled && !CanOpenSqlConnection(connectionString);
+}
+
+static bool CanOpenSqlConnection(string connectionString)
+{
+    try
+    {
+        var builder = new SqlConnectionStringBuilder(connectionString);
+        builder.ConnectTimeout = builder.ConnectTimeout <= 0 ? 2 : Math.Min(builder.ConnectTimeout, 2);
+
+        using var connection = new SqlConnection(builder.ConnectionString);
+        connection.Open();
+        return true;
+    }
+    catch
+    {
+        return false;
+    }
+}
 
 internal sealed record ServiceMetadata(string ServiceName, string Responsibility, string ApiVersion);

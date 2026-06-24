@@ -5,7 +5,9 @@ using Auditing;
 using Customer.Api.Infrastructure.Data;
 using Customer.Api.Application.Services;
 using Customer.Api.Application.Validators;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,8 +23,18 @@ builder.Services.AddControllers();
 // Add Database Context
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var useSyntheticDataStore = ShouldUseSyntheticDataStore(builder.Configuration, builder.Environment, connectionString);
 builder.Services.AddDbContext<CustomerDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    if (useSyntheticDataStore)
+    {
+        options.UseInMemoryDatabase("Synthetic_CustomerDb");
+    }
+    else
+    {
+        options.UseSqlServer(connectionString);
+    }
+});
 
 // Add Application Services
 builder.Services.AddScoped<ICustomerService, CustomerService>();
@@ -51,8 +63,15 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
-builder.Services.AddStandardHealthChecks()
-    .AddSqlServer(connectionString, name: "CustomerDb", tags: ["ready"]);
+var healthChecks = builder.Services.AddStandardHealthChecks();
+if (useSyntheticDataStore)
+{
+    healthChecks.AddCheck("SyntheticCustomerDb", () => HealthCheckResult.Healthy("Using synthetic in-memory customer data because SQL Server is unavailable."), tags: ["ready"]);
+}
+else
+{
+    healthChecks.AddSqlServer(connectionString, name: "CustomerDb", tags: ["ready"]);
+}
 
 var app = builder.Build();
 
@@ -60,7 +79,15 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<CustomerDbContext>();
-    await dbContext.Database.MigrateAsync();
+    if (useSyntheticDataStore)
+    {
+        await dbContext.Database.EnsureCreatedAsync();
+        await SyntheticCustomerDataSeeder.SeedAsync(dbContext);
+    }
+    else
+    {
+        await dbContext.Database.MigrateAsync();
+    }
 }
 
 app.UseExceptionHandler();
@@ -85,5 +112,30 @@ app.MapGet("/api/v1/customer-service/metadata", (HttpContext context) =>
 .WithName("GetCustomerServiceMetadata");
 
 app.Run();
+
+static bool ShouldUseSyntheticDataStore(IConfiguration configuration, IHostEnvironment environment, string connectionString)
+{
+    var fallbackEnabled = configuration.GetValue<bool?>("DataStore:UseSyntheticFallbackWhenSqlUnavailable")
+        ?? environment.IsDevelopment();
+
+    return fallbackEnabled && !CanOpenSqlConnection(connectionString);
+}
+
+static bool CanOpenSqlConnection(string connectionString)
+{
+    try
+    {
+        var builder = new SqlConnectionStringBuilder(connectionString);
+        builder.ConnectTimeout = builder.ConnectTimeout <= 0 ? 2 : Math.Min(builder.ConnectTimeout, 2);
+
+        using var connection = new SqlConnection(builder.ConnectionString);
+        connection.Open();
+        return true;
+    }
+    catch
+    {
+        return false;
+    }
+}
 
 internal sealed record ServiceMetadata(string ServiceName, string Responsibility, string ApiVersion);

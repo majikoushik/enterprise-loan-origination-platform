@@ -3,7 +3,9 @@ using SharedKernel;
 using Auditing;
 using Notification.Worker.Infrastructure.Data;
 using Notification.Worker;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,11 +28,28 @@ builder.Services.AddSwaggerGen();
 // Database
 var connectionString = builder.Configuration.GetConnectionString("NotificationDb") 
     ?? throw new InvalidOperationException("Connection string 'NotificationDb' not found.");
+var useSyntheticDataStore = ShouldUseSyntheticDataStore(builder.Configuration, builder.Environment, connectionString);
 builder.Services.AddDbContext<NotificationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    if (useSyntheticDataStore)
+    {
+        options.UseInMemoryDatabase("Synthetic_NotificationDb");
+    }
+    else
+    {
+        options.UseSqlServer(connectionString);
+    }
+});
 
-builder.Services.AddStandardHealthChecks()
-    .AddSqlServer(connectionString, name: "NotificationDb", tags: ["ready"]);
+var healthChecks = builder.Services.AddStandardHealthChecks();
+if (useSyntheticDataStore)
+{
+    healthChecks.AddCheck("SyntheticNotificationDb", () => HealthCheckResult.Healthy("Using synthetic in-memory notification data because SQL Server is unavailable."), tags: ["ready"]);
+}
+else
+{
+    healthChecks.AddSqlServer(connectionString, name: "NotificationDb", tags: ["ready"]);
+}
 
 builder.Services.AddHttpAuditLogging(builder.Configuration);
 
@@ -57,7 +76,15 @@ if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
-    await dbContext.Database.MigrateAsync();
+    if (useSyntheticDataStore)
+    {
+        await dbContext.Database.EnsureCreatedAsync();
+        await SyntheticNotificationDataSeeder.SeedAsync(dbContext);
+    }
+    else
+    {
+        await dbContext.Database.MigrateAsync();
+    }
 }
 
 // Configure the HTTP request pipeline.
@@ -82,5 +109,30 @@ app.MapGet("/api/v1/notification-worker/metadata", (HttpContext context) =>
 .WithName("GetNotificationWorkerMetadata");
 
 app.Run();
+
+static bool ShouldUseSyntheticDataStore(IConfiguration configuration, IHostEnvironment environment, string connectionString)
+{
+    var fallbackEnabled = configuration.GetValue<bool?>("DataStore:UseSyntheticFallbackWhenSqlUnavailable")
+        ?? environment.IsDevelopment();
+
+    return fallbackEnabled && !CanOpenSqlConnection(connectionString);
+}
+
+static bool CanOpenSqlConnection(string connectionString)
+{
+    try
+    {
+        var builder = new SqlConnectionStringBuilder(connectionString);
+        builder.ConnectTimeout = builder.ConnectTimeout <= 0 ? 2 : Math.Min(builder.ConnectTimeout, 2);
+
+        using var connection = new SqlConnection(builder.ConnectionString);
+        connection.Open();
+        return true;
+    }
+    catch
+    {
+        return false;
+    }
+}
 
 internal sealed record ServiceMetadata(string ServiceName, string Responsibility, string ApiVersion);
